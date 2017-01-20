@@ -24,9 +24,9 @@ public class ResourceRegistrationMessageHandler {
     private static String EXCHANGE_NAME = "symbIoTe.InterworkingInterface";
     private static String RESOURCE_REGISTRATION_ROUTING_KEY = "symbIoTe.InterworkingInterface.registrationHandler.register_resources";
     private static String RESOURCE_REGISTRATION_ROUTING_KEY_REPLY = RESOURCE_REGISTRATION_ROUTING_KEY+".reply";
-    private static String RESOURCE_UNREGISTRATION_ROUTING_KEY = "symbIoTe.InterworkingInterface.unregistrationHandler.register_resources";
+    private static String RESOURCE_UNREGISTRATION_ROUTING_KEY = "symbIoTe.InterworkingInterface.registrationHandler.unregister_resources";
     private static String RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY = RESOURCE_UNREGISTRATION_ROUTING_KEY+".reply";
-    private static String RESOURCE_UPDATED_ROUTING_KEY = "symbIoTe.InterworkingInterface.updated.register_resources";
+    private static String RESOURCE_UPDATED_ROUTING_KEY = "symbIoTe.InterworkingInterface.registrationHandler.update_resources";
     private static String RESOURCE_UPDATED_ROUTING_KEY_REPLY = RESOURCE_UPDATED_ROUTING_KEY+".reply";
 
 
