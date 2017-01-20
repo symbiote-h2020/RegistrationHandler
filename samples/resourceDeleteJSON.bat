@@ -1,0 +1,1 @@
+curl  -H "Accept: application/json" -H "Content-type: application/json" -X DELETE localhost:8001/resource?resourceInternalId=%1

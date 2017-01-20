@@ -1,0 +1,107 @@
+package eu.h2020.symbiote.service;
+
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import eu.h2020.symbiote.PlatformInformationManager;
+import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.exceptions.ConflictException;
+
+/**
+ * This class implements the rest interfaces. Initially created by jose
+ *
+ * @author: jose, Elena Garrido
+ * @version: 27/09/2016
+ */
+@RestController
+public class RegistrationHandlerRestService {
+  private static final Log logger = LogFactory.getLog(RegistrationHandlerRestService.class);
+
+  @Autowired
+  private PlatformInformationManager infoManager;
+/* TODO finish
+  @RequestMapping(method = RequestMethod.GET, path = "/platform")
+  public PlatformBean getPlatformInfo() throws NotFoundException {
+    return infoManager.getPlatformInfo();
+  }
+*/
+  @RequestMapping(method = RequestMethod.GET, path = "/resources")
+  public List<ResourceBean> getResources() {
+    logger.info("START OF getResources");
+    List<ResourceBean>result = infoManager.getResources();
+    logger.info("END OF getResources, result "+ result);
+    return result;
+  }
+
+  @RequestMapping(method = RequestMethod.GET, path = "/resource")
+  public ResourceBean getResource(@RequestParam String resourceInternalId) throws ConflictException{
+    logger.info("START OF getResource, in data "+ resourceInternalId);
+    if ("".equals(resourceInternalId)) throw new ConflictException("resourceInternalId parameter must be informed");
+    ResourceBean result = infoManager.deleteResource(resourceInternalId);
+    logger.info("END OF getResource, result "+ result);
+    return result;
+  }
+
+  @RequestMapping(method = RequestMethod.POST, path = "/resource")
+  public ResourceBean addResource(@RequestBody ResourceBean resource) throws ConflictException{
+    logger.info("START OF addResource, in data "+ resource);
+    if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
+    ResourceBean result = infoManager.addResource(resource);
+    logger.info("END OF addResource, result "+ result);
+    return result;
+  }
+
+  @RequestMapping(method = RequestMethod.PUT, path = "/resource")
+  public ResourceBean updateResource(@RequestBody ResourceBean resource) {
+    logger.info("START OF updateResource, in data "+ resource);
+    ResourceBean result = infoManager.updateResource(resource);
+    logger.info("END OF updateResource, result "+ result);
+    return result;
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
+  public ResourceBean deleteResource(@RequestParam String resourceInternalId) {
+    logger.info("START OF deleteResource, in data "+ resourceInternalId);
+    ResourceBean result = infoManager.deleteResource(resourceInternalId);
+    logger.info("END OF deleteResource, result "+ result);
+    return result;
+  }
+
+  /*
+  @RequestMapping(method = RequestMethod.PUT, path = "/platform")
+  public PlatformBean updatePlatformInfo(@RequestBody PlatformBean platform) {
+    return infoManager.updatePlatformInfo(platform);
+  }
+
+  @RequestMapping(method = RequestMethod.POST, path = "/platform/publish")
+  public PlatformBean publishPlatform() throws NotFoundException {
+    return infoManager.registerPlatform();
+  }
+
+  @RequestMapping(method = RequestMethod.POST, path = "/resource/publish/{resourceId}")
+  public ResourceBean publishResource(@PathVariable String resourceId) throws NotFoundException {
+    List<ResourceBean> result = infoManager.registerResources(
+        Arrays.asList(new String[]{resourceId}));
+    if (!result.isEmpty()) {
+      return result.get(0);
+    }
+
+    return null;
+  }
+
+  @RequestMapping(method = RequestMethod.POST, path = "/resource/publishAll",
+      consumes = "application/json")
+  public List<ResourceBean> publishResources(@RequestBody List<String> resourceIds)
+      throws NotFoundException {
+    return infoManager.registerResources(resourceIds);
+  }
+*/
+}

@@ -16,17 +16,7 @@ public class NameIdBean {
     @Expose(serialize = false, deserialize = false)
     private String symbioteId;
 
-    private String id;
-
     private String name;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getInternalId() {
         return internalId;

@@ -1,5 +1,6 @@
 package eu.h2020.symbiote;
 
+import eu.h2020.symbiote.messaging.ResourceRegistrationMessageHandler;
 import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
 import eu.h2020.symbiote.db.PlatformRepository;
@@ -18,7 +19,11 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by jose on 6/10/16.
+ * This class handles the initialization from the platform. Initially created by jose
+ *
+ * @author: jose, Elena Garrido
+ * @version: 06/10/2016
+
  */
 @Component
 public class PlatformInformationManager {
@@ -32,6 +37,9 @@ public class PlatformInformationManager {
   private PlatformRepository platformRepository;
 
   @Autowired
+  private ResourceRegistrationMessageHandler resourceRegistrationMessageHandler;
+
+  @Autowired
   private ResourceRepository resourceRepository;
 
   private CoreRegistryClient coreClient;
@@ -43,7 +51,6 @@ public class PlatformInformationManager {
   }
 
   public PlatformBean updatePlatformInfo(PlatformBean platformInfo) {
-
     if (platformInfo != null) {
       List<PlatformBean> platforms = platformRepository.findAll();
       String symbioteId = null;
@@ -55,42 +62,66 @@ public class PlatformInformationManager {
           platformRepository.delete(platform);
         }
       }
-
       platformInfo.setSymbioteId(symbioteId);
       return platformRepository.save(platformInfo);
     }
-
     return null;
-
   }
 
-  public ResourceBean addOrUpdateResource(ResourceBean resource) {
-
-    if (resource != null) {
-
-      if (resource.getId() != null) {
-        resource.setSymbioteId(resource.getId());
+  private ResourceBean addOrUpdateInInternalRepository(ResourceBean resource){
+     ResourceBean existingResource = resourceRepository.getByInternalId(resource.getInternalId());
+      if (existingResource != null) {
+    	  logger.info("update will be done");
       }
-
-      String resourceId = resource.getResourceURL();
-      if (resourceId != null) {
-        ResourceBean existing = resourceRepository.getByResourceURL(resourceId);
-        if (existing != null) {
-          resource.setInternalId(existing.getInternalId());
-          if (resource.getSymbioteId() == null) {
-            resource.setSymbioteId(existing.getSymbioteId());
-          }
-        }
-      }
-
       return resourceRepository.save(resource);
+  }
+
+  private ResourceBean deleteInInternalRepository(String resourceId){
+    if (!"".equals(resourceId)) {
+        ResourceBean existingResource = resourceRepository.getByInternalId(resourceId);
+        if (existingResource != null) {
+          resourceRepository.delete(resourceId);
+          return existingResource;
+        }
     }
     return null;
   }
 
-  public List<ResourceBean> addOrUpdateResources(List<ResourceBean> resources) {
-    return resources.stream().map(resource -> addOrUpdateResource(resource))
+  public ResourceBean addResource(ResourceBean resource) {
+    ResourceBean result  = null;
+    ResourceBean beanWithStmbioteId = resourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
+    if (beanWithStmbioteId != null){
+    	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
+    }
+    return result;
+  }
+
+  public ResourceBean updateResource(ResourceBean resource) {
+    ResourceBean result  = null;
+    ResourceBean beanWithStmbioteId = resourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
+    if (beanWithStmbioteId != null){
+    	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
+    }
+    return result;
+  }
+
+  public ResourceBean deleteResource(String resourceId) {
+	ResourceBean result = null;  
+    String id = resourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
+    if (id!=null)
+        result  = deleteInInternalRepository(resourceId);
+    
+    return result;
+  }
+
+  public List<ResourceBean> addResources(List<ResourceBean> resources) {
+    return resources.stream().map(resource -> addResource(resource))
         .filter(resource -> resource != null).collect(Collectors.toList());
+  }
+
+  public List<ResourceBean> updateResources(List<ResourceBean> resources) {
+    return resources.stream().map(resource -> updateResource(resource))
+            .filter(resource -> resource != null).collect(Collectors.toList());
   }
 
   public PlatformBean getPlatformInfo() {
@@ -109,10 +140,14 @@ public class PlatformInformationManager {
   public PlatformBean registerPlatform() {
     PlatformBean info = getPlatformInfo();
     if (info != null) {
-      PlatformBean newPlatform = coreClient.registerPlatform(info);
-      if (newPlatform != null && newPlatform.getId() != null) {
-        info.setSymbioteId(newPlatform.getId());
-        return platformRepository.save(info);
+      try {
+        PlatformBean newPlatform = coreClient.registerPlatform(info);
+        if (newPlatform != null && newPlatform.getInternalId() != null) {
+          info.setSymbioteId(newPlatform.getInternalId());
+          return platformRepository.save(info);
+        }
+      }catch(Exception e){
+        logger.error("Error in register platform "+info, e);
       }
     }
     return info;
@@ -135,7 +170,7 @@ public class PlatformInformationManager {
 
         resources = coreClient.registerResource(platformInfo.getSymbioteId(), resources);
 
-        return addOrUpdateResources(resources);
+        return addResources(resources);
       }
     }
 

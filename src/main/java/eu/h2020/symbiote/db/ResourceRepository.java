@@ -9,6 +9,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 public interface ResourceRepository extends MongoRepository<ResourceBean, String> {
 
-  ResourceBean getByResourceURL(String resourceId);
+  ResourceBean getByInternalId(String resourceId);
 
 }

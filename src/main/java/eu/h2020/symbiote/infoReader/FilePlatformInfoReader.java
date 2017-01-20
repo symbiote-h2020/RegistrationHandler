@@ -1,8 +1,8 @@
-package eu.h2020.symbiote;
+package eu.h2020.symbiote.infoReader;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
+import eu.h2020.symbiote.PlatformInfoReader;
 import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
 

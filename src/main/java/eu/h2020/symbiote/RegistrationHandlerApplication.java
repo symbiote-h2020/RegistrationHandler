@@ -17,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Created by mateuszl on 22.09.2016.
  */
-//@EnableDiscoveryClient    //when Eureka available
+@EnableDiscoveryClient    //when Eureka available
 @EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
@@ -32,17 +32,5 @@ public class RegistrationHandlerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RegistrationHandlerApplication.class, args);
-
-        try {
-            // Subscribe to RabbitMQ messages
-        } catch (Exception e) {
-            log.error("Error occured during subscribing from Registration Handler", e);
-        }
     }
-
-//    @Bean
-//    public AlwaysSampler defaultSampler() {
-//        return new AlwaysSampler();
-    //   }
-
 }

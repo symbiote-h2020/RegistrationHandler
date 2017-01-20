@@ -1,0 +1,6 @@
+{
+"name": "testPlatform",
+"owner": "localOwner",
+"type": "iot",
+"resourceAccessProxyUrl": "http://enviro5.ait.ac.at/tomcat/openUwedat-oData/DemoService.svc"
+}

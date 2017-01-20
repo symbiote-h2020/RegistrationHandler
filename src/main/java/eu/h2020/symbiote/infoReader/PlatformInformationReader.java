@@ -1,8 +1,8 @@
-package eu.h2020.symbiote;
-
+package eu.h2020.symbiote.infoReader;
+import eu.h2020.symbiote.PlatformInformationManager;
+import eu.h2020.symbiote.PlatformInfoReader;
 import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
-import eu.h2020.symbiote.exceptions.PlatformInfoReaderFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,8 +17,13 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+
 /**
- * Created by jose on 26/09/16.
+ * This class is to communicate with RabbitMQ. Initially created by mateuszl and updated by Elena
+ *
+ * @author: mateuszl, Elena Garrido
+ * @version: 18/01/2017
+
  */
 
 @Component
@@ -33,7 +38,7 @@ public class PlatformInformationReader implements CommandLineRunner {
   private boolean autoRegister;
 
   @Autowired
-  private PlatformInfoReaderFactory platformReaderFactory;
+  private NetworkPlatformInfoReader.PlatformInfoReaderFactory platformReaderFactory;
 
   @Autowired
   private PlatformInformationManager platformManager;
@@ -47,7 +52,7 @@ public class PlatformInformationReader implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-
+/* TODO review comment elene 18/01/2017
     PlatformBean platformInfo = platformReader.getPlatformInformation();
     List<ResourceBean> resourcesInfo = platformReader.getResourcesToRegister();
 
@@ -58,7 +63,7 @@ public class PlatformInformationReader implements CommandLineRunner {
     List<ResourceBean> updatedResources = new ArrayList<>();
 
     if (resourcesInfo != null) {
-      updatedResources = platformManager.addOrUpdateResources(resourcesInfo);
+      updatedResources = platformManager.addResources(resourcesInfo);
     }
 
     if (autoRegister) {
@@ -67,6 +72,6 @@ public class PlatformInformationReader implements CommandLineRunner {
           resource -> resource.getInternalId()
       ).collect(Collectors.toList()));
     }
-
+*/
   }
 }
