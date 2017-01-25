@@ -1,6 +1,7 @@
-package eu.h2020.symbiote.messaging.rabbitmq;
+package eu.h2020.symbiote.messaging.interworkinginterface;
 
 import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
 
 
 /**

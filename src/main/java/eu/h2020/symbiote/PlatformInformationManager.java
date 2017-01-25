@@ -1,22 +1,22 @@
 package eu.h2020.symbiote;
 
-import eu.h2020.symbiote.messaging.ResourceRegistrationMessageHandler;
-import eu.h2020.symbiote.beans.PlatformBean;
-import eu.h2020.symbiote.beans.ResourceBean;
-import eu.h2020.symbiote.db.PlatformRepository;
-import eu.h2020.symbiote.db.ResourceRepository;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import eu.h2020.symbiote.beans.PlatformBean;
+import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.db.PlatformRepository;
+import eu.h2020.symbiote.db.ResourceRepository;
+import eu.h2020.symbiote.messaging.interworkinginterface.IFPlatformMessageHandler;
+import eu.h2020.symbiote.messaging.interworkinginterface.IFResourceMessageHandler;
+import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
 
 /**
  * This class handles the initialization from the platform. Initially created by jose
@@ -30,27 +30,29 @@ public class PlatformInformationManager {
 
   private static final Log logger = LogFactory.getLog(PlatformInformationManager.class);
 
-  @Value("${symbiote.core.endpoint}")
-  private String coreUrl;
-
   @Autowired
   private PlatformRepository platformRepository;
 
   @Autowired
-  private ResourceRegistrationMessageHandler resourceRegistrationMessageHandler;
+  private IFResourceMessageHandler ifresourceRegistrationMessageHandler;
+
+  @Autowired
+  private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;
 
   @Autowired
   private ResourceRepository resourceRepository;
 
-  private CoreRegistryClient coreClient;
+  @Autowired
+  private IFPlatformMessageHandler ifplatformMessageHandler;
+  
 
   @PostConstruct
   private void init() {
-    coreClient = RegistrationHandlerApplication.
-        createFeignClient(CoreRegistryClient.class, coreUrl);
+/* COMMENTED EG    coreClient = RegistrationHandlerApplication.
+        createFeignClient(CoreRegistryClient.class, coreUrl);*/
   }
 
-  public PlatformBean updatePlatformInfo(PlatformBean platformInfo) {
+  public PlatformBean updatePlatformInfoInInternalRepository(PlatformBean platformInfo) {
     if (platformInfo != null) {
       List<PlatformBean> platforms = platformRepository.findAll();
       String symbioteId = null;
@@ -89,27 +91,30 @@ public class PlatformInformationManager {
 
   public ResourceBean addResource(ResourceBean resource) {
     ResourceBean result  = null;
-    ResourceBean beanWithStmbioteId = resourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
+    ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
     if (beanWithStmbioteId != null){
     	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
     }
+    rapresourceRegistrationMessageHandler.sendResourceRegistrationMessage(result);
     return result;
   }
 
   public ResourceBean updateResource(ResourceBean resource) {
     ResourceBean result  = null;
-    ResourceBean beanWithStmbioteId = resourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
+    ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
     if (beanWithStmbioteId != null){
     	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
     }
+    rapresourceRegistrationMessageHandler.sendResourceUpdateMessage(result);
     return result;
   }
 
   public ResourceBean deleteResource(String resourceId) {
 	ResourceBean result = null;  
-    String id = resourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
+    String id = ifresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
     if (id!=null)
         result  = deleteInInternalRepository(resourceId);
+    rapresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(id);
     
     return result;
   }
@@ -124,7 +129,7 @@ public class PlatformInformationManager {
             .filter(resource -> resource != null).collect(Collectors.toList());
   }
 
-  public PlatformBean getPlatformInfo() {
+  private PlatformBean getPlatformInfo() {
     List<PlatformBean> platforms = platformRepository.findAll();
     if (platforms != null && !platforms.isEmpty()) {
       return platforms.get(0);
@@ -141,7 +146,7 @@ public class PlatformInformationManager {
     PlatformBean info = getPlatformInfo();
     if (info != null) {
       try {
-        PlatformBean newPlatform = coreClient.registerPlatform(info);
+        PlatformBean newPlatform = ifplatformMessageHandler.sendPlatformRegistrationMessage(info);
         if (newPlatform != null && newPlatform.getInternalId() != null) {
           info.setSymbioteId(newPlatform.getInternalId());
           return platformRepository.save(info);
@@ -152,7 +157,7 @@ public class PlatformInformationManager {
     }
     return info;
   }
-
+/*
   public List<ResourceBean> registerResources(List<String> resourceIds) {
 
     PlatformBean platformInfo = getPlatformInfo();
@@ -176,5 +181,5 @@ public class PlatformInformationManager {
 
     return resources;
   }
-
+*/
 }

@@ -1,11 +1,28 @@
 package eu.h2020.symbiote.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
 /**
- * Created by jose on 27/09/16.
+ * Exception thrown when an error in the data is detected
+ *
+ * @author: Jose, Elena Garrido
+ * @version: 27/09/16
+
  */
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class NotFoundException extends Exception {
+public class NotFoundException extends RuntimeException{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3307799213369579188L;
+	String extraInfo = "";
+    public NotFoundException(String info){
+        super(info);
+        this.extraInfo = info;
+    }
+
+    public NotFoundException(String info, String extraInfo){
+        super(info);
+        this.extraInfo = extraInfo;
+    }
+    public String getExtraInfo() {
+        return extraInfo;
+    }
 }

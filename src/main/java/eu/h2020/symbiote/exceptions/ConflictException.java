@@ -9,7 +9,11 @@ package eu.h2020.symbiote.exceptions;
  */
 
 public class ConflictException extends RuntimeException{
-    String extraInfo = "";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2020303865004496068L;
+	String extraInfo = "";
     public ConflictException(String info){
         super(info);
         this.extraInfo = info;

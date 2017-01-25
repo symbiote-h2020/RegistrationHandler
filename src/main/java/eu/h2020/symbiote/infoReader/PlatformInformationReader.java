@@ -1,21 +1,17 @@
-package eu.h2020.symbiote.infoReader;
-import eu.h2020.symbiote.PlatformInformationManager;
-import eu.h2020.symbiote.PlatformInfoReader;
-import eu.h2020.symbiote.beans.PlatformBean;
-import eu.h2020.symbiote.beans.ResourceBean;
+package eu.h2020.symbiote.inforeader;
+import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
+import eu.h2020.symbiote.PlatformInfoReader;
+import eu.h2020.symbiote.PlatformInformationManager;
+import eu.h2020.symbiote.beans.PlatformBean;
+import eu.h2020.symbiote.beans.ResourceBean;
 
 
 /**
@@ -29,7 +25,6 @@ import javax.annotation.PostConstruct;
 @Component
 public class PlatformInformationReader implements CommandLineRunner {
 
-  private static final Log logger = LogFactory.getLog(PlatformInformationReader.class);
 
   @Value("${reghandler.reader.impl}")
   private String readerImplementation;
@@ -52,26 +47,18 @@ public class PlatformInformationReader implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-/* TODO review comment elene 18/01/2017
-    PlatformBean platformInfo = platformReader.getPlatformInformation();
-    List<ResourceBean> resourcesInfo = platformReader.getResourcesToRegister();
-
-    if (platformInfo != null) {
-      platformManager.updatePlatformInfo(platformInfo);
-    }
-
-    List<ResourceBean> updatedResources = new ArrayList<>();
-
-    if (resourcesInfo != null) {
-      updatedResources = platformManager.addResources(resourcesInfo);
-    }
 
     if (autoRegister) {
-      platformManager.registerPlatform();
-      platformManager.registerResources(updatedResources.stream().map(
-          resource -> resource.getInternalId()
-      ).collect(Collectors.toList()));
+        PlatformBean platformInfo = platformReader.getPlatformInformation();
+        List<ResourceBean> resourcesInfo = platformReader.getResourcesToRegister();
+        if (platformInfo != null) {
+            platformManager.updatePlatformInfoInInternalRepository(platformInfo);
+        }
+ 
+        if (resourcesInfo != null) {
+        	platformManager.addResources(resourcesInfo);
+        }
+        platformManager.registerPlatform();
     }
-*/
   }
 }

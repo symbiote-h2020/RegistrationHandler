@@ -1,14 +1,19 @@
 package eu.h2020.symbiote.messaging.rabbitmq;
 
-import com.google.gson.Gson;
-import com.rabbitmq.client.*;
+import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import com.google.gson.Gson;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 
 
 /**
@@ -18,15 +23,23 @@ import java.io.IOException;
  * @version: 18/01/2017
 
  */
-@Component
-public class RabbitMQMessageHandler {
+public class GenericRabbitMQMessageHandler <T>{
 
-    private static Log logger = LogFactory.getLog( RabbitMQMessageHandler.class );
+    private static Log logger = LogFactory.getLog( GenericRabbitMQMessageHandler.class );
 
     @Value("${symbiote.rabbitmq.host.ip}")
     String rabbitMQHostIP;
 
+    @SuppressWarnings("rawtypes")
+ 	Class clazz;
+    String exchangeName;
+    String queueName;
 
+    public GenericRabbitMQMessageHandler(String exchangeName, String queueName, @SuppressWarnings("rawtypes") Class clazz){
+    	this.exchangeName = exchangeName;
+    	this.queueName = queueName; 
+    	this.clazz = clazz;
+    }
     /**
      * Method for sending a message to specified 'queue' on RabbitMQ server. Object is converted to Json.
      *
@@ -34,7 +47,7 @@ public class RabbitMQMessageHandler {
      * @param object
      * @throws Exception
      */
-    public void sendMessage(String exchangeName, String routingKey, String queueName, Object object) throws Exception {
+    public void sendMessage(T object) throws Exception {
         logger.info("START OF sendMessage to queue"+queueName);
         Gson gson = new Gson();
         String objectInJson = gson.toJson(object);
@@ -62,10 +75,7 @@ public class RabbitMQMessageHandler {
      * @throws Exception
      */
 
-    public String subscribeToRoutingQueue(String exchangeName, String queueName, RabbitMQMessageReceptionListener receptionListener) throws Exception {
-
-        String receivedMessage = "";
-
+    public void subscribeToRoutingQueue(RabbitMQMessageReceptionListener<T> receptionListener) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(rabbitMQHostIP);
         Connection connection = factory.newConnection();
@@ -75,17 +85,18 @@ public class RabbitMQMessageHandler {
         logger.info("Subscription to "+queueName+ " done. Waiting for messages.");
 
         Consumer consumer = new DefaultConsumer(channel) {
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 String message = new String(body, "UTF-8");
-                receptionListener.onReceivedMessage(message);
-                System.out.println(" [x] Received '" + message + "'");
-                //TODO use the message
+                Gson gson = new Gson();
+                T result = (T)gson.fromJson(message, clazz);
+                logger.info("Result "+result);
+                receptionListener.onReceivedMessage(result);
+  
             }
         };
         channel.basicConsume(queueName, true, consumer);
-
-        return receivedMessage;
     }
 }

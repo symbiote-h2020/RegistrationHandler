@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.infoReader;
+package eu.h2020.symbiote.inforeader;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

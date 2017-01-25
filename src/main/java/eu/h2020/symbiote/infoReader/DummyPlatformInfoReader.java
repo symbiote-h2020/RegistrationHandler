@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.infoReader;
+package eu.h2020.symbiote.inforeader;
 
 import eu.h2020.symbiote.PlatformInfoReader;
 import eu.h2020.symbiote.beans.PlatformBean;
@@ -20,6 +20,6 @@ public class DummyPlatformInfoReader implements PlatformInfoReader {
 
     @Override
     public List<ResourceBean> getResourcesToRegister() {
-        return new ArrayList();
+        return new ArrayList<ResourceBean>();
     }
 }

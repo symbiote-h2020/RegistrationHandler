@@ -14,12 +14,12 @@ import java.util.List;
  */
 public interface CoreRegistryClient {
 
-    @RequestLine("POST /cloud_api/platforms")
+   /* @RequestLine("POST /cloud_api/platforms")
     @Headers("Content-Type: application/json")
     PlatformBean registerPlatform(PlatformBean platformInfo);
 
     @RequestLine("POST /cloud_api/platforms/{platformId}/resources")
     @Headers("Content-Type: application/json")
     List<ResourceBean> registerResource(@Param("platformId") String platformId, List<ResourceBean> resourceInfo);
-
+*/
 }

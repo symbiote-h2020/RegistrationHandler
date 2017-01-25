@@ -1,6 +1,7 @@
 package eu.h2020.symbiote.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.h2020.symbiote.PlatformInformationManager;
 import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.beans.ResourceListBean;
 import eu.h2020.symbiote.exceptions.ConflictException;
 
 /**
@@ -27,12 +29,7 @@ public class RegistrationHandlerRestService {
 
   @Autowired
   private PlatformInformationManager infoManager;
-/* TODO finish
-  @RequestMapping(method = RequestMethod.GET, path = "/platform")
-  public PlatformBean getPlatformInfo() throws NotFoundException {
-    return infoManager.getPlatformInfo();
-  }
-*/
+
   @RequestMapping(method = RequestMethod.GET, path = "/resources")
   public List<ResourceBean> getResources() {
     logger.info("START OF getResources");
@@ -50,13 +47,16 @@ public class RegistrationHandlerRestService {
     return result;
   }
 
-  @RequestMapping(method = RequestMethod.POST, path = "/resource")
-  public ResourceBean addResource(@RequestBody ResourceBean resource) throws ConflictException{
-    logger.info("START OF addResource, in data "+ resource);
-    if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
-    ResourceBean result = infoManager.addResource(resource);
+  @RequestMapping(method = RequestMethod.POST, path = "/resources")
+  public ResourceBean addResource(@RequestBody ResourceListBean resourceList) throws ConflictException{
+    logger.info("START OF addResource, in data size"+ ((resourceList == null)?0:resourceList.getResources().size()));
+//    if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
+    /*return resources.stream().map(resource -> addResource(resource))
+            .filter(resource -> resource != null).collect(Collectors.toList());*/
+    /*ResourceBean result = infoManager.addResources(resourceList);
     logger.info("END OF addResource, result "+ result);
-    return result;
+    return result;*/
+    return null;
   }
 
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
@@ -75,33 +75,4 @@ public class RegistrationHandlerRestService {
     return result;
   }
 
-  /*
-  @RequestMapping(method = RequestMethod.PUT, path = "/platform")
-  public PlatformBean updatePlatformInfo(@RequestBody PlatformBean platform) {
-    return infoManager.updatePlatformInfo(platform);
-  }
-
-  @RequestMapping(method = RequestMethod.POST, path = "/platform/publish")
-  public PlatformBean publishPlatform() throws NotFoundException {
-    return infoManager.registerPlatform();
-  }
-
-  @RequestMapping(method = RequestMethod.POST, path = "/resource/publish/{resourceId}")
-  public ResourceBean publishResource(@PathVariable String resourceId) throws NotFoundException {
-    List<ResourceBean> result = infoManager.registerResources(
-        Arrays.asList(new String[]{resourceId}));
-    if (!result.isEmpty()) {
-      return result.get(0);
-    }
-
-    return null;
-  }
-
-  @RequestMapping(method = RequestMethod.POST, path = "/resource/publishAll",
-      consumes = "application/json")
-  public List<ResourceBean> publishResources(@RequestBody List<String> resourceIds)
-      throws NotFoundException {
-    return infoManager.registerResources(resourceIds);
-  }
-*/
 }

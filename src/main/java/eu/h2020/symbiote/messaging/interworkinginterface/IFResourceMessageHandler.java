@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.messaging;
+package eu.h2020.symbiote.messaging.interworkinginterface;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -7,8 +7,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.beans.ResourceBean;
-import eu.h2020.symbiote.messaging.rabbitmq.RabbitMQRPCMessageHandlerResourceBean;
-import eu.h2020.symbiote.messaging.rabbitmq.RabbitMQRPCMessageHandlerString;
 
 /**
 
@@ -19,7 +17,7 @@ import eu.h2020.symbiote.messaging.rabbitmq.RabbitMQRPCMessageHandlerString;
 
  */
 @Component
-public class ResourceRegistrationMessageHandler {
+public class IFResourceMessageHandler {
 
     private static String EXCHANGE_NAME = "symbIoTe.InterworkingInterface";
     private static String RESOURCE_REGISTRATION_ROUTING_KEY = "symbIoTe.InterworkingInterface.registrationHandler.register_resources";
@@ -30,7 +28,7 @@ public class ResourceRegistrationMessageHandler {
     private static String RESOURCE_UPDATED_ROUTING_KEY_REPLY = RESOURCE_UPDATED_ROUTING_KEY+".reply";
 
 
-    private static Log logger = LogFactory.getLog(ResourceRegistrationMessageHandler.class);
+    private static Log logger = LogFactory.getLog(IFResourceMessageHandler.class);
     
 	@Autowired
 	private ApplicationContext applicationContext;

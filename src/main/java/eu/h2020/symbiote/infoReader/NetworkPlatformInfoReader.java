@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.infoReader;
+package eu.h2020.symbiote.inforeader;
 
 import eu.h2020.symbiote.PlatformInfoReader;
 import eu.h2020.symbiote.RegistrationHandlerApplication;
@@ -59,7 +59,7 @@ public class NetworkPlatformInfoReader implements PlatformInfoReader {
 
       public PlatformInfoReader getPlatformInfoReader(String type) {
         String finalType = (type != null) ? type : "filePlatformInfoReader";
-        return ctx.getBean(type, PlatformInfoReader.class);
+        return ctx.getBean(finalType, PlatformInfoReader.class);
       }
 
     }

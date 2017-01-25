@@ -26,7 +26,7 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
     @Value("${symbiote.rabbitmq.host.ip}")
     String rabbitMQHostIP;
 
-    //@Value("${symbiote.rabbitmq.exchange.name}")
+    @Value("${symbiote.rabbitmq.exchange.name}")
     String exchangeName = "";
 
     private Connection connection;
@@ -75,14 +75,14 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
                  .replyTo(replyQueueName)
                  .build();
          
-         channel.basicPublish(/*exchangeName*/ "", requestQueueName, props, objectInJson.getBytes());
+         channel.basicPublish(exchangeName, requestQueueName, props, objectInJson.getBytes());
 
          while (true) {
              QueueingConsumer.Delivery delivery = consumer.nextDelivery();
              if (delivery.getProperties().getCorrelationId().equals(corrId)) {
                  String response = new String(delivery.getBody());
                  result = (O)gson.fromJson(response, clazz);
-                 System.out.println(result);
+                 logger.info("Result "+result);
                  break;
              }
          }

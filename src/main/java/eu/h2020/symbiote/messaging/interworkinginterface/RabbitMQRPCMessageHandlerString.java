@@ -1,4 +1,6 @@
-package eu.h2020.symbiote.messaging.rabbitmq;
+package eu.h2020.symbiote.messaging.interworkinginterface;
+
+import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
 
 /**
  * This class is to communicate with RabbitMQ. Initially created by Elena
