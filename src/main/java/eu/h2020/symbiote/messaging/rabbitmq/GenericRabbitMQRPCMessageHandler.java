@@ -26,9 +26,6 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
     @Value("${symbiote.rabbitmq.host.ip}")
     String rabbitMQHostIP;
 
-    @Value("${symbiote.rabbitmq.exchange.name}")
-    String exchangeName = "";
-
     private Connection connection;
     private Channel channel;
     private QueueingConsumer consumer;
@@ -36,11 +33,13 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
     String requestQueueName;
     @SuppressWarnings("rawtypes")
 	Class clazz;
+    String exchangeName;
 
-    public GenericRabbitMQRPCMessageHandler(String requestQueueName, String replyQueueName, @SuppressWarnings("rawtypes") Class clazz) {
+    public GenericRabbitMQRPCMessageHandler(String exchangeName, String requestQueueName, String replyQueueName, @SuppressWarnings("rawtypes") Class clazz) {
     	logger.info("Creating with requestQueueName:"+requestQueueName+" and replyQueueName:" +replyQueueName);
     	this.replyQueueName = replyQueueName;
     	this.requestQueueName = requestQueueName;
+    	this.exchangeName = exchangeName;
     	this.clazz = clazz;
     }
     

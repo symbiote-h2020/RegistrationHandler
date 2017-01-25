@@ -47,9 +47,8 @@ public class PlatformInformationReader implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-
     if (autoRegister) {
-        PlatformBean platformInfo = platformReader.getPlatformInformation();
+/* TODO uncomment when clear RPC / direct / bulk or not        PlatformBean platformInfo = platformReader.getPlatformInformation();
         List<ResourceBean> resourcesInfo = platformReader.getResourcesToRegister();
         if (platformInfo != null) {
             platformManager.updatePlatformInfoInInternalRepository(platformInfo);
@@ -57,8 +56,7 @@ public class PlatformInformationReader implements CommandLineRunner {
  
         if (resourcesInfo != null) {
         	platformManager.addResources(resourcesInfo);
-        }
-        platformManager.registerPlatform();
+        }*/
     }
   }
 }

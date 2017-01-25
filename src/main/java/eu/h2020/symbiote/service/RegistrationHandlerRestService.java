@@ -40,7 +40,7 @@ public class RegistrationHandlerRestService {
   public ResourceBean getResource(@RequestParam String resourceInternalId) throws ConflictException{
     logger.info("START OF getResource, in data "+ resourceInternalId);
     if ("".equals(resourceInternalId)) throw new ConflictException("resourceInternalId parameter must be informed");
-    ResourceBean result = infoManager.deleteResource(resourceInternalId);
+    ResourceBean result = infoManager.deleteResourceDirect(resourceInternalId);
     logger.info("END OF getResource, result "+ result);
     return result;
   }
@@ -51,7 +51,7 @@ public class RegistrationHandlerRestService {
     if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
     /*return resources.stream().map(resource -> addResource(resource))
             .filter(resource -> resource != null).collect(Collectors.toList());*/
-    ResourceBean result = infoManager.addResource(resource);
+    ResourceBean result = infoManager.addResourceDirect(resource);
     logger.info("END OF addResource, result "+ result);
     return result;
     
@@ -60,7 +60,7 @@ public class RegistrationHandlerRestService {
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
   public ResourceBean updateResource(@RequestBody ResourceBean resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    ResourceBean result = infoManager.updateResource(resource);
+    ResourceBean result = infoManager.updateResourceDirect(resource);
     logger.info("END OF updateResource, result "+ result);
     return result;
   }
@@ -68,7 +68,7 @@ public class RegistrationHandlerRestService {
   @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
   public ResourceBean deleteResource(@RequestParam String resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
-    ResourceBean result = infoManager.deleteResource(resourceInternalId);
+    ResourceBean result = infoManager.deleteResourceDirect(resourceInternalId);
     logger.info("END OF deleteResource, result "+ result);
     return result;
   }

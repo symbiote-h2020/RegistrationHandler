@@ -14,8 +14,7 @@ import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
 import eu.h2020.symbiote.db.PlatformRepository;
 import eu.h2020.symbiote.db.ResourceRepository;
-import eu.h2020.symbiote.messaging.interworkinginterface.IFPlatformMessageHandler;
-import eu.h2020.symbiote.messaging.interworkinginterface.IFResourceMessageHandler;
+import eu.h2020.symbiote.messaging.interworkinginterface.IFDirectResourceMessageHandler;
 import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
 
 /**
@@ -33,8 +32,11 @@ public class PlatformInformationManager {
   @Autowired
   private PlatformRepository platformRepository;
 
+  /*@Autowired
+  private IFRPCResourceMessageHandler ifresourceRegistrationMessageHandler;
+  */
   @Autowired
-  private IFResourceMessageHandler ifresourceRegistrationMessageHandler;
+  private IFDirectResourceMessageHandler ifdirectresourceRegistrationMessageHandler;
 
   @Autowired
   private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;
@@ -42,9 +44,6 @@ public class PlatformInformationManager {
   @Autowired
   private ResourceRepository resourceRepository;
 
-  @Autowired
-  private IFPlatformMessageHandler ifplatformMessageHandler;
-  
 
   @PostConstruct
   private void init() {
@@ -88,8 +87,8 @@ public class PlatformInformationManager {
     }
     return null;
   }
-
-  public ResourceBean addResource(ResourceBean resource) {
+/* TODO uncomment RPC
+  private ResourceBean addResourceRPC(ResourceBean resource) {
     ResourceBean result  = null;
     ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
     if (beanWithStmbioteId != null){
@@ -97,9 +96,17 @@ public class PlatformInformationManager {
     }
     rapresourceRegistrationMessageHandler.sendResourceRegistrationMessage(result);
     return result;
-  }
+  }*/
 
-  public ResourceBean updateResource(ResourceBean resource) {
+  public ResourceBean addResourceDirect(ResourceBean resource) {
+	    ResourceBean result  = null;
+	    ifdirectresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
+	    result  = addOrUpdateInInternalRepository(resource);
+	    rapresourceRegistrationMessageHandler.sendResourceRegistrationMessage(result);
+	    return result;
+	  }
+  
+/*  public ResourceBean updateResourceRPC(ResourceBean resource) {
     ResourceBean result  = null;
     ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
     if (beanWithStmbioteId != null){
@@ -107,9 +114,17 @@ public class PlatformInformationManager {
     }
     rapresourceRegistrationMessageHandler.sendResourceUpdateMessage(result);
     return result;
-  }
+  }*/
 
-  public ResourceBean deleteResource(String resourceId) {
+  public ResourceBean updateResourceDirect(ResourceBean resource) {
+	    ResourceBean result  = null;
+	    ifdirectresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);	    
+	    result  = addOrUpdateInInternalRepository(resource);
+	    rapresourceRegistrationMessageHandler.sendResourceUpdateMessage(result);
+	    return result;
+	  }
+/*
+  public ResourceBean deleteResourceRPC(String resourceId) {
 	ResourceBean result = null;  
     String id = ifresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
     if (id!=null)
@@ -117,9 +132,18 @@ public class PlatformInformationManager {
     rapresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(id);
     
     return result;
+  }*/
+
+  public ResourceBean deleteResourceDirect(String resourceId) {
+	ResourceBean result = null;  
+    ifdirectresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
+    result  = deleteInInternalRepository(resourceId);
+    rapresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
+    
+    return result;
   }
 
-  public List<ResourceBean> addResources(List<ResourceBean> resources) {
+  /*public List<ResourceBean> addResources(List<ResourceBean> resources) {
     return resources.stream().map(resource -> addResource(resource))
         .filter(resource -> resource != null).collect(Collectors.toList());
   }
@@ -127,7 +151,7 @@ public class PlatformInformationManager {
   public List<ResourceBean> updateResources(List<ResourceBean> resources) {
     return resources.stream().map(resource -> updateResource(resource))
             .filter(resource -> resource != null).collect(Collectors.toList());
-  }
+  }*/
 
   private PlatformBean getPlatformInfo() {
     List<PlatformBean> platforms = platformRepository.findAll();
@@ -142,21 +166,6 @@ public class PlatformInformationManager {
     return resourceRepository.findAll();
   }
 
-  public PlatformBean registerPlatform() {
-    PlatformBean info = getPlatformInfo();
-    if (info != null) {
-      try {
-        PlatformBean newPlatform = ifplatformMessageHandler.sendPlatformRegistrationMessage(info);
-        if (newPlatform != null && newPlatform.getInternalId() != null) {
-          info.setSymbioteId(newPlatform.getInternalId());
-          return platformRepository.save(info);
-        }
-      }catch(Exception e){
-        logger.error("Error in register platform "+info, e);
-      }
-    }
-    return info;
-  }
 /*
   public List<ResourceBean> registerResources(List<String> resourceIds) {
 

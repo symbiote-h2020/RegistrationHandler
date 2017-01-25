@@ -11,8 +11,7 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
  */
 public class RabbitMQRPCMessageHandlerString extends GenericRabbitMQRPCMessageHandler<String,String> {
 
-    public RabbitMQRPCMessageHandlerString(String requestQueueName, String replyQueueName) {
-		super(requestQueueName, replyQueueName, String.class);
-		// TODO Auto-generated constructor stub
+    public RabbitMQRPCMessageHandlerString(String exchangeName, String requestQueueName, String replyQueueName) {
+		super(exchangeName, requestQueueName, replyQueueName, String.class);
 	}
 }

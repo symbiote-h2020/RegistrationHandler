@@ -17,7 +17,7 @@ import eu.h2020.symbiote.beans.ResourceBean;
 
  */
 @Component
-public class IFResourceMessageHandler {
+public class IFRPCResourceMessageHandler {
 
     private static String EXCHANGE_NAME = "symbIoTe.InterworkingInterface";
     private static String RESOURCE_REGISTRATION_ROUTING_KEY = "symbIoTe.InterworkingInterface.registrationHandler.register_resources";
@@ -28,7 +28,7 @@ public class IFResourceMessageHandler {
     private static String RESOURCE_UPDATED_ROUTING_KEY_REPLY = RESOURCE_UPDATED_ROUTING_KEY+".reply";
 
 
-    private static Log logger = LogFactory.getLog(IFResourceMessageHandler.class);
+    private static Log logger = LogFactory.getLog(IFRPCResourceMessageHandler.class);
     
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -36,7 +36,7 @@ public class IFResourceMessageHandler {
     public ResourceBean sendResourceRegistrationMessage( ResourceBean resourceBean) {
         try {
             logger.info("Sending request for registration " + resourceBean.getInternalId());
-            RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(RESOURCE_REGISTRATION_ROUTING_KEY, RESOURCE_REGISTRATION_ROUTING_KEY_REPLY);
+            RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(EXCHANGE_NAME, RESOURCE_REGISTRATION_ROUTING_KEY, RESOURCE_REGISTRATION_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
         	ResourceBean resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
@@ -52,7 +52,7 @@ public class IFResourceMessageHandler {
     public String sendResourceUnregistrationMessage( String resourceId) {
         try {
             logger.info("Sending request for unregistration " + resourceId);
-            RabbitMQRPCMessageHandlerString rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerString(RESOURCE_UNREGISTRATION_ROUTING_KEY, RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY);
+            RabbitMQRPCMessageHandlerString rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerString(EXCHANGE_NAME, RESOURCE_UNREGISTRATION_ROUTING_KEY, RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
         	String resourceIdResult = rabbitMQMessageHandler.sendMessage(resourceId);
@@ -68,7 +68,7 @@ public class IFResourceMessageHandler {
     public ResourceBean sendResourceUpdateMessage( ResourceBean resourceBean) {
         try {
             logger.info("Sending request for update " + resourceBean.getInternalId());
-            RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(RESOURCE_UPDATED_ROUTING_KEY, RESOURCE_UPDATED_ROUTING_KEY);
+            RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(EXCHANGE_NAME, RESOURCE_UPDATED_ROUTING_KEY, RESOURCE_UPDATED_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
         	ResourceBean resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
