@@ -13,7 +13,7 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
  */
 public class RabbitMQRPCMessageHandlerResourceBean extends GenericRabbitMQRPCMessageHandler<ResourceBean,ResourceBean> {
 
-    public RabbitMQRPCMessageHandlerResourceBean(String exchangeName, String requestQueueName, String replyQueueName) {
-		super(exchangeName, requestQueueName, replyQueueName, ResourceBean.class);
+    public RabbitMQRPCMessageHandlerResourceBean(String excchangeName, String requestQueueName, String replyQueueName) {
+		super(excchangeName, requestQueueName, replyQueueName, ResourceBean.class);
 	}
 }

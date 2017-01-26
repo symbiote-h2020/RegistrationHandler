@@ -14,7 +14,7 @@ import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
 import eu.h2020.symbiote.db.PlatformRepository;
 import eu.h2020.symbiote.db.ResourceRepository;
-import eu.h2020.symbiote.messaging.interworkinginterface.IFDirectResourceMessageHandler;
+import eu.h2020.symbiote.messaging.interworkinginterface.IFResourceMessageHandler;
 import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
 
 /**
@@ -32,18 +32,14 @@ public class PlatformInformationManager {
   @Autowired
   private PlatformRepository platformRepository;
 
-  /*@Autowired
-  private IFRPCResourceMessageHandler ifresourceRegistrationMessageHandler;
-  */
   @Autowired
-  private IFDirectResourceMessageHandler ifdirectresourceRegistrationMessageHandler;
+  private IFResourceMessageHandler ifresourceRegistrationMessageHandler;
 
   @Autowired
   private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;
 
   @Autowired
   private ResourceRepository resourceRepository;
-
 
   @PostConstruct
   private void init() {
@@ -87,8 +83,8 @@ public class PlatformInformationManager {
     }
     return null;
   }
-/* TODO uncomment RPC
-  private ResourceBean addResourceRPC(ResourceBean resource) {
+
+  public ResourceBean addResource(ResourceBean resource) {
     ResourceBean result  = null;
     ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
     if (beanWithStmbioteId != null){
@@ -96,17 +92,9 @@ public class PlatformInformationManager {
     }
     rapresourceRegistrationMessageHandler.sendResourceRegistrationMessage(result);
     return result;
-  }*/
+  }
 
-  public ResourceBean addResourceDirect(ResourceBean resource) {
-	    ResourceBean result  = null;
-	    ifdirectresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
-	    result  = addOrUpdateInInternalRepository(resource);
-	    rapresourceRegistrationMessageHandler.sendResourceRegistrationMessage(result);
-	    return result;
-	  }
-  
-/*  public ResourceBean updateResourceRPC(ResourceBean resource) {
+  public ResourceBean updateResource(ResourceBean resource) {
     ResourceBean result  = null;
     ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
     if (beanWithStmbioteId != null){
@@ -114,17 +102,9 @@ public class PlatformInformationManager {
     }
     rapresourceRegistrationMessageHandler.sendResourceUpdateMessage(result);
     return result;
-  }*/
+  }
 
-  public ResourceBean updateResourceDirect(ResourceBean resource) {
-	    ResourceBean result  = null;
-	    ifdirectresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);	    
-	    result  = addOrUpdateInInternalRepository(resource);
-	    rapresourceRegistrationMessageHandler.sendResourceUpdateMessage(result);
-	    return result;
-	  }
-/*
-  public ResourceBean deleteResourceRPC(String resourceId) {
+  public ResourceBean deleteResource(String resourceId) {
 	ResourceBean result = null;  
     String id = ifresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
     if (id!=null)
@@ -132,18 +112,9 @@ public class PlatformInformationManager {
     rapresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(id);
     
     return result;
-  }*/
-
-  public ResourceBean deleteResourceDirect(String resourceId) {
-	ResourceBean result = null;  
-    ifdirectresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
-    result  = deleteInInternalRepository(resourceId);
-    rapresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
-    
-    return result;
   }
 
-  /*public List<ResourceBean> addResources(List<ResourceBean> resources) {
+  public List<ResourceBean> addResources(List<ResourceBean> resources) {
     return resources.stream().map(resource -> addResource(resource))
         .filter(resource -> resource != null).collect(Collectors.toList());
   }
@@ -151,16 +122,8 @@ public class PlatformInformationManager {
   public List<ResourceBean> updateResources(List<ResourceBean> resources) {
     return resources.stream().map(resource -> updateResource(resource))
             .filter(resource -> resource != null).collect(Collectors.toList());
-  }*/
-
-  private PlatformBean getPlatformInfo() {
-    List<PlatformBean> platforms = platformRepository.findAll();
-    if (platforms != null && !platforms.isEmpty()) {
-      return platforms.get(0);
-    } else {
-      return null;
-    }
   }
+
 
   public List<ResourceBean> getResources() {
     return resourceRepository.findAll();
