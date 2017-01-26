@@ -23,9 +23,9 @@ import com.rabbitmq.client.Envelope;
  * @version: 18/01/2017
 
  */
-public class GenericRabbitMQDirectMessageHandler <T>{
+public class GenericRabbitMQMessageHandler <T>{
 
-    private static Log logger = LogFactory.getLog( GenericRabbitMQDirectMessageHandler.class );
+    private static Log logger = LogFactory.getLog( GenericRabbitMQMessageHandler.class );
 
     @Value("${symbiote.rabbitmq.host.ip}")
     String rabbitMQHostIP;
@@ -35,7 +35,7 @@ public class GenericRabbitMQDirectMessageHandler <T>{
     String exchangeName;
     String queueName;
 
-    public GenericRabbitMQDirectMessageHandler(String exchangeName, String queueName, @SuppressWarnings("rawtypes") Class clazz){
+    public GenericRabbitMQMessageHandler(String exchangeName, String queueName, @SuppressWarnings("rawtypes") Class clazz){
     	this.exchangeName = exchangeName;
     	this.queueName = queueName; 
     	this.clazz = clazz;
