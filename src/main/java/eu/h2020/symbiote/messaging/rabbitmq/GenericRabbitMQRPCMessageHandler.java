@@ -72,6 +72,7 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
          BasicProperties props = new BasicProperties
                  .Builder()
                  .correlationId(corrId)
+                 .contentType("application/json")
                  .replyTo(replyQueueName)
                  .build();
          
@@ -81,6 +82,7 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
              QueueingConsumer.Delivery delivery = consumer.nextDelivery();
              if (delivery.getProperties().getCorrelationId().equals(corrId)) {
                  String response = new String(delivery.getBody());
+                 logger.info("Received reply: " + response);
                  result = (O)gson.fromJson(response, clazz);
                  logger.info("Result "+result);
                  break;
