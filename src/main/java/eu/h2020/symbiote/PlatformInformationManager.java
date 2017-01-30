@@ -14,7 +14,7 @@ import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
 import eu.h2020.symbiote.db.PlatformRepository;
 import eu.h2020.symbiote.db.ResourceRepository;
-import eu.h2020.symbiote.messaging.interworkinginterface.IFResourceMessageHandler;
+import eu.h2020.symbiote.messaging.interworkinginterface.IIResourceMessageHandler;
 import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
 
 /**
@@ -33,7 +33,7 @@ public class PlatformInformationManager {
   private PlatformRepository platformRepository;
 
   @Autowired
-  private IFResourceMessageHandler ifresourceRegistrationMessageHandler;
+  private IIResourceMessageHandler ifresourceRegistrationMessageHandler;
 
   @Autowired
   private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;

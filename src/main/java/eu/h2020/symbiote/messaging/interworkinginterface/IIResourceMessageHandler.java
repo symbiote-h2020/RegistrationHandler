@@ -17,7 +17,7 @@ import eu.h2020.symbiote.beans.ResourceBean;
 
  */
 @Component
-public class IFResourceMessageHandler {
+public class IIResourceMessageHandler {
 
     private static String EXCHANGE_NAME = "symbIoTe.InterworkingInterface";
     private static String RESOURCE_REGISTRATION_ROUTING_KEY = "symbIoTe.InterworkingInterface.registrationHandler.register_resources";
@@ -28,7 +28,7 @@ public class IFResourceMessageHandler {
     private static String RESOURCE_UPDATED_ROUTING_KEY_REPLY = RESOURCE_UPDATED_ROUTING_KEY+".reply";
 
 
-    private static Log logger = LogFactory.getLog(IFResourceMessageHandler.class);
+    private static Log logger = LogFactory.getLog(IIResourceMessageHandler.class);
     
 	@Autowired
 	private ApplicationContext applicationContext;
