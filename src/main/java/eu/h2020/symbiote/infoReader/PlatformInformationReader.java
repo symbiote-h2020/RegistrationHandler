@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.PlatformInfoReader;
 import eu.h2020.symbiote.PlatformInformationManager;
-import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
 
 
@@ -49,11 +48,7 @@ public class PlatformInformationReader implements CommandLineRunner {
   public void run(String... args) throws Exception {
 
     if (autoRegister) {
-        PlatformBean platformInfo = platformReader.getPlatformInformation();
         List<ResourceBean> resourcesInfo = platformReader.getResourcesToRegister();
-        if (platformInfo != null) {
-            platformManager.updatePlatformInfoInInternalRepository(platformInfo);
-        }
  
         if (resourcesInfo != null) {
         	platformManager.addResources(resourcesInfo);

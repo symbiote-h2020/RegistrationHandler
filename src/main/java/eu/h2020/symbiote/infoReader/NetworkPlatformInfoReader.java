@@ -1,18 +1,17 @@
 package eu.h2020.symbiote.inforeader;
 
-import eu.h2020.symbiote.PlatformInfoReader;
-import eu.h2020.symbiote.RegistrationHandlerApplication;
-import eu.h2020.symbiote.beans.PlatformBean;
-import eu.h2020.symbiote.beans.ResourceBean;
-
-import feign.RequestLine;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import eu.h2020.symbiote.PlatformInfoReader;
+import eu.h2020.symbiote.RegistrationHandlerApplication;
+import eu.h2020.symbiote.beans.PlatformBean;
+import eu.h2020.symbiote.beans.ResourceBean;
+import feign.RequestLine;
 
 /**
  * Created by jose on 7/10/16.
@@ -38,10 +37,6 @@ public class NetworkPlatformInfoReader implements PlatformInfoReader {
         createFeignClient(RemoteFileClient.class, remoteLocation);
   }
 
-    @Override
-    public PlatformBean getPlatformInformation() {
-    return getClient().getPlatformInformation();
-  }
 
     @Override
     public List<ResourceBean> getResourcesToRegister() {

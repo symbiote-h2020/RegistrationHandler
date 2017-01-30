@@ -10,9 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.beans.PlatformBean;
 import eu.h2020.symbiote.beans.ResourceBean;
-import eu.h2020.symbiote.db.PlatformRepository;
 import eu.h2020.symbiote.db.ResourceRepository;
 import eu.h2020.symbiote.messaging.interworkinginterface.IIResourceMessageHandler;
 import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
@@ -29,8 +27,6 @@ public class PlatformInformationManager {
 
   private static final Log logger = LogFactory.getLog(PlatformInformationManager.class);
 
-  @Autowired
-  private PlatformRepository platformRepository;
 
   @Autowired
   private IIResourceMessageHandler ifresourceRegistrationMessageHandler;
@@ -45,24 +41,6 @@ public class PlatformInformationManager {
   private void init() {
 /* COMMENTED EG    coreClient = RegistrationHandlerApplication.
         createFeignClient(CoreRegistryClient.class, coreUrl);*/
-  }
-
-  public PlatformBean updatePlatformInfoInInternalRepository(PlatformBean platformInfo) {
-    if (platformInfo != null) {
-      List<PlatformBean> platforms = platformRepository.findAll();
-      String symbioteId = null;
-      if (platforms != null) {
-        for (PlatformBean platform : platforms) {
-          if (platform.getSymbioteId() != null) {
-            symbioteId = platform.getSymbioteId();
-          }
-          platformRepository.delete(platform);
-        }
-      }
-      platformInfo.setSymbioteId(symbioteId);
-      return platformRepository.save(platformInfo);
-    }
-    return null;
   }
 
   private ResourceBean addOrUpdateInInternalRepository(ResourceBean resource){
