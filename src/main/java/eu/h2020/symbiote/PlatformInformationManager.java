@@ -107,6 +107,13 @@ public class PlatformInformationManager {
     return resourceRepository.findAll();
   }
 
+	public ResourceBean getResource(String resourceId) {
+	    if (!"".equals(resourceId)) {
+	        return resourceRepository.getByInternalId(resourceId);
+	    }
+		return null;
+	}
+
 /*
   public List<ResourceBean> registerResources(List<String> resourceIds) {
 

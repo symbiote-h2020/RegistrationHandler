@@ -40,7 +40,7 @@ public class RegistrationHandlerRestService {
   public ResourceBean getResource(@RequestParam String resourceInternalId) throws ConflictException{
     logger.info("START OF getResource, in data "+ resourceInternalId);
     if ("".equals(resourceInternalId)) throw new ConflictException("resourceInternalId parameter must be informed");
-    ResourceBean result = infoManager.deleteResource(resourceInternalId);
+    ResourceBean result = infoManager.getResource(resourceInternalId);
     logger.info("END OF getResource, result "+ result);
     return result;
   }
