@@ -39,6 +39,7 @@ public class GenericRabbitMQRoutingMessageHandler <T>{
     	this.exchangeName = exchangeName;
     	this.queueName = queueName; 
     	this.clazz = clazz;
+    	
     }
     /**
      * Method for sending a message to specified 'queue' on RabbitMQ server. Object is converted to Json.
@@ -55,8 +56,9 @@ public class GenericRabbitMQRoutingMessageHandler <T>{
         factory.setHost(rabbitMQHostIP);
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        channel.exchangeDeclare(exchangeName, "direct");
-        channel.queueDeclare(queueName, false, false, false, null);
+   	 	channel.exchangeDeclare(exchangeName,"direct",false,false, false, null);
+        //channel.exchangeDeclare(exchangeName, "direct");
+        //channel.queueDeclare(queueName, false, false, false, null);
 
         String message = objectInJson;
         channel.basicPublish(exchangeName, queueName, null, message.getBytes("UTF-8"));
