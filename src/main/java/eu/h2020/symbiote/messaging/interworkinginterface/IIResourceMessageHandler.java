@@ -39,9 +39,12 @@ public class IIResourceMessageHandler {
             RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(EXCHANGE_NAME, RESOURCE_REGISTRATION_ROUTING_KEY, RESOURCE_REGISTRATION_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
+        	String internalId = resourceBean.getInternalId();
+        	resourceBean.setInternalId("");
         	ResourceBean resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
+        	resourceBeanResult.setInternalId(internalId);
             rabbitMQMessageHandler.close();
-            logger.info("Sending result for " + resourceBean.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
+            logger.info("Sending result for " + resourceBeanResult.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
             return resourceBeanResult;
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_REGISTRATION_ROUTING_KEY:"+RESOURCE_REGISTRATION_ROUTING_KEY+", RESOURCE_REGISTRATION_ROUTING_KEY_REPLY:"+RESOURCE_REGISTRATION_ROUTING_KEY_REPLY, e);
@@ -71,9 +74,12 @@ public class IIResourceMessageHandler {
             RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(EXCHANGE_NAME, RESOURCE_UPDATED_ROUTING_KEY, RESOURCE_UPDATED_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
+        	String internalId = resourceBean.getInternalId();
+        	resourceBean.setInternalId("");       	
         	ResourceBean resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
+        	resourceBeanResult.setInternalId(internalId);        	
             rabbitMQMessageHandler.close();
-            logger.info("Update result for " + resourceBean.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
+            logger.info("Update result for " + resourceBeanResult.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
             return resourceBeanResult;
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_UPDATED_ROUTING_KEY:"+RESOURCE_UPDATED_ROUTING_KEY+", RESOURCE_UPDATED_ROUTING_KEY_REPLY:"+RESOURCE_UPDATED_ROUTING_KEY_REPLY, e);
