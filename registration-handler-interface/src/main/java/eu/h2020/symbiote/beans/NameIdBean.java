@@ -14,7 +14,7 @@ public class NameIdBean {
     private String internalId;
 
     @Expose(serialize = false, deserialize = false)
-    private String symbioteId;
+    private String id;
 
     private String name;
 
@@ -27,12 +27,12 @@ public class NameIdBean {
     }
 
 
-    public String getSymbioteId() {
-        return symbioteId;
+    public String getId() {
+        return id;
     }
 
-    public void setSymbioteId(String symbioteId) {
-        this.symbioteId = symbioteId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

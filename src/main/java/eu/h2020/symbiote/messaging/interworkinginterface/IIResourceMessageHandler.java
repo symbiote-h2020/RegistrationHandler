@@ -41,7 +41,7 @@ public class IIResourceMessageHandler {
         	rabbitMQMessageHandler.connect();
         	ResourceBean resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
             rabbitMQMessageHandler.close();
-            logger.info("Sending result for " + resourceBean.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getSymbioteId());
+            logger.info("Sending result for " + resourceBean.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
             return resourceBeanResult;
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_REGISTRATION_ROUTING_KEY:"+RESOURCE_REGISTRATION_ROUTING_KEY+", RESOURCE_REGISTRATION_ROUTING_KEY_REPLY:"+RESOURCE_REGISTRATION_ROUTING_KEY_REPLY, e);
@@ -73,7 +73,7 @@ public class IIResourceMessageHandler {
         	rabbitMQMessageHandler.connect();
         	ResourceBean resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
             rabbitMQMessageHandler.close();
-            logger.info("Update result for " + resourceBean.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getSymbioteId());
+            logger.info("Update result for " + resourceBean.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
             return resourceBeanResult;
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_UPDATED_ROUTING_KEY:"+RESOURCE_UPDATED_ROUTING_KEY+", RESOURCE_UPDATED_ROUTING_KEY_REPLY:"+RESOURCE_UPDATED_ROUTING_KEY_REPLY, e);
