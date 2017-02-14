@@ -45,6 +45,7 @@ dependencies {
     //    compile project(':open-iot-registration-handler-impl')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.github.tomakehurst:wiremock')
+    testCompile('org.springframework:spring-core')
 }
 
 dependencyManagement {
