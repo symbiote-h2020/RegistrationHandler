@@ -21,6 +21,10 @@ import eu.h2020.symbiote.beans.ResourceBean;
 /**
  * Created by jose on 27/09/16.
  */
+/**! \class FilePlatformInfoReader
+ * \brief This class extends from \class PlatformInfoReader and implements a method  \a getResourcesToRegister that reads a \a resources.json file that has to contain a 
+ * list of \class ResourceBean that will be returned by the method
+ **/
 @Component("filePlatformInfoReader")
 public class FilePlatformInfoReader implements PlatformInfoReader{
 

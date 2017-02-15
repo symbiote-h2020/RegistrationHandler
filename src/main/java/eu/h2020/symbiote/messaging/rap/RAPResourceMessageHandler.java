@@ -16,6 +16,11 @@ import eu.h2020.symbiote.beans.ResourceBean;
  * @version: 18/01/2017
 
  */
+
+/**! \class RAPResourceMessageHandler 
+ * \brief This class invoke the \class RabbitMQMessageHandlerResourceBean or the \class RabbitMQMessageHandlerString  depending on the operation that is being
+ * done with the data. 
+ **/
 @Component
 public class RAPResourceMessageHandler {
 

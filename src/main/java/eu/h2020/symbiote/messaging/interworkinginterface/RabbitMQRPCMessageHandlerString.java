@@ -9,7 +9,12 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
  * @version: 20/01/2017
 
  */
-public class RabbitMQRPCMessageHandlerString extends GenericRabbitMQRPCMessageHandler<String,String> {
+/**! \class RabbitMQRPCMessageHandlerString
+ * \brief This class extends from the \class GenericRabbitMQRPCMessageHandler and will be able to write and read a \class String
+ * from the rabbitMQ RPC queues 
+ **/
+
+class RabbitMQRPCMessageHandlerString extends GenericRabbitMQRPCMessageHandler<String,String> {
 
     public RabbitMQRPCMessageHandlerString(String excchangeName, String requestQueueName, String replyQueueName) {
 		super(excchangeName, requestQueueName, replyQueueName, String.class);

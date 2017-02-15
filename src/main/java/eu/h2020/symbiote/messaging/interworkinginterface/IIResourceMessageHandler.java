@@ -16,6 +16,10 @@ import eu.h2020.symbiote.beans.ResourceBean;
  * @version: 18/01/2017
 
  */
+/**! \class IIResourceMessageHandler 
+ * \brief This class invoke the \class RabbitMQRPCMessageHandlerResourceBean or the \class RabbitMQRPCMessageHandlerString depending on the operation that is being
+ * done with the data. Before sending a \class ResourceBean it's \a internalId is set to blank. The aim of this is that this id doesn't leave the platform   
+ **/
 @Component
 public class IIResourceMessageHandler {
 

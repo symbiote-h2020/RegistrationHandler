@@ -15,6 +15,10 @@ import eu.h2020.symbiote.db.ResourceRepository;
 import eu.h2020.symbiote.messaging.interworkinginterface.IIResourceMessageHandler;
 import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
 
+/**! \class PlatformInformationManager
+ * \brief PlatformInformationManager handles the registration of the resources within the platform
+ **/
+
 /**
  * This class handles the initialization from the platform. Initially created by jose
  *
@@ -39,8 +43,6 @@ public class PlatformInformationManager {
 
   @PostConstruct
   private void init() {
-/* COMMENTED EG    coreClient = RegistrationHandlerApplication.
-        createFeignClient(CoreRegistryClient.class, coreUrl);*/
   }
 
   private ResourceBean addOrUpdateInInternalRepository(ResourceBean resource){
@@ -62,6 +64,15 @@ public class PlatformInformationManager {
     return null;
   }
 
+//! Create a resource.
+/*!
+ * The addResource method stores \a ResourceBean passed as parameter in the  
+ * mondodb database and send the information to the \a Interworking Interface and \a Resource Access Proxy component.
+ *
+ * \param resource \a ResourceBean to be created within the system
+ * \return \a addResource returns the \a ResourceBean where the Symbiote id is included. 
+ * An exception can be thrown when no \a internalId is indicated within the \a ResourceBean 
+ */
   public ResourceBean addResource(ResourceBean resource) {
     ResourceBean result  = null;
     ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
@@ -72,6 +83,14 @@ public class PlatformInformationManager {
     return result;
   }
 
+//! Update a resource.
+/*!
+ * The updateResource method updates the \a ResourceBean passed as parameter into the   
+ * mondodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
+ *
+ * \param resource \a ResourceBean to be updated within the system
+ * \return \a updateResource returns the \a ResourceBean where the Symbiote id is included. 
+ */
   public ResourceBean updateResource(ResourceBean resource) {
     ResourceBean result  = null;
     ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
@@ -82,6 +101,14 @@ public class PlatformInformationManager {
     return result;
   }
 
+//! Delete a resource.
+/*!
+ * The deleteResource method removes the \a ResourceBean identified by the id passed as a parameter in the \a internalId variable.   
+ * It removes it from the mondodb database and request the removal of the information to the \a Interworking Interface and the \a Resource Access Proxy component.
+ *
+ * \param resourceId \a internalId to the resource to be removed 
+ * \return \a deleteResource returns the \a ResourceBean that has been just removed 
+ */
   public ResourceBean deleteResource(String resourceId) {
 	ResourceBean result = null;  
     String id = ifresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
@@ -92,12 +119,12 @@ public class PlatformInformationManager {
     return result;
   }
 
-  public List<ResourceBean> addResources(List<ResourceBean> resources) {
+  private List<ResourceBean> addResources(List<ResourceBean> resources) {
     return resources.stream().map(resource -> addResource(resource))
         .filter(resource -> resource != null).collect(Collectors.toList());
   }
 
-  public List<ResourceBean> updateResources(List<ResourceBean> resources) {
+  private List<ResourceBean> updateResources(List<ResourceBean> resources) {
     return resources.stream().map(resource -> updateResource(resource))
             .filter(resource -> resource != null).collect(Collectors.toList());
   }
@@ -107,12 +134,20 @@ public class PlatformInformationManager {
     return resourceRepository.findAll();
   }
 
-	public ResourceBean getResource(String resourceId) {
-	    if (!"".equals(resourceId)) {
-	        return resourceRepository.getByInternalId(resourceId);
-	    }
-		return null;
+//! Get a resource.
+/*!
+ * The getResource method retrieves \a ResourceBean identified by \a resourceId 
+ * from the mondodb database and will return it.
+ *
+ * \param resourceId id from the resource to be retrieved from the database
+ * \return \a getResource returns the \a ResourceBean, 
+ */
+  public ResourceBean getResource(String resourceId) {
+	if (!"".equals(resourceId)) {
+	     return resourceRepository.getByInternalId(resourceId);
 	}
+	return null;
+  }
 
 /*
   public List<ResourceBean> registerResources(List<String> resourceIds) {

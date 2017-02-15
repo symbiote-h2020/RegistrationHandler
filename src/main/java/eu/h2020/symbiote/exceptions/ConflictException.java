@@ -7,7 +7,9 @@ package eu.h2020.symbiote.exceptions;
  * @version: 19/01/2017
 
  */
-
+/**! \class ConflictException 
+ * \brief Used to generate a \a conflict error that will be handled by the \class GlobalExceptionHandler class  
+ **/
 public class ConflictException extends RuntimeException{
     /**
 	 * 
@@ -23,6 +25,7 @@ public class ConflictException extends RuntimeException{
         super(info);
         this.extraInfo = extraInfo;
     }
+    //! Get the extra information about the exception
     public String getExtraInfo() {
         return extraInfo;
     }
