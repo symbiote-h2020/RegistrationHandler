@@ -1,5 +1,5 @@
 package eu.h2020.symbiote.service;
-
+/*
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -67,35 +67,10 @@ public class RegistrationHandlerApplicationTests {
 		mockMvc = webAppContextSetup(webApplicationContext).build();
 		mockServer = MockRestServiceServer.createServer(asyncRestTemplate);
 	}
-/*
-	@RequestLine("GET /resources")
-    @Headers("Content-Type: application/json")
-    public List<ResourceBean> getResources(); 
-
-    @RequestLine("GET /resource?resourceInternalId={resourceInternalId}")
-    @Headers("Content-Type: application/json")
-    public ResourceBean getResource(@Param("resourceInternalId")  String resourceInternalId);
-
-    @RequestLine("POST /resource")
-    @Headers("Content-Type: application/json")
-    public ResourceBean addResource(ResourceBean resource);
-
-    @RequestLine("PUT /resource")
-    @Headers("Content-Type: application/json")
-    public ResourceBean updateResource(ResourceBean resource);
-
-    @RequestLine("DELETE /resource?resourceInternalId={resourceInternalId}")
-    @Headers("Content-Type: application/json")
-    public ResourceBean deleteResource(@Param("resourceInternalId")  String resourceInternalId); 
-*/
 
 
 	@Test
 	public void testCreateResource() throws Exception {
-		/*RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);*/
 		ResourceBean resource = new ResourceBean();
 		LocationBean location = new LocationBean();
 		location.setAltitude(500.0);
@@ -130,11 +105,6 @@ public class RegistrationHandlerApplicationTests {
 
 	@Test
 	public void testGetResource()  {
-		/*RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);
-		ResourceBean resource = client.getResource(INTERNAL_ID);*/
         RequestBuilder requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID)
         		.accept(MediaType.APPLICATION_JSON)
         		.contentType(MediaType.APPLICATION_JSON);
@@ -194,20 +164,6 @@ public class RegistrationHandlerApplicationTests {
 			assert (false);
 		}         
 	        
-/*		RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);
-		ResourceBean resource = client.getResource(INTERNAL_ID);
-		if (resource!=null){
-
-			resource.setOwner("Symbiote");
-			resource = client.updateResource(resource);
-			if (resource!=null){
-				assert("Symbiote".equals(resource.getOwner()));
-			}
-		}
-		assert (false);*/
 		
 	}
 
@@ -238,12 +194,6 @@ public class RegistrationHandlerApplicationTests {
 			assert (false);
 		}         
 
-/*		RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);
-		ResourceBean resource = client.deleteResource(INTERNAL_ID);
-		assert (resource!=null);*/
 	}
 
 	@Test
@@ -264,4 +214,4 @@ public class RegistrationHandlerApplicationTests {
 		assert (true);
 	}
 
-}
+}*/
