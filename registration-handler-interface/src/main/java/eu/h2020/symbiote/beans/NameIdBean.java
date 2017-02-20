@@ -7,48 +7,47 @@ import org.springframework.data.annotation.Id;
 /**
  * Created by jose on 27/09/16.
  */
-public class NameIdBean {
+/**! \class NameIdBean
+ * \brief NameIdBean abstract class to be used in the objects handled by the component
+ **/
 
+public abstract class NameIdBean {
     @Id
     @Expose(serialize = false, deserialize = false)
     private String internalId;
 
     @Expose(serialize = false, deserialize = false)
-    private String symbioteId;
-
     private String id;
 
     private String name;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+	//! Get the internal id (id within the platform) of the bean
     public String getInternalId() {
         return internalId;
     }
 
+	//! Sets the internal id (id within the platform) of the bean
     public void setInternalId(String internalId) {
         this.internalId = internalId;
     }
 
 
-    public String getSymbioteId() {
-        return symbioteId;
+	//! Gets the id (id within SymbIoTe) of the bean
+    public String getId() {
+        return id;
     }
 
-    public void setSymbioteId(String symbioteId) {
-        this.symbioteId = symbioteId;
+	//! Sets the id (id within SymbIoTe) of the bean
+    public void setId(String id) {
+        this.id = id;
     }
 
+	//! Gets the name of the bean
     public String getName() {
         return name;
     }
 
+	//! Sets the name of the bean
     public void setName(String name) {
         this.name = name;
     }

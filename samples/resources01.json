@@ -1,0 +1,34 @@
+{
+  "resources": [
+		{
+		"name": "resource1",
+		"owner": "localOwner",
+		"description": "somedesc",
+		"resourceURL" : "http://aaa.bbb.ccc:5656/aaab",
+		"internalId": "intIDresource1",
+		"location": 
+			{
+			"name": "paris",
+			"description": "a city",
+			"longitude": 1.0,
+			"latitude": 2.0, 
+			"altitude": 3.0
+			}
+		},
+		{
+		"name": "resource2",
+		"owner": "localOwner2",
+		"description": "somedesc",
+		"resourceURL" : "http://aaa.bbb.ccc:5656/aaab",
+		"internalId": "intIDresource1",
+		"location": 
+			{
+			"name": "paris",
+			"description": "a city",
+			"longitude": 1.0,
+			"latitude": 2.0, 
+			"altitude": 3.0
+			}
+		}
+	]
+}

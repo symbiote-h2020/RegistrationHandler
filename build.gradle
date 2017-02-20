@@ -35,9 +35,17 @@ dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile('com.netflix.feign:feign-gson:8.18.0')
+    //compile('org.springframework.cloud:spring-cloud-netflix-core')
+    //compile('org.springframework.cloud:spring-cloud-starter-ribbon')
+    //compile('org.springframework.cloud:spring-cloud-netflix-eureka-server')
+    //compile('org.springframework.cloud:spring-cloud-starter-eureka')
+    
+    
     compile project(':registration-handler-interface')
     //    compile project(':open-iot-registration-handler-impl')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.github.tomakehurst:wiremock')
+    testCompile('org.springframework:spring-core')
 }
 
 dependencyManagement {

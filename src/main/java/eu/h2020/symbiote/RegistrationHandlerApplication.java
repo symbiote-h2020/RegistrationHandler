@@ -1,28 +1,30 @@
 package eu.h2020.symbiote;
 
-import feign.Feign;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-//import org.springframework.context.annotation.Bean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+
+
+/**! \class RegistrationHandlerApplication
+ * \brief RegistrationHandlerApplication root class that has to be launched to run the RegistrationHandler with spring boot
+ **/
 
 /**
- * Created by mateuszl on 22.09.2016.
+ * This class handles the initialization from the platform. Initially created by jose
+ *
+ * @author: jose, Elena Garrido
+ * @version: 06/10/2016
+
  */
-//@EnableDiscoveryClient    //when Eureka available
+@EnableDiscoveryClient    //when Eureka available
 @EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
-
-	private static Log log = LogFactory.getLog(RegistrationHandlerApplication.class);
 
     public static <T> T createFeignClient(Class<T> client, String baseUrl) {
         return Feign.builder().
@@ -32,17 +34,5 @@ public class RegistrationHandlerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RegistrationHandlerApplication.class, args);
-
-        try {
-            // Subscribe to RabbitMQ messages
-        } catch (Exception e) {
-            log.error("Error occured during subscribing from Registration Handler", e);
-        }
     }
-
-//    @Bean
-//    public AlwaysSampler defaultSampler() {
-//        return new AlwaysSampler();
-    //   }
-
 }
