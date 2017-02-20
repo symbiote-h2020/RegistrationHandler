@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.4.1.RELEASE'
+        springBootVersion = '1.4.0.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -11,53 +11,45 @@ buildscript {
     }
 }
 
-ext.junitJupiterVersion = '5.0.0-M2'
-
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
 
-
 jar {
-    baseName = 'RegistrationHandler'
-    version =  '0.0.1-SNAPSHOT'
+    baseName = 'registration-handler'
+    version = '0.0.1-SNAPSHOT'
 }
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { 
-        url "https://jitpack.io" 
-    }
-    maven {
-        url 'https://repo.spring.io/libs-snapshot'
-    }
+    mavenLocal()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-config')
     compile('org.springframework.cloud:spring-cloud-starter-eureka')
-    compile('org.springframework.cloud:spring-cloud-starter-zipkin') // Causes the java.net.ConnectException
+    compile('org.springframework.cloud:spring-cloud-starter-feign')
     compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
-    compile('org.springframework.boot:spring-boot-starter-data-rest')
-    compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile('com.netflix.feign:feign-gson:8.18.0')
+    //compile('org.springframework.cloud:spring-cloud-netflix-core')
+    //compile('org.springframework.cloud:spring-cloud-starter-ribbon')
+    //compile('org.springframework.cloud:spring-cloud-netflix-eureka-server')
+    //compile('org.springframework.cloud:spring-cloud-starter-eureka')
+    
+    
     compile project(':registration-handler-interface')
-
+    //    compile project(':open-iot-registration-handler-impl')
     testCompile('org.springframework.boot:spring-boot-starter-test')
-
-
-    // Use JUnit4
-    testCompile 'junit:junit:4.12'
+    testCompile('com.github.tomakehurst:wiremock')
+    testCompile('org.springframework:spring-core')
 }
 
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:Camden.RELEASE"
-        mavenBom 'org.springframework.cloud:spring-cloud-sleuth:1.1.0.BUILD-SNAPSHOT'
     }
 }
-
