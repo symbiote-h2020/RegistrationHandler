@@ -21,8 +21,8 @@ import feign.gson.GsonEncoder;
  * @version: 06/10/2016
 
  */
-@EnableDiscoveryClient    //when Eureka available
-@EnableAutoConfiguration
+//@EnableDiscoveryClient    //when Eureka available
+//@EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
 

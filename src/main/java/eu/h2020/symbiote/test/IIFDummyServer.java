@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.service;
+package eu.h2020.symbiote.test;
 import java.util.Map;
 
 import org.springframework.amqp.core.ExchangeTypes;
