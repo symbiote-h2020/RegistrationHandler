@@ -56,7 +56,7 @@ public class GenericRabbitMQRoutingMessageHandler <T>{
         factory.setHost(rabbitMQHostIP);
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-   	 	channel.exchangeDeclare(exchangeName,"direct",false,false, false, null);
+   	 	channel.exchangeDeclare(exchangeName,"fanout",false,false, false, null);
         //channel.exchangeDeclare(exchangeName, "direct");
         //channel.queueDeclare(queueName, false, false, false, null);
 
