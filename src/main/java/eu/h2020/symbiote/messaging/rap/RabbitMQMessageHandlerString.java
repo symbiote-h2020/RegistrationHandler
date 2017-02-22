@@ -1,7 +1,7 @@
 package eu.h2020.symbiote.messaging.rap;
 
 import eu.h2020.symbiote.beans.ResourceBean;
-import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRoutingMessageHandler;
+import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 
 
 /**
@@ -15,7 +15,7 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRoutingMessageHandler
  * \brief This class extends from the \class GenericRabbitMQRoutingMessageHandler and will be able to write and read a \class String 
  * from the rabbitMQ routing queues 
  **/
-class RabbitMQMessageHandlerString extends GenericRabbitMQRoutingMessageHandler<String> {
+class RabbitMQMessageHandlerString extends GenericRabbitMQFanoutMessageHandler<String> {
 
     public RabbitMQMessageHandlerString(String exchangeName, String queueName) {
 		super(exchangeName, queueName, ResourceBean.class);

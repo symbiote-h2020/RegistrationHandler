@@ -1,7 +1,7 @@
 package eu.h2020.symbiote.messaging.rap;
 
 import eu.h2020.symbiote.beans.ResourceBean;
-import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRoutingMessageHandler;
+import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 
 
 /**
@@ -16,7 +16,7 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRoutingMessageHandler
  * from the rabbitMQ routing queues 
  **/
 
-class RabbitMQMessageHandlerResourceBean extends GenericRabbitMQRoutingMessageHandler<ResourceBean> {
+class RabbitMQMessageHandlerResourceBean extends GenericRabbitMQFanoutMessageHandler<ResourceBean> {
 
     public RabbitMQMessageHandlerResourceBean(String exchangeName, String queueName) {
 		super(exchangeName, queueName, ResourceBean.class);
