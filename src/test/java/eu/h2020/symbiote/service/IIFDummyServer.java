@@ -1,6 +1,8 @@
-package eu.h2020.symbiote.test;
+package eu.h2020.symbiote.service;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -14,10 +16,11 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 @Service
 public class IIFDummyServer {
-	
+    private static Log logger = LogFactory.getLog(IIFDummyServer.class);
+
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
@@ -36,9 +39,9 @@ public class IIFDummyServer {
 	        key = "symbIoTe.InterworkingInterface.registrationHandler.register_resources")
 	    )
 	    public void resourceRegistration(Message message, @Headers() Map<String, String> headers) {
-	    	
+	    	logger.info("resourceRegistration"+new String(message.getBody()));
             Gson gson = new Gson();
-            ResourceBean resourceBean = gson.fromJson(new String(message.getBody()), ResourceBean.class);
+            CloudResource resourceBean = gson.fromJson(new String(message.getBody()), CloudResource.class);
 
             resourceBean.setId("symbiote"+resourceBean.getInternalId());
             String response  = gson.toJson(resourceBean);
@@ -57,6 +60,7 @@ public class IIFDummyServer {
 	            key = "symbIoTe.InterworkingInterface.registrationHandler.unregister_resources")
 	        )
         public void resourceUnregistration(Message message, @Headers() Map<String, String> headers) {
+	    	logger.info("resourceUnregistration"+new String(message.getBody()));
 	        rabbitTemplate.convertAndSend(headers.get("amqp_replyTo"), message.getBody(),
                m -> {
                 		Object a = headers.get("amqp_correlationId");
@@ -71,8 +75,9 @@ public class IIFDummyServer {
 	            key = "symbIoTe.InterworkingInterface.registrationHandler.update_resources")
 	        )
         public void resourceUpdate(Message message, @Headers() Map<String, String> headers) {
+	    	logger.info("resourceUpdate"+new String(message.getBody()));
             Gson gson = new Gson();
-            ResourceBean resourceBean = gson.fromJson(new String(message.getBody()), ResourceBean.class);
+            CloudResource resourceBean = gson.fromJson(new String(message.getBody()), CloudResource.class);
 
             resourceBean.setId("symbiote"+resourceBean.getInternalId());
             String response  = gson.toJson(resourceBean);

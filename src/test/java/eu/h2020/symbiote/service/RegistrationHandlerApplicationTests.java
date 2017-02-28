@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -30,8 +29,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.google.gson.Gson;
 
-import eu.h2020.symbiote.beans.LocationBean;
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
+import eu.h2020.symbiote.core.model.Location;
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
@@ -41,7 +40,6 @@ public class RegistrationHandlerApplicationTests {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
     static private MockMvc mockMvc;
-    static private MockRestServiceServer mockServer;
 
     String uri;
    @Autowired
@@ -52,7 +50,7 @@ public class RegistrationHandlerApplicationTests {
     public void setUp() throws Exception {
 		AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
 		mockMvc = webAppContextSetup(webApplicationContext).build();
-		mockServer = MockRestServiceServer.createServer(asyncRestTemplate);
+		MockRestServiceServer.createServer(asyncRestTemplate);
 
 	}
 /*
@@ -77,9 +75,10 @@ public class RegistrationHandlerApplicationTests {
     public ResourceBean deleteResource(@Param("resourceInternalId")  String resourceInternalId); 
 */
 
-   private ResourceBean getTestResourceBean(){
-		ResourceBean resource = new ResourceBean();
-		LocationBean location = new LocationBean();
+   private CloudResource getTestResourceBean(){
+	   CloudResource resource = new CloudResource();
+	   
+		Location location = new Location();
 		location.setAltitude(500.0);
 		location.setDescription("my location");
 		location.setLatitude(45.0);
@@ -102,7 +101,7 @@ public class RegistrationHandlerApplicationTests {
 				.decoder(new GsonDecoder())
 				.encoder(new GsonEncoder())
                 .target(RHRestServiceClient.class, uri);*/
-		ResourceBean resource = getTestResourceBean();
+		CloudResource resource = getTestResourceBean();
 	    Gson gson = new Gson();
         String objectInJson = gson.toJson(resource);
 		 
@@ -149,7 +148,7 @@ public class RegistrationHandlerApplicationTests {
 
         try {
 				Gson gson = new Gson();
-				ResourceBean resource = getTestResourceBean();
+				CloudResource resource = getTestResourceBean();
 				
 				resource.setOwner("Symbiote");
 				String objectInJson = gson.toJson(resource);
@@ -164,7 +163,7 @@ public class RegistrationHandlerApplicationTests {
 				String r2 = result2.getContentAsString();
 		        System.out.println("testGetResource-------------------------------------------------------- result:"+r2);
 				if (!"".equals(r2)){
-					ResourceBean resource2 = (ResourceBean)gson.fromJson(r2, ResourceBean.class);
+					CloudResource resource2 = (CloudResource)gson.fromJson(r2, CloudResource.class);
 			        System.out.println("End of test ----------------------------- testGetResource");
 					assert("Symbiote".equals(resource2.getOwner()));
 				}else{
@@ -196,7 +195,7 @@ public class RegistrationHandlerApplicationTests {
 	@Test
 	public void testDeleteResource() {
         try {
-    		ResourceBean resource = getTestResourceBean();
+        	CloudResource resource = getTestResourceBean();
     	    Gson gson = new Gson();
             String objectInJson = gson.toJson(resource);
     		 

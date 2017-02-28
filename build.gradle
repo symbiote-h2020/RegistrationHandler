@@ -4,7 +4,6 @@ buildscript {
     }
     repositories {
         mavenCentral()
-        mavenLocal()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -35,14 +34,7 @@ dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile('com.netflix.feign:feign-gson:8.18.0')
-    //compile('org.springframework.cloud:spring-cloud-netflix-core')
-    //compile('org.springframework.cloud:spring-cloud-starter-ribbon')
-    //compile('org.springframework.cloud:spring-cloud-netflix-eureka-server')
-    //compile('org.springframework.cloud:spring-cloud-starter-eureka')
-    
-    
-    compile project(':registration-handler-interface')
-    //    compile project(':open-iot-registration-handler-impl')
+    compile('eu.h2020.symbiote:SymbIoTeLibraries:0.0.1')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.github.tomakehurst:wiremock')
     testCompile('org.springframework:spring-core')

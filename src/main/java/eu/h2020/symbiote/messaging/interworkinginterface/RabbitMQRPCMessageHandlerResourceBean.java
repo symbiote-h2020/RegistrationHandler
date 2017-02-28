@@ -1,6 +1,6 @@
 package eu.h2020.symbiote.messaging.interworkinginterface;
 
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
 
 
@@ -15,9 +15,9 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
  * \brief This class extends from the \class GenericRabbitMQRPCMessageHandler and will be able to write and read a \class ResourceBean
  * from the rabbitMQ RPC queues 
  **/
-class RabbitMQRPCMessageHandlerResourceBean extends GenericRabbitMQRPCMessageHandler<ResourceBean,ResourceBean> {
+class RabbitMQRPCMessageHandlerResourceBean extends GenericRabbitMQRPCMessageHandler<CloudResource,CloudResource> {
 
     public RabbitMQRPCMessageHandlerResourceBean(String excchangeName, String requestQueueName, String replyQueueName) {
-		super(excchangeName, requestQueueName, replyQueueName, ResourceBean.class);
+		super(excchangeName, requestQueueName, replyQueueName, CloudResource.class);
 	}
 }

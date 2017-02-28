@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.h2020.symbiote.PlatformInformationManager;
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.exceptions.ConflictException;
 
 
@@ -33,9 +33,9 @@ public class RegistrationHandlerRestService {
 
   
   @RequestMapping(method = RequestMethod.GET, path = "/resources")
-  public List<ResourceBean> getResources() {
+  public List<CloudResource> getResources() {
     logger.info("START OF getResources");
-    List<ResourceBean>result = infoManager.getResources();
+    List<CloudResource>result = infoManager.getResources();
     logger.info("END OF getResources, result "+ result);
     return result;
   }
@@ -49,10 +49,10 @@ public class RegistrationHandlerRestService {
  * An exception can be thrown when no \a resourceInternalId is indicated
  */
   @RequestMapping(method = RequestMethod.GET, path = "/resource")
-  public ResourceBean getResource(@RequestParam String resourceInternalId) throws ConflictException{
+  public CloudResource getResource(@RequestParam String resourceInternalId) throws ConflictException{
     logger.info("START OF getResource, in data "+ resourceInternalId);
     if ("".equals(resourceInternalId)) throw new ConflictException("resourceInternalId parameter must be informed");
-    ResourceBean result = infoManager.getResource(resourceInternalId);
+    CloudResource result = infoManager.getResource(resourceInternalId);
     logger.info("END OF getResource, result "+ result);
     return result;
   }
@@ -67,12 +67,13 @@ public class RegistrationHandlerRestService {
  * An exception can be thrown when no \a internalId is indicated within the \a ResourceBean 
  */
   @RequestMapping(method = RequestMethod.POST, path = "/resource")
-  public ResourceBean addResource(@RequestBody ResourceBean resource) throws ConflictException{
+  public CloudResource addResource(@RequestBody CloudResource resource) throws ConflictException{
     logger.info("START OF addResource, in data "+ resource);
+    System.out.println("START OF addResource, in data "+ resource);
     if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
     /*return resources.stream().map(resource -> addResource(resource))
             .filter(resource -> resource != null).collect(Collectors.toList());*/
-    ResourceBean result = infoManager.addResource(resource);
+    CloudResource result = infoManager.addResource(resource);
     logger.info("END OF addResource, result "+ result);
     return result;
     
@@ -87,9 +88,9 @@ public class RegistrationHandlerRestService {
  * \return \a updateResource returns the \a ResourceBean where the Symbiote id is included. 
  */
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
-  public ResourceBean updateResource(@RequestBody ResourceBean resource) {
+  public CloudResource updateResource(@RequestBody CloudResource resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    ResourceBean result = infoManager.updateResource(resource);
+    CloudResource result = infoManager.updateResource(resource);
     logger.info("END OF updateResource, result "+ result);
     return result;
   }
@@ -103,9 +104,9 @@ public class RegistrationHandlerRestService {
  * \return \a deleteResource returns the \a ResourceBean that has been just removed 
  */
   @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
-  public ResourceBean deleteResource(@RequestParam String resourceInternalId) {
+  public CloudResource deleteResource(@RequestParam String resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
-    ResourceBean result = infoManager.deleteResource(resourceInternalId);
+    CloudResource result = infoManager.deleteResource(resourceInternalId);
     logger.info("END OF deleteResource, result "+ result);
     return result;
   }

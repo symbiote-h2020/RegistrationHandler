@@ -1,6 +1,5 @@
 package eu.h2020.symbiote.messaging.rap;
 
-import eu.h2020.symbiote.beans.ResourceBean;
 import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 
 
@@ -18,6 +17,6 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 class RabbitMQMessageHandlerString extends GenericRabbitMQFanoutMessageHandler<String> {
 
     public RabbitMQMessageHandlerString(String exchangeName, String queueName) {
-		super(exchangeName, queueName, ResourceBean.class);
+		super(exchangeName, queueName, String.class);
 	}
 }

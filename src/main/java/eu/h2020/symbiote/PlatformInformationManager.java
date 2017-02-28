@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.db.ResourceRepository;
 import eu.h2020.symbiote.messaging.interworkinginterface.IIResourceMessageHandler;
 import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
@@ -45,17 +45,17 @@ public class PlatformInformationManager {
   private void init() {
   }
 
-  private ResourceBean addOrUpdateInInternalRepository(ResourceBean resource){
-     ResourceBean existingResource = resourceRepository.getByInternalId(resource.getInternalId());
+  private CloudResource addOrUpdateInInternalRepository(CloudResource resource){
+	  CloudResource existingResource = resourceRepository.getByInternalId(resource.getInternalId());
       if (existingResource != null) {
     	  logger.info("update will be done");
       }
       return resourceRepository.save(resource);
   }
 
-  private ResourceBean deleteInInternalRepository(String resourceId){
+  private CloudResource deleteInInternalRepository(String resourceId){
     if (!"".equals(resourceId)) {
-        ResourceBean existingResource = resourceRepository.getByInternalId(resourceId);
+    	CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
         if (existingResource != null) {
           resourceRepository.delete(resourceId);
           return existingResource;
@@ -73,9 +73,9 @@ public class PlatformInformationManager {
  * \return \a addResource returns the \a ResourceBean where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a ResourceBean 
  */
-  public ResourceBean addResource(ResourceBean resource) {
-    ResourceBean result  = null;
-    ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
+  public CloudResource addResource(CloudResource resource) {
+	CloudResource result  = null;
+	CloudResource beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
     if (beanWithStmbioteId != null){
     	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
     }
@@ -91,9 +91,9 @@ public class PlatformInformationManager {
  * \param resource \a ResourceBean to be updated within the system
  * \return \a updateResource returns the \a ResourceBean where the Symbiote id is included. 
  */
-  public ResourceBean updateResource(ResourceBean resource) {
-    ResourceBean result  = null;
-    ResourceBean beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
+  public CloudResource updateResource(CloudResource resource) {
+	CloudResource result  = null;
+	CloudResource beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
     if (beanWithStmbioteId != null){
     	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
     }
@@ -109,8 +109,8 @@ public class PlatformInformationManager {
  * \param resourceId \a internalId to the resource to be removed 
  * \return \a deleteResource returns the \a ResourceBean that has been just removed 
  */
-  public ResourceBean deleteResource(String resourceId) {
-	ResourceBean result = null;  
+  public CloudResource deleteResource(String resourceId) {
+	CloudResource result = null;  
     String id = ifresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(resourceId);
     if (id!=null)
         result  = deleteInInternalRepository(resourceId);
@@ -119,18 +119,18 @@ public class PlatformInformationManager {
     return result;
   }
 
-  private List<ResourceBean> addResources(List<ResourceBean> resources) {
+  private List<CloudResource> addResources(List<CloudResource> resources) {
     return resources.stream().map(resource -> addResource(resource))
         .filter(resource -> resource != null).collect(Collectors.toList());
   }
 
-  private List<ResourceBean> updateResources(List<ResourceBean> resources) {
+  private List<CloudResource> updateResources(List<CloudResource> resources) {
     return resources.stream().map(resource -> updateResource(resource))
             .filter(resource -> resource != null).collect(Collectors.toList());
   }
 
 
-  public List<ResourceBean> getResources() {
+  public List<CloudResource> getResources() {
     return resourceRepository.findAll();
   }
 
@@ -142,7 +142,7 @@ public class PlatformInformationManager {
  * \param resourceId id from the resource to be retrieved from the database
  * \return \a getResource returns the \a ResourceBean, 
  */
-  public ResourceBean getResource(String resourceId) {
+  public CloudResource getResource(String resourceId) {
 	if (!"".equals(resourceId)) {
 	     return resourceRepository.getByInternalId(resourceId);
 	}

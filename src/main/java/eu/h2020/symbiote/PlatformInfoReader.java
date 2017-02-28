@@ -2,7 +2,7 @@ package eu.h2020.symbiote;
 
 import java.util.List;
 
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 
 /**! \class PlatformInfoReader
  * \brief PlatformInfoReader interface to be implemented by the platform owners when they want to register a list of resources
@@ -20,6 +20,6 @@ public interface PlatformInfoReader {
 	 *
 	 * \return \a getResourcesToRegister returns the list of \a ResourceBean to be registered 
 	 */
-    List<ResourceBean> getResourcesToRegister();
+    List<CloudResource> getResourcesToRegister();
 
 }

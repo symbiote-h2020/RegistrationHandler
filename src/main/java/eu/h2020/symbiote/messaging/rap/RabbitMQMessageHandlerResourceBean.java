@@ -1,6 +1,6 @@
 package eu.h2020.symbiote.messaging.rap;
 
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 
 
@@ -16,9 +16,9 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
  * from the rabbitMQ routing queues 
  **/
 
-class RabbitMQMessageHandlerResourceBean extends GenericRabbitMQFanoutMessageHandler<ResourceBean> {
+class RabbitMQMessageHandlerResourceBean extends GenericRabbitMQFanoutMessageHandler<CloudResource> {
 
     public RabbitMQMessageHandlerResourceBean(String exchangeName, String queueName) {
-		super(exchangeName, queueName, ResourceBean.class);
+		super(exchangeName, queueName, CloudResource.class);
 	}
 }

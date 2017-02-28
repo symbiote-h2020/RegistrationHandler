@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import eu.h2020.symbiote.PlatformInfoReader;
-import eu.h2020.symbiote.beans.ResourceBean;
+import eu.h2020.symbiote.cloud.model.CloudResource;
 
 /**
  * Created by jose on 27/09/16.
@@ -37,12 +37,12 @@ public class FilePlatformInfoReader implements PlatformInfoReader{
 
 
     @Override
-    public List<ResourceBean> getResourcesToRegister() {
+    public List<CloudResource> getResourcesToRegister() {
 
         Gson reader = new Gson();
         File resourcesFile = new File(fileLocation+"/"+RESOURCES_FILE_NAME);
 
-        Type listType = new TypeToken<ArrayList<ResourceBean>>(){}.getType();
+        Type listType = new TypeToken<ArrayList<CloudResource>>(){}.getType();
 
         try {
             return reader.fromJson(new FileReader(resourcesFile), listType);
