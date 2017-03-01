@@ -1,6 +1,7 @@
 package eu.h2020.symbiote.messaging.rabbitmq;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,15 +31,14 @@ public class GenericRabbitMQFanoutMessageHandler <T>{
     @Value("${symbiote.rabbitmq.host.ip}")
     String rabbitMQHostIP;
 
-    @SuppressWarnings("rawtypes")
- 	Class clazz;
+ 	Type type;
     String exchangeName;
     String queueName;
 
-    public GenericRabbitMQFanoutMessageHandler(String exchangeName, String queueName, @SuppressWarnings("rawtypes") Class clazz){
+    public GenericRabbitMQFanoutMessageHandler(String exchangeName, String queueName,  Type type){
     	this.exchangeName = exchangeName;
     	this.queueName = queueName; 
-    	this.clazz = clazz;
+    	this.type = type;
     	
     }
     /**
@@ -91,7 +91,7 @@ public class GenericRabbitMQFanoutMessageHandler <T>{
                     throws IOException {
                 String message = new String(body, "UTF-8");
                 Gson gson = new Gson();
-                T result = (T)gson.fromJson(message, clazz);
+                T result = (T)gson.fromJson(message, type);
                 logger.info("Result "+result);
                 receptionListener.onReceivedMessage(result);
   

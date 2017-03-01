@@ -1,5 +1,4 @@
-{
-  "resources": [
+[
 		{
 		"name": "resource1",
 		"owner": "localOwner",
@@ -30,5 +29,4 @@
 			"altitude": 3.0
 			}
 		}
-	]
-}
+]

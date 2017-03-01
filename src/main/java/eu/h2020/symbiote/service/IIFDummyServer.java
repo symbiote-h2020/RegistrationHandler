@@ -1,5 +1,8 @@
 package eu.h2020.symbiote.service;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,6 +18,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 @Service
@@ -41,10 +45,12 @@ public class IIFDummyServer {
 	    public void resourceRegistration(Message message, @Headers() Map<String, String> headers) {
 	    	logger.info("resourceRegistration"+new String(message.getBody()));
             Gson gson = new Gson();
-            CloudResource resourceBean = gson.fromJson(new String(message.getBody()), CloudResource.class);
+            List<CloudResource> resources = gson.fromJson(new String(message.getBody()),  new TypeToken<ArrayList<CloudResource>>(){}.getType());
 
-            resourceBean.setId("symbiote"+resourceBean.getInternalId());
-            String response  = gson.toJson(resourceBean);
+            List<CloudResource> result = resources.stream().map(resource -> { resource.setId("symbiote"+resource.getName()); return resource;})
+            .collect(Collectors.toList());
+
+            String response  = gson.toJson(result);
 	    	
 	        rabbitTemplate.convertAndSend(headers.get("amqp_replyTo"), response.getBytes(),
                m -> {

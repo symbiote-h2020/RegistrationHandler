@@ -45,12 +45,15 @@ public class PlatformInformationManager {
   private void init() {
   }
 
-  private CloudResource addOrUpdateInInternalRepository(CloudResource resource){
-	  CloudResource existingResource = resourceRepository.getByInternalId(resource.getInternalId());
-      if (existingResource != null) {
-    	  logger.info("update will be done");
-      }
-      return resourceRepository.save(resource);
+  private List<CloudResource>  addOrUpdateInInternalRepository(List<CloudResource>  resources){
+	 return resources.stream().map(resource -> {
+		  CloudResource existingResource = resourceRepository.getByInternalId(resource.getInternalId());
+	      if (existingResource != null) {
+	    	  logger.info("update will be done");
+	      }
+	      return resourceRepository.save(resource);
+	 })
+     .collect(Collectors.toList());
   }
 
   private CloudResource deleteInInternalRepository(String resourceId){
@@ -73,13 +76,10 @@ public class PlatformInformationManager {
  * \return \a addResource returns the \a ResourceBean where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a ResourceBean 
  */
-  public CloudResource addResource(CloudResource resource) {
-	CloudResource result  = null;
-	CloudResource beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceRegistrationMessage(resource);
-    if (beanWithStmbioteId != null){
-    	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
-    }
-    rapresourceRegistrationMessageHandler.sendResourceRegistrationMessage(result);
+  public List<CloudResource> addResources(List<CloudResource> resource) {
+	List<CloudResource> listWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(resource);
+	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+    rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
     return result;
   }
 
@@ -91,13 +91,10 @@ public class PlatformInformationManager {
  * \param resource \a ResourceBean to be updated within the system
  * \return \a updateResource returns the \a ResourceBean where the Symbiote id is included. 
  */
-  public CloudResource updateResource(CloudResource resource) {
-	CloudResource result  = null;
-	CloudResource beanWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resource);
-    if (beanWithStmbioteId != null){
-    	result  = addOrUpdateInInternalRepository(beanWithStmbioteId);
-    }
-    rapresourceRegistrationMessageHandler.sendResourceUpdateMessage(result);
+  public List<CloudResource>  updateResource(List<CloudResource>  resources) {
+	List<CloudResource> listWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resources);
+	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+    rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
     return result;
   }
 
@@ -117,16 +114,6 @@ public class PlatformInformationManager {
     rapresourceRegistrationMessageHandler.sendResourceUnregistrationMessage(id);
     
     return result;
-  }
-
-  private List<CloudResource> addResources(List<CloudResource> resources) {
-    return resources.stream().map(resource -> addResource(resource))
-        .filter(resource -> resource != null).collect(Collectors.toList());
-  }
-
-  private List<CloudResource> updateResources(List<CloudResource> resources) {
-    return resources.stream().map(resource -> updateResource(resource))
-            .filter(resource -> resource != null).collect(Collectors.toList());
   }
 
 

@@ -1,5 +1,7 @@
 package eu.h2020.symbiote.messaging.rabbitmq;
 
+import java.lang.reflect.Type;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,14 +35,13 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
     private QueueingConsumer consumer;
     String replyQueueName;
     String requestQueueName;
-    @SuppressWarnings("rawtypes")
-	Class clazz;
-
-    public GenericRabbitMQRPCMessageHandler(String exchangeName, String requestQueueName, String replyQueueName, @SuppressWarnings("rawtypes") Class clazz) {
+    Type type;
+    
+    public GenericRabbitMQRPCMessageHandler(String exchangeName, String requestQueueName, String replyQueueName, Type type) {
     	logger.info("Creating with requestQueueName:"+requestQueueName+" and replyQueueName:" +replyQueueName);
     	this.replyQueueName = replyQueueName;
     	this.requestQueueName = requestQueueName;
-    	this.clazz = clazz;
+    	this.type= type;
     	this.exchangeName = exchangeName;
     }
     
@@ -83,7 +84,7 @@ public class GenericRabbitMQRPCMessageHandler <T,O> {
              if (delivery.getProperties().getCorrelationId().equals(corrId)) {
                  String response = new String(delivery.getBody());
                  logger.info("Received reply: " + response);
-                 result = (O)gson.fromJson(response, clazz);
+                 result = (O)gson.fromJson(response, type);
                  logger.info("Result "+result);
                  break;
              }

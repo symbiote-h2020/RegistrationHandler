@@ -1,5 +1,6 @@
 package eu.h2020.symbiote.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -59,38 +60,74 @@ public class RegistrationHandlerRestService {
 
 //! Create a resource.
 /*!
- * The addResource method stores \a ResourceBean passed as parameter in the  
- * mondodb database and send the information to the \a Interworking Interface and \a Resource Access Proxy component.
+ * The addResource method stores \a CloudResource passed as parameter in the  
+ * mondodb database and send the information to the \a Interworking Interface, \a Resource Access Proxy component and \a Monitoring components.
  *
  * \param resource \a ResourceBean to be created within the system
  * \return \a addResource returns the \a ResourceBean where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a ResourceBean 
  */
   @RequestMapping(method = RequestMethod.POST, path = "/resource")
-  public CloudResource addResource(@RequestBody CloudResource resource) throws ConflictException{
+  public List<CloudResource> addResource(@RequestBody CloudResource resource) throws ConflictException{
     logger.info("START OF addResource, in data "+ resource);
-    System.out.println("START OF addResource, in data "+ resource);
     if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
-    /*return resources.stream().map(resource -> addResource(resource))
-            .filter(resource -> resource != null).collect(Collectors.toList());*/
-    CloudResource result = infoManager.addResource(resource);
+    List<CloudResource> list = new ArrayList<CloudResource>();
+    list.add(resource);
+    List<CloudResource> result = infoManager.addResources(list);
     logger.info("END OF addResource, result "+ result);
     return result;
     
  }
 
+//! Create a resource.
+/*!
+ * The addResources method stores List of \a CloudResource passed as parameter in the  
+ * mondodb database and send the information to the \a Interworking Interface, \a Resource Access Proxy component and \a Monitoring components.
+ *
+ * \param resource \a CloudResource to be created within the system
+ * \return \a addResource returns the \a CloudResource where the Symbiote id is included. 
+ * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
+ */
+  
+  @RequestMapping(method = RequestMethod.POST, path = "/resources")
+  public List<CloudResource> addResources(@RequestBody List<CloudResource> resources) throws ConflictException{
+    logger.info("START OF addResource, in data "+ resources);
+    List<CloudResource> result = infoManager.addResources(resources);
+    logger.info("END OF addResources, result "+ result);
+    return null;
+    
+ }
+  
 //! Update a resource.
 /*!
- * The updateResource method updates the \a ResourceBean passed as parameter into the   
+ * The updateResource method updates the \a CloudResource passed as parameter into the   
  * mondodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
  *
- * \param resource \a ResourceBean to be updated within the system
- * \return \a updateResource returns the \a ResourceBean where the Symbiote id is included. 
+ * \param resource \a CloudResource to be updated within the system
+ * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
  */
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
   public CloudResource updateResource(@RequestBody CloudResource resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    CloudResource result = infoManager.updateResource(resource);
+    //CloudResource result = infoManager.updateResource(resource);
+    CloudResource result = null;
+    logger.info("END OF updateResource, result "+ result);
+    return result;
+  }
+
+//! Update a resource.
+/*!
+ * The updateResource method updates the \a CloudResource passed as parameter into the   
+ * mondodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
+ *
+ * \param resource \a CloudResource to be updated within the system
+ * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
+ */
+  @RequestMapping(method = RequestMethod.PUT, path = "/resources")
+  public List<CloudResource> updateResources(@RequestBody List<CloudResource> resource) {
+    logger.info("START OF updateResource, in data "+ resource);
+    List<CloudResource>  result = infoManager.updateResource(resource);
+    
     logger.info("END OF updateResource, result "+ result);
     return result;
   }

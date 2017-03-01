@@ -1,5 +1,8 @@
 package eu.h2020.symbiote.messaging.interworkinginterface;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,19 +40,32 @@ public class IIResourceMessageHandler {
 	@Autowired
 	private ApplicationContext applicationContext;
 
-    public CloudResource sendResourceRegistrationMessage(CloudResource resourceBean) {
+    public List<CloudResource> sendResourcesRegistrationMessage(List<CloudResource> resources) {
         try {
-            logger.info("Sending request for registration resource with internal id " + resourceBean.getInternalId());
-            RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(EXCHANGE_NAME, RESOURCE_REGISTRATION_ROUTING_KEY, RESOURCE_REGISTRATION_ROUTING_KEY_REPLY);
+            logger.info("Sending request for registration of "+resources.size()+" resources ");
+            RabbitMQRPCMessageHandlerResourceList rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceList(EXCHANGE_NAME, RESOURCE_REGISTRATION_ROUTING_KEY, RESOURCE_REGISTRATION_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
-        	String internalId = resourceBean.getInternalId();
-        	resourceBean.setInternalId("");
-        	CloudResource resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
-        	resourceBeanResult.setInternalId(internalId);
-            rabbitMQMessageHandler.close();
-            logger.info("Sending result for resource with internal id " + resourceBeanResult.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
-            return resourceBeanResult;
+     	    List<CloudResource> listToSend = resources.stream().map(resource ->	{ CloudResource cloned = null;
+     	    	try {
+     	    		cloned = (CloudResource) resource.clone();
+     	    	} catch (Exception e) {
+				
+					logger.error("Fatal error cloning resource", e);
+     	    	}
+     	    	cloned.setInternalId(""); return cloned;} )
+     	    	 .collect(Collectors.toList());
+
+     	    List<CloudResource> resourceListReceived = rabbitMQMessageHandler.sendMessage(listToSend);
+     	   
+      	   	
+      	   	//be aware that the list must returned in the same order that it has been send
+     	    int i = 0;
+     	    for (CloudResource resource:resources)
+     	    	resource.setId(resourceListReceived.get(i++).getId());
+     	   
+      	   	rabbitMQMessageHandler.close();
+      	   	return resources;
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_REGISTRATION_ROUTING_KEY:"+RESOURCE_REGISTRATION_ROUTING_KEY+", RESOURCE_REGISTRATION_ROUTING_KEY_REPLY:"+RESOURCE_REGISTRATION_ROUTING_KEY_REPLY, e);
         }
@@ -72,19 +88,33 @@ public class IIResourceMessageHandler {
         return null;
     }
 
-    public CloudResource sendResourceUpdateMessage(CloudResource resourceBean) {
+    public List<CloudResource> sendResourceUpdateMessage(List<CloudResource> resources) {
         try {
-            logger.info("Sending request for update resource with internal id " + resourceBean.getInternalId());
-            RabbitMQRPCMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceBean(EXCHANGE_NAME, RESOURCE_UPDATED_ROUTING_KEY, RESOURCE_UPDATED_ROUTING_KEY_REPLY);
+            logger.info("Sending request for updating of "+resources.size()+" resources ");
+            RabbitMQRPCMessageHandlerResourceList rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerResourceList(EXCHANGE_NAME, RESOURCE_UPDATED_ROUTING_KEY, RESOURCE_UPDATED_ROUTING_KEY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
-        	String internalId = resourceBean.getInternalId();
-        	resourceBean.setInternalId("");       	
-        	CloudResource resourceBeanResult = rabbitMQMessageHandler.sendMessage(resourceBean);
-        	resourceBeanResult.setInternalId(internalId);        	
-            rabbitMQMessageHandler.close();
-            logger.info("Update result for resource with internal id " + resourceBeanResult.getInternalId()+ " --> symbioteId:"+resourceBeanResult.getId());
-            return resourceBeanResult;
+     	    List<CloudResource> listToSend = resources.stream().map(resource ->	{ CloudResource cloned = null;
+     	    	try {
+     	    		cloned = (CloudResource) resource.clone();
+     	    	} catch (Exception e) {
+				
+					logger.error("Fatal error cloning resource", e);
+     	    	}
+     	    	cloned.setInternalId(""); return cloned;} )
+     	    	 .collect(Collectors.toList());
+
+     	    List<CloudResource> resourceListReceived = rabbitMQMessageHandler.sendMessage(listToSend);
+     	   
+      	   	
+      	   	//be aware that the list must returned in the same order that it has been send
+     	    int i = 0;
+     	    for (CloudResource resource:resources)
+     	    	resource.setId(resourceListReceived.get(i++).getId());
+     	   
+      	   	rabbitMQMessageHandler.close();
+      	   	return resources;
+            
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_UPDATED_ROUTING_KEY:"+RESOURCE_UPDATED_ROUTING_KEY+", RESOURCE_UPDATED_ROUTING_KEY_REPLY:"+RESOURCE_UPDATED_ROUTING_KEY_REPLY, e);
         }

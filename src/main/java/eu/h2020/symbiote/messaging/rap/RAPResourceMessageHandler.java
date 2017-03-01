@@ -1,5 +1,7 @@
 package eu.h2020.symbiote.messaging.rap;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +39,12 @@ public class RAPResourceMessageHandler {
 	@Autowired
 	private ApplicationContext applicationContext;
 
-    public void sendResourceRegistrationMessage(CloudResource resourceBean) {
+    public void sendResourcesRegistrationMessage(List<CloudResource> resources) {
         try {
-            logger.info("Sending request for registration " + resourceBean.getInternalId());
-            System.out.println("---------->Sending request for registration " + resourceBean.getInternalId());
-            RabbitMQMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQMessageHandlerResourceBean(EXCHANGE_NAME_REGISTRATION, RESOURCE_REGISTRATION_QUEUE_NAME);
+            logger.info("Sending request for registration for " + resources.size() + " resources");
+            RabbitMQFanoutMessageHandlerResourceList rabbitMQMessageHandler = new RabbitMQFanoutMessageHandlerResourceList(EXCHANGE_NAME_REGISTRATION, RESOURCE_REGISTRATION_QUEUE_NAME);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
-        	rabbitMQMessageHandler.sendMessage(resourceBean);
+        	rabbitMQMessageHandler.sendMessage(resources);
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME_REGISTRATION+", RESOURCE_REGISTRATION_QUEUE_NAME:"+RESOURCE_REGISTRATION_QUEUE_NAME, e);
         }
@@ -61,12 +62,12 @@ public class RAPResourceMessageHandler {
         }
     }
 
-    public void sendResourceUpdateMessage(CloudResource resourceBean) {
+    public void sendResourcesUpdateMessage(List<CloudResource> resources) {
         try {
-            logger.info("Sending request for update " + resourceBean.getInternalId());
-            RabbitMQMessageHandlerResourceBean rabbitMQMessageHandler = new RabbitMQMessageHandlerResourceBean(EXCHANGE_NAME_UPDATED, RESOURCE_UPDATED_QUEUE_NAME);
+            logger.info("Sending request for update for " + resources.size() + " resources");
+            RabbitMQFanoutMessageHandlerResourceList rabbitMQMessageHandler = new RabbitMQFanoutMessageHandlerResourceList(EXCHANGE_NAME_UPDATED, RESOURCE_UPDATED_QUEUE_NAME);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
-        	rabbitMQMessageHandler.sendMessage(resourceBean);
+        	rabbitMQMessageHandler.sendMessage(resources);
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME_UPDATED+", RESOURCE_UPDATED_QUEUE_NAME:"+RESOURCE_UPDATED_QUEUE_NAME, e);
         }
