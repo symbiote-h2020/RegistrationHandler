@@ -23,7 +23,7 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
  */
 /**! \class FilePlatformInfoReader
  * \brief This class extends from \class PlatformInfoReader and implements a method  \a getResourcesToRegister that reads a \a resources.json file that has to contain a 
- * list of \class ResourceBean that will be returned by the method
+ * list of \class CloudResource that will be returned by the method
  **/
 @Component("filePlatformInfoReader")
 public class FilePlatformInfoReader implements PlatformInfoReader{

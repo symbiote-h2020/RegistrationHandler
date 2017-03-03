@@ -42,11 +42,11 @@ public class RegistrationHandlerRestService {
   }
 //! Get a resource.
 /*!
- * The getResource method retrieves \a ResourceBean identified by \a resourceInternalId 
+ * The getResource method retrieves \a CloudResource identified by \a resourceInternalId 
  * from the mondodb database and will return it.
  *
  * \param resourceInternalId id from the resource to be retrieved from the database
- * \return \a getResource returns the \a ResourceBean, 
+ * \return \a getResource returns the \a CloudResource, 
  * An exception can be thrown when no \a resourceInternalId is indicated
  */
   @RequestMapping(method = RequestMethod.GET, path = "/resource")
@@ -63,19 +63,19 @@ public class RegistrationHandlerRestService {
  * The addResource method stores \a CloudResource passed as parameter in the  
  * mondodb database and send the information to the \a Interworking Interface, \a Resource Access Proxy component and \a Monitoring components.
  *
- * \param resource \a ResourceBean to be created within the system
- * \return \a addResource returns the \a ResourceBean where the Symbiote id is included. 
- * An exception can be thrown when no \a internalId is indicated within the \a ResourceBean 
+ * \param resource \a CloudResource to be created within the system
+ * \return \a addResource returns the \a CloudResource where the Symbiote id is included. 
+ * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
   @RequestMapping(method = RequestMethod.POST, path = "/resource")
-  public List<CloudResource> addResource(@RequestBody CloudResource resource) throws ConflictException{
+  public CloudResource addResource(@RequestBody CloudResource resource) throws ConflictException{
     logger.info("START OF addResource, in data "+ resource);
     if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
     List<CloudResource> list = new ArrayList<CloudResource>();
     list.add(resource);
     List<CloudResource> result = infoManager.addResources(list);
     logger.info("END OF addResource, result "+ result);
-    return result;
+    return result.get(0);
     
  }
 
@@ -109,10 +109,12 @@ public class RegistrationHandlerRestService {
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
   public CloudResource updateResource(@RequestBody CloudResource resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    //CloudResource result = infoManager.updateResource(resource);
-    CloudResource result = null;
+    if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
+    List<CloudResource> list = new ArrayList<CloudResource>();
+    list.add(resource);
+    List<CloudResource>  result = infoManager.updateResource(list);
     logger.info("END OF updateResource, result "+ result);
-    return result;
+    return result.get(0);
   }
 
 //! Update a resource.
@@ -126,26 +128,34 @@ public class RegistrationHandlerRestService {
   @RequestMapping(method = RequestMethod.PUT, path = "/resources")
   public List<CloudResource> updateResources(@RequestBody List<CloudResource> resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    List<CloudResource>  result = infoManager.updateResource(resource);
-    
+    List<CloudResource>  result = infoManager.updateResource(resource);    
     logger.info("END OF updateResource, result "+ result);
     return result;
   }
 
 //! Delete a resource.
 /*!
- * The deleteResource method removes the \a ResourceBean identified by the id passed as a parameter in the \a resourceInternalId variable.   
+ * The deleteResource method removes the \a CloudResource identified by the id passed as a parameter in the \a resourceInternalId variable.   
  * It removes it from the mondodb database and request the removal of the information to the \a Interworking Interface and the \a Resource Access Proxy component.
  *
  * \param resourceInternalId \a internalId to the resource to be removed 
- * \return \a deleteResource returns the \a ResourceBean that has been just removed 
+ * \return \a deleteResource returns the \a CloudResource that has been just removed 
  */
   @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
   public CloudResource deleteResource(@RequestParam String resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
-    CloudResource result = infoManager.deleteResource(resourceInternalId);
+    List<String> list = new ArrayList<String>();
+    list.add(resourceInternalId);
+    List<CloudResource>  result = infoManager.deleteResources(list);
+    logger.info("END OF deleteResource, result "+ result.get(0));
+    return result.get(0);
+  }
+ 
+  @RequestMapping(method = RequestMethod.DELETE, path = "/resources")
+  public List<CloudResource> deleteResources(@RequestParam List<String> resourceInternalId) {
+    logger.info("START OF deleteResource, in data "+ resourceInternalId);
+    List<CloudResource> result = infoManager.deleteResources(resourceInternalId);
     logger.info("END OF deleteResource, result "+ result);
     return result;
   }
-
 }

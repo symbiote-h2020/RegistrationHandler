@@ -20,8 +20,8 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
 
  */
 /**! \class IIResourceMessageHandler 
- * \brief This class invoke the \class RabbitMQRPCMessageHandlerResourceBean or the \class RabbitMQRPCMessageHandlerString depending on the operation that is being
- * done with the data. Before sending a \class ResourceBean it's \a internalId is set to blank. The aim of this is that this id doesn't leave the platform   
+ * \brief This class invoke the \class RabbitMQRPCMessageHandlerResourceList or the \class RabbitMQRPCMessageHandlerStringList depending on the operation that is being
+ * done with the data. Before sending a \class CloudResource it's \a internalId is set to blank. The aim of this is that this id doesn't leave the platform   
  **/
 @Component
 public class IIResourceMessageHandler {
@@ -72,16 +72,15 @@ public class IIResourceMessageHandler {
         return null;
     }
 
-    public String sendResourceUnregistrationMessage( String resourceId) {
+    public List<String> sendResourcesUnregistrationMessage(List<String> resourceIds) {
         try {
-            logger.info("Sending request for unregistration resource with internal id " + resourceId);
-            RabbitMQRPCMessageHandlerString rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerString(EXCHANGE_NAME, RESOURCE_UNREGISTRATION_ROUTING_KEY, RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY);
+            logger.info("Sending request for unregistration of  " + resourceIds.size() + " items");
+            RabbitMQRPCMessageHandlerStringList rabbitMQMessageHandler = new RabbitMQRPCMessageHandlerStringList(EXCHANGE_NAME, RESOURCE_UNREGISTRATION_ROUTING_KEY, RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
         	rabbitMQMessageHandler.connect();
-        	String resourceIdResult = rabbitMQMessageHandler.sendMessage(resourceId);
+        	List<String> resourceIdsResult = rabbitMQMessageHandler.sendMessage(resourceIds);
             rabbitMQMessageHandler.close();
-            logger.info("Unregistration result for resource with internal id " + resourceId);
-            return resourceIdResult;
+            return resourceIdsResult;
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME+", RESOURCE_UNREGISTRATION_ROUTING_KEY:"+RESOURCE_UNREGISTRATION_ROUTING_KEY+", RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY:"+RESOURCE_UNREGISTRATION_ROUTING_KEY_REPLY, e);
         }

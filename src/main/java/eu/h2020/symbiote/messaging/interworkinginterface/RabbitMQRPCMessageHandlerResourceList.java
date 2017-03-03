@@ -16,8 +16,8 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQRPCMessageHandler;
  * @version: 20/01/2017
 
  */
-/**! \class RabbitMQRPCMessageHandlerResourceBean
- * \brief This class extends from the \class GenericRabbitMQRPCMessageHandler and will be able to write and read a \class ResourceBean
+/**! \class RabbitMQRPCMessageHandlerCloudResourceList
+ * \brief This class extends from the \class GenericRabbitMQRPCMessageHandler and will be able to write and read a List of \class CloudResource
  * from the rabbitMQ RPC queues 
  **/
 class RabbitMQRPCMessageHandlerResourceList extends GenericRabbitMQRPCMessageHandler<List<CloudResource>,List<CloudResource>> {

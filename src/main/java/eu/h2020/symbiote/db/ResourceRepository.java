@@ -13,13 +13,13 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
  **/
 public interface ResourceRepository extends MongoRepository<CloudResource, String> {
 
-	//! Retrieves a \a ResourceBean.
+	//! Retrieves a \a CloudResource.
 	/*!
-	 * The getByInternalId method retrieves \a ResourceBean identified by the \a resourceId parameter from the   
+	 * The getByInternalId method retrieves \a CloudResource identified by the \a resourceId parameter from the   
 	 * mondodb database 
 	 *
 	 * \param resourceId id from the resource to be retrieved 
-	 * \return \a getByInternalId returns the \a ResourceBean identified by  \a resourceId
+	 * \return \a getByInternalId returns the \a CloudResource identified by  \a resourceId
 	 */
 	CloudResource getByInternalId(String resourceId);
 

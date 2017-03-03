@@ -20,7 +20,7 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
  */
 
 /**! \class RAPResourceMessageHandler 
- * \brief This class invoke the \class RabbitMQMessageHandlerResourceBean or the \class RabbitMQMessageHandlerString  depending on the operation that is being
+ * \brief This class invokes the \class RabbitMQFanoutMessageHandlerResourceList or the \class RabbitMQFanoutMessageHandlerStringList  depending on the operation that is being
  * done with the data. 
  **/
 @Component
@@ -50,13 +50,12 @@ public class RAPResourceMessageHandler {
         }
     }
 
-    public void sendResourceUnregistrationMessage( String resourceId) {
+    public void sendResourcesUnregistrationMessage(List<String> resourceIds) {
         try {
-            logger.info("Sending request for unregistration " + resourceId);
-            RabbitMQMessageHandlerString rabbitMQMessageHandler = new RabbitMQMessageHandlerString(EXCHANGE_NAME_UNREGISTRATION, RESOURCE_UNREGISTRATION_QUEUE_NAME);
+            logger.info("Sending request for unregistration of " + resourceIds.size() + " items");
+            RabbitMQFanoutMessageHandlerStringList rabbitMQMessageHandler = new RabbitMQFanoutMessageHandlerStringList(EXCHANGE_NAME_UNREGISTRATION, RESOURCE_UNREGISTRATION_QUEUE_NAME);
         	applicationContext.getAutowireCapableBeanFactory().autowireBean(rabbitMQMessageHandler);
-        	rabbitMQMessageHandler.sendMessage(resourceId);
-            logger.info("Unregistration result for " + resourceId);
+        	rabbitMQMessageHandler.sendMessage(resourceIds);
         } catch (Exception e) {
             logger.error("Fatal error sending data to EXCHANGE_NAME: "+EXCHANGE_NAME_UNREGISTRATION+", RESOURCE_UNREGISTRATION_QUEUE_NAME:"+RESOURCE_UNREGISTRATION_QUEUE_NAME, e);
         }

@@ -12,7 +12,7 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
  * Created by a141976 on 20/12/2016.
  */
 /**! \class DummyPlatformInfoReader
- * \brief This class extends from \class PlatformInfoReader and implements a method  \a getResourcesToRegister that returns and empty list of \class ResourceBean
+ * \brief This class extends from \class PlatformInfoReader and implements a method  \a getResourcesToRegister that returns and empty list of \class CloudResource
  **/
 @Component ("dummyPlatformInfoReader")
 public class DummyPlatformInfoReader implements PlatformInfoReader {

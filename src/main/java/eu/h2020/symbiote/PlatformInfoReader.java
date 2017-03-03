@@ -15,10 +15,10 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
 public interface PlatformInfoReader {
 	//! Retrieve list of resources to register.
 	/*!
-	 * The getResourcesToRegister method returns the list of \a ResourceBean that a platform wants to register when
+	 * The getResourcesToRegister method returns the list of \a CloudResource that a platform wants to register when
 	 * the Registration Handler starts
 	 *
-	 * \return \a getResourcesToRegister returns the list of \a ResourceBean to be registered 
+	 * \return \a getResourcesToRegister returns the list of \a CloudResource to be registered 
 	 */
     List<CloudResource> getResourcesToRegister();
 

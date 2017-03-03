@@ -16,8 +16,8 @@ import eu.h2020.symbiote.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
  * @version: 20/01/2017
 
  */
-/**! \class RabbitMQMessageHandlerResourceBean
- * \brief This class extends from the \class GenericRabbitMQRoutingMessageHandler and will be able to write and read a \class ResourceBean
+/**! \class RabbitMQFanoutMessageHandlerResourceList
+ * \brief This class extends from the \class GenericRabbitMQRoutingMessageHandler and will be able to write and read a \class List of \class CloudResource
  * from the rabbitMQ routing queues 
  **/
 
