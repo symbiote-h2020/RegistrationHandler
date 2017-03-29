@@ -147,8 +147,13 @@ public class RegistrationHandlerRestService {
     List<String> list = new ArrayList<String>();
     list.add(resourceInternalId);
     List<CloudResource>  result = infoManager.deleteResources(list);
-    logger.info("END OF deleteResource, result "+ result.get(0));
-    return result.get(0);
+    if (result.size()>0){
+    	logger.info("END OF deleteResource, result "+ result.get(0));
+    	return result.get(0);
+    }else{
+    	logger.info("END OF deleteResource, the resource didn't exist");
+    	return null;
+    }
   }
  
   @RequestMapping(method = RequestMethod.DELETE, path = "/resources")

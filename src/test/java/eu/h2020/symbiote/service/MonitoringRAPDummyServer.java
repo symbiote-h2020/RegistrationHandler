@@ -11,13 +11,9 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
-
-import com.google.gson.Gson;
-
-import eu.h2020.symbiote.cloud.model.CloudResource;
 @Service
-public class IIFDummyServerMonitoring {
-    private static Log logger = LogFactory.getLog(IIFDummyServerMonitoring.class);
+public class MonitoringRAPDummyServer {
+    private static Log logger = LogFactory.getLog(MonitoringRAPDummyServer.class);
 	
     private static final String EXCHANGE_NAME_REGISTRATION = "symbIoTe.rh.reg";
     private static final String EXCHANGE_NAME_UNREGISTRATION = "symbIoTe.rh.unreg";

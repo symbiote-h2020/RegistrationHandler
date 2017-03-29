@@ -15,12 +15,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -31,17 +35,20 @@ import com.google.gson.Gson;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.core.model.Location;
-@RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-
-@SpringBootTest({"webEnvironment=WebEnvironment.RANDOM_PORT", "eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false"})
+@RunWith(SpringRunner.class)
+@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif"})
+//@ContextConfiguration(locations = {"classpath:test-properties.xml" })
+@Configuration
+@ComponentScan
+@EnableAutoConfiguration
 public class RegistrationHandlerApplicationTests {
 	static final String INTERNAL_ID = "testPurposeResourceId1";
 	@Autowired
 	private WebApplicationContext webApplicationContext;
     static private MockMvc mockMvc;
 
-    String uri;
+   String uri;
    @Autowired
    Environment environment;
    @Autowired
@@ -51,29 +58,8 @@ public class RegistrationHandlerApplicationTests {
 		AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
 		mockMvc = webAppContextSetup(webApplicationContext).build();
 		MockRestServiceServer.createServer(asyncRestTemplate);
-
 	}
-/*
-	@RequestLine("GET /resources")
-    @Headers("Content-Type: application/json")
-    public List<ResourceBean> getResources(); 
 
-    @RequestLine("GET /resource?resourceInternalId={resourceInternalId}")
-    @Headers("Content-Type: application/json")
-    public ResourceBean getResource(@Param("resourceInternalId")  String resourceInternalId);
-
-    @RequestLine("POST /resource")
-    @Headers("Content-Type: application/json")
-    public ResourceBean addResource(ResourceBean resource);
-
-    @RequestLine("PUT /resource")
-    @Headers("Content-Type: application/json")
-    public ResourceBean updateResource(ResourceBean resource);
-
-    @RequestLine("DELETE /resource?resourceInternalId={resourceInternalId}")
-    @Headers("Content-Type: application/json")
-    public ResourceBean deleteResource(@Param("resourceInternalId")  String resourceInternalId); 
-*/
 
    private CloudResource getTestResourceBean(){
 	   CloudResource resource = new CloudResource();
@@ -97,10 +83,6 @@ public class RegistrationHandlerApplicationTests {
 
 	@Test
 	public void testCreateResource() throws Exception {
-		/*RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);*/
 		CloudResource resource = getTestResourceBean();
 	    Gson gson = new Gson();
         String objectInJson = gson.toJson(resource);
@@ -119,11 +101,6 @@ public class RegistrationHandlerApplicationTests {
 
 	@Test
 	public void testGetResource()  {
-		/*RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);
-		ResourceBean resource = client.getResource(INTERNAL_ID);*/
         RequestBuilder requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID)
         		.accept(MediaType.APPLICATION_JSON)
         		.contentType(MediaType.APPLICATION_JSON);
@@ -145,7 +122,6 @@ public class RegistrationHandlerApplicationTests {
 	
 	@Test
 	public void testUpdateResource() {
-
         try {
 				Gson gson = new Gson();
 				CloudResource resource = getTestResourceBean();
@@ -173,22 +149,6 @@ public class RegistrationHandlerApplicationTests {
 			t.printStackTrace();
 			assert (false);
 		}         
-	        
-/*		RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);
-		ResourceBean resource = client.getResource(INTERNAL_ID);
-		if (resource!=null){
-
-			resource.setOwner("Symbiote");
-			resource = client.updateResource(resource);
-			if (resource!=null){
-				assert("Symbiote".equals(resource.getOwner()));
-			}
-		}
-		assert (false);*/
-		
 	}
 
 
@@ -213,21 +173,14 @@ public class RegistrationHandlerApplicationTests {
          
 			mockMvc.perform(requestBuilder)
 			         .andExpect(status().isOk())
-			         .andReturn();
-	        System.out.println("End of test ----------------------------- testDeleteResource");
+			         .andReturn();	        
+			System.out.println("End of test ----------------------------- testDeleteResource");
 			assert (true);
 		} catch (Throwable t) {
 	        System.out.println("failed End of test ----------------------------- testDeleteResource");
 			t.printStackTrace();
 			assert (false);
 		}         
-
-/*		RHRestServiceClient client = Feign.builder()
-				.decoder(new GsonDecoder())
-				.encoder(new GsonEncoder())
-                .target(RHRestServiceClient.class, uri);
-		ResourceBean resource = client.deleteResource(INTERNAL_ID);
-		assert (resource!=null);*/
 	}
 
 

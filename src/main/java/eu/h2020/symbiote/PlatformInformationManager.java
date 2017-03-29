@@ -9,12 +9,13 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.db.ResourceRepository;
-import eu.h2020.symbiote.messaging.interworkinginterface.IIResourceMessageHandler;
-import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
+import eu.h2020.symbiote.messaging.incloud.RAPResourceMessageHandler;
+import eu.h2020.symbiote.messaging.interworkinginterface.IIFMessageHandler;
 
 /**! \class PlatformInformationManager
  * \brief PlatformInformationManager handles the registration of the resources within the platform
@@ -31,16 +32,17 @@ import eu.h2020.symbiote.messaging.rap.RAPResourceMessageHandler;
 public class PlatformInformationManager {
 
   private static final Log logger = LogFactory.getLog(PlatformInformationManager.class);
-
-
-  @Autowired
-  private IIResourceMessageHandler ifresourceRegistrationMessageHandler;
+  @Value("${platform.id}")
+  String platformId;
 
   @Autowired
   private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;
 
   @Autowired
   private ResourceRepository resourceRepository;
+
+  @Autowired
+  private IIFMessageHandler iifMessageHandler;
 
   @PostConstruct
   private void init() {
@@ -79,7 +81,7 @@ public class PlatformInformationManager {
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
   public List<CloudResource> addResources(List<CloudResource> resource) {
-	List<CloudResource> listWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(resource);
+	List<CloudResource> listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
 	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
     return result;
@@ -94,7 +96,7 @@ public class PlatformInformationManager {
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
   public List<CloudResource>  updateResource(List<CloudResource>  resources) {
-	List<CloudResource> listWithStmbioteId = ifresourceRegistrationMessageHandler.sendResourceUpdateMessage(resources);
+	List<CloudResource> listWithStmbioteId = iifMessageHandler.updateResources(platformId, resources);
 	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
     return result;
@@ -110,7 +112,7 @@ public class PlatformInformationManager {
  */
   public List<CloudResource> deleteResources(List<String> resourceIds) {
 	List<CloudResource> result = null;  
-	List<String> resultIds = ifresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resourceIds);
+	List<String> resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
     result  = deleteInInternalRepository(resultIds);
     rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resultIds);
     return result;
