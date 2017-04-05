@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.rh.messaging.incloud;
+package eu.h2020.symbiote.rh.messaging.cloud;
 
 import java.util.ArrayList;
 import java.util.List;

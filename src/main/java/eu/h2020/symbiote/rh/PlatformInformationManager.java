@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
-import eu.h2020.symbiote.rh.messaging.incloud.RAPResourceMessageHandler;
+import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
 
 /**! \class PlatformInformationManager

@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.core.model.resources.Resource;
 import feign.Feign;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 
 @Component
 public class IIFMessageHandler {
@@ -27,7 +27,7 @@ public class IIFMessageHandler {
 	@PostConstruct
 	public void createClient() {
 		logger.info("Will use "+ url +" to access to interworking interface");
-		jsonclient = Feign.builder().decoder(new GsonDecoder()).encoder(new GsonEncoder()).target(InterworkingInterfaceService.class, url);
+		jsonclient = Feign.builder().decoder(new JacksonDecoder()).encoder(new JacksonEncoder()).target(InterworkingInterfaceService.class, url);
 	}
 
 	

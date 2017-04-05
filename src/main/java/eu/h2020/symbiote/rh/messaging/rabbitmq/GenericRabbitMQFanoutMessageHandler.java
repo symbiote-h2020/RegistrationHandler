@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -49,8 +50,8 @@ public class GenericRabbitMQFanoutMessageHandler <T>{
      */
     public void sendMessage(T object) throws Exception {
         logger.info("START OF sendMessage to queue"+queueName);
-        Gson gson = new Gson();
-        String objectInJson = gson.toJson(object);
+        ObjectMapper mapper = new ObjectMapper();
+        String objectInJson = mapper.writeValueAsString(object);
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(rabbitMQHostIP);

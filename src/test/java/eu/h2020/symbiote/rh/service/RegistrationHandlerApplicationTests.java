@@ -31,15 +31,14 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
-import eu.h2020.symbiote.core.model.Location;
 import eu.h2020.symbiote.core.model.resources.Actuator;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
 @SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif"})
-//@ContextConfiguration(locations = {"classpath:test-properties.xml" })
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -63,30 +62,27 @@ public class RegistrationHandlerApplicationTests {
 
 
    private CloudResource getTestActuatorBean(){
-	   CloudResource cloudResource = new CloudResource();
-	   cloudResource.setInternalId(INTERNAL_ID);
-	   cloudResource.setHost("127.0.0.1");
 	   
-	   Location location = new Location();
-	   location.setAltitude(500.0);
-	   location.setDescription("my location");
-	   location.setLatitude(45.0);
-	   location.setLongitude(34.3);
-	   location.setName("my location name");
 	   
-	   Actuator actuator = new Actuator();
-	   actuator.setLocatedAt("locatetAt");
-	   actuator.setInterworkingServiceURL("testInterworkingServiceURL");
-	   actuator.setLabels(Arrays.asList(new String[]{"a", "b"}));
-	   cloudResource.setResource(actuator);
+       Actuator actuator = new Actuator();
+       actuator.setLocatedAt("loc");
+       actuator.setLabels(Arrays.asList("Act1"));
+       actuator.setInterworkingServiceURL("http://example.com/url");
+       actuator.setComments(Arrays.asList("Desc"));
+
+       CloudResource cloudResource = new CloudResource();
+       cloudResource.setHost("hostofcloudres");
+       cloudResource.setInternalId("internalId1");
+       cloudResource.setResource(actuator);	   
+	   
 	   return cloudResource; 
    }
 
 	@Test
 	public void testCreateResource() throws Exception {
-		CloudResource resource = getTestActuatorBean();
-	    Gson gson = new Gson();
-        String objectInJson = gson.toJson(resource);
+		CloudResource cloudResource = getTestActuatorBean();
+        ObjectMapper mapper = new ObjectMapper();
+        String objectInJson = mapper.writeValueAsString(cloudResource);
 		 
         RequestBuilder requestBuilder = post("/resource")
         		.content(objectInJson)
