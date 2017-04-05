@@ -79,14 +79,6 @@ public class RegistrationHandlerApplicationTests {
 	   actuator.setInterworkingServiceURL("testInterworkingServiceURL");
 	   actuator.setLabels(Arrays.asList(new String[]{"a", "b"}));
 	   cloudResource.setResource(actuator);
-	   //actuator.setInterworkingServiceURL("http://localhost:4545/myresourceurl");
-/*		resource.setLocation(location);
-		resource.setDescription("my resource description");
-		resource.setName("my resource name");
-		
-		resource.setObservedProperties(Arrays.asList(new String[]{"temperature", "humidity"}));
-		resource.setOwner("me");
-		resource.setResourceURL("http://localhost:4545/myresourceurl");*/
 	   return cloudResource; 
    }
 
