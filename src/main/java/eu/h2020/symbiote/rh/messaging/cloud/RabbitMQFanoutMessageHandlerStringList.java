@@ -1,9 +1,6 @@
 package eu.h2020.symbiote.rh.messaging.cloud;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gson.reflect.TypeToken;
 
 import eu.h2020.symbiote.rh.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 
@@ -23,6 +20,6 @@ import eu.h2020.symbiote.rh.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandl
 class RabbitMQFanoutMessageHandlerStringList extends GenericRabbitMQFanoutMessageHandler<List<String>> {
 
     public RabbitMQFanoutMessageHandlerStringList(String exchangeName, String queueName) {
-		super(exchangeName, queueName,  new TypeToken<ArrayList<String>>(){}.getType());
+		super(exchangeName, queueName);
 	}
 }

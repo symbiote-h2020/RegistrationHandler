@@ -94,7 +94,7 @@ public class RegistrationHandlerRestService {
     logger.info("START OF addResource, in data "+ resources);
     List<CloudResource> result = infoManager.addResources(resources);
     logger.info("END OF addResources, result "+ result);
-    return null;
+    return result;
     
  }
   

@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -32,7 +34,6 @@ import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.core.model.resources.Actuator;
@@ -62,8 +63,6 @@ public class RegistrationHandlerApplicationTests {
 
 
    private CloudResource getTestActuatorBean(){
-	   
-	   
        Actuator actuator = new Actuator();
        actuator.setLocatedAt("loc");
        actuator.setLabels(Arrays.asList("Act1"));
@@ -95,8 +94,27 @@ public class RegistrationHandlerApplicationTests {
         assert(true);
        }
 
+	@Test
+	public void testCreateResources() throws Exception {
+		CloudResource cloudResource = getTestActuatorBean();
+		List<CloudResource> list = new ArrayList<CloudResource>();
+		list.add(cloudResource);
+        ObjectMapper mapper = new ObjectMapper();
+        String objectInJson = mapper.writeValueAsString(list);
+		 
+        RequestBuilder requestBuilder = post("/resources")
+        		.content(objectInJson)
+        		.accept(MediaType.APPLICATION_JSON)
+        		.contentType(MediaType.APPLICATION_JSON);
+        mockMvc.perform(requestBuilder)
+                 .andExpect(status().isOk())
+                 .andReturn();         
+        System.out.println("End of test ----------------------------- testCreateResource");
+        assert(true);
+	}
 
-	//@Test
+
+	@Test
 	public void testGetResource()  {
         RequestBuilder requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID)
         		.accept(MediaType.APPLICATION_JSON)
@@ -117,13 +135,13 @@ public class RegistrationHandlerApplicationTests {
 		
 	}
 	
-	//@Test
+	@Test
 	public void testUpdateResource() {
         try {
-				Gson gson = new Gson();
-				CloudResource resource = getTestActuatorBean();
+        		ObjectMapper mapper = new ObjectMapper();
+				CloudResource cloudResource = getTestActuatorBean();
+        		String objectInJson = mapper.writeValueAsString(cloudResource);
 				
-				String objectInJson = gson.toJson(resource);
 				RequestBuilder requestBuilder2 = put("/resource")
 		        		.content(objectInJson)
 		        		.accept(MediaType.APPLICATION_JSON)
@@ -135,7 +153,7 @@ public class RegistrationHandlerApplicationTests {
 				String r2 = result2.getContentAsString();
 		        System.out.println("testGetResource-------------------------------------------------------- result:"+r2);
 				if (!"".equals(r2)){
-					CloudResource resource2 = (CloudResource)gson.fromJson(r2, CloudResource.class);
+					CloudResource resource2 = (CloudResource)mapper.readValue(r2, CloudResource.class);
 			        System.out.println("End of test ----------------------------- testGetResource");
 					assert(true);
 				}else{
@@ -148,12 +166,12 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 
-	//@Test
+	@Test
 	public void testDeleteResource() {
         try {
-        	CloudResource resource = getTestActuatorBean();
-    	    Gson gson = new Gson();
-            String objectInJson = gson.toJson(resource);
+    		ObjectMapper mapper = new ObjectMapper();
+			CloudResource cloudResource = getTestActuatorBean();
+    		String objectInJson = mapper.writeValueAsString(cloudResource);
     		 
             RequestBuilder requestBuilder = post("/resource")
             		.content(objectInJson)

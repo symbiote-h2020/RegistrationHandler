@@ -33,7 +33,6 @@ public class IIFRestDummyServer {
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public @ResponseBody List<Resource>  createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources) {
 	  logger.info("User trying to createResources platformId"+platformId);
-      //List<CloudResource> resources = gson.fromJson(new String(message.getBody()),  new TypeToken<ArrayList<CloudResource>>(){}.getType());
       List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
 
@@ -43,8 +42,6 @@ public class IIFRestDummyServer {
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public @ResponseBody List<Resource>  updateResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources) {
 	  logger.info("User trying to ypdateResources platformId"+platformId);
-      //List<CloudResource> resources = gson.fromJson(new String(message.getBody()),  new TypeToken<ArrayList<CloudResource>>(){}.getType());
-
       List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
 

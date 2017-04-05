@@ -1,21 +1,13 @@
 package eu.h2020.symbiote.rh.messaging.rabbitmq;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Consumer;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
 
 
 /**
@@ -32,15 +24,12 @@ public class GenericRabbitMQFanoutMessageHandler <T>{
     @Value("${symbiote.rabbitmq.host.ip}")
     String rabbitMQHostIP;
 
- 	Type type;
     String exchangeName;
     String queueName;
 
-    public GenericRabbitMQFanoutMessageHandler(String exchangeName, String queueName,  Type type){
+    public GenericRabbitMQFanoutMessageHandler(String exchangeName, String queueName){
     	this.exchangeName = exchangeName;
     	this.queueName = queueName; 
-    	this.type = type;
-    	
     }
     /**
      * Method for sending a message to specified 'queue' on RabbitMQ server. Object is converted to Json.
@@ -68,36 +57,5 @@ public class GenericRabbitMQFanoutMessageHandler <T>{
         connection.close();
         logger.info("END OF sendMessage to queue: "+queueName);
 
-    }
-    /**
-     * Method to receive messages from a specific queue.
-     *
-     * @param receptionListener object that implements the listener
-     * @throws Exception
-     */
-
-    public void subscribeToRoutingQueue(RabbitMQMessageReceptionListener<T> receptionListener) throws Exception {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(rabbitMQHostIP);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueDeclare(queueName, false, false, false, null);
-        logger.info("Subscription to "+queueName+ " done. Waiting for messages.");
-
-        Consumer consumer = new DefaultConsumer(channel) {
-            @SuppressWarnings("unchecked")
-			@Override
-            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
-                    throws IOException {
-                String message = new String(body, "UTF-8");
-                Gson gson = new Gson();
-                T result = (T)gson.fromJson(message, type);
-                logger.info("Result "+result);
-                receptionListener.onReceivedMessage(result);
-  
-            }
-        };
-        channel.basicConsume(queueName, true, consumer);
     }
 }
