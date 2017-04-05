@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.h2020.symbiote.cloud.model.CloudResource;
+import eu.h2020.symbiote.core.model.resources.Resource;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 
 
@@ -27,25 +27,25 @@ import eu.h2020.symbiote.rh.constants.RHConstants;
 @RequestMapping("/testiif")
 public class IIFRestDummyServer {
   private static final Log logger = LogFactory.getLog(IIFRestDummyServer.class);
+  static int i=0;
   
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<CloudResource>  createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<CloudResource> resources) {
+  public @ResponseBody List<Resource>  createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources) {
 	  logger.info("User trying to createResources platformId"+platformId);
       //List<CloudResource> resources = gson.fromJson(new String(message.getBody()),  new TypeToken<ArrayList<CloudResource>>(){}.getType());
-
-      List<CloudResource> result = resources.stream().map(resource -> { resource.setId("symbiote"+resource.getName()); return resource;})
+      List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
 
 	  return result;
   }
   
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<CloudResource>  updateResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<CloudResource> resources) {
+  public @ResponseBody List<Resource>  updateResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources) {
 	  logger.info("User trying to ypdateResources platformId"+platformId);
       //List<CloudResource> resources = gson.fromJson(new String(message.getBody()),  new TypeToken<ArrayList<CloudResource>>(){}.getType());
 
-      List<CloudResource> result = resources.stream().map(resource -> { resource.setId("symbiote"+resource.getName()); return resource;})
+      List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
 
 	  return result;

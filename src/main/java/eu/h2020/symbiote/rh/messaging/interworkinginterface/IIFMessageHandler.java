@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
+import eu.h2020.symbiote.core.model.resources.Resource;
 import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
@@ -30,61 +31,46 @@ public class IIFMessageHandler {
 	}
 
 	
-	public List<CloudResource>  createResources(String platformId, List<CloudResource> resources)  {
-		List<CloudResource> resourceListReceived = null;
+	public List<CloudResource>  createResources(String platformId, List<CloudResource> cloudResources)  {
+		List<Resource> resourceListReceived = null;
 		try{
             logger.info("User trying to createResources in "+platformId);
-            
-     	    List<CloudResource> listToSend = resources.stream().map(resource ->	{ CloudResource cloned = null;
- 	    		try {
- 	    			cloned = (CloudResource) resource.clone();
- 	    		} catch (Exception e) {
- 	    			logger.error("Fatal error cloning resource", e);
- 	    		}
- 	    		cloned.setInternalId(""); return cloned;} )
+     	    List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
  	    	.collect(Collectors.toList());
 			
      	    resourceListReceived = jsonclient.createResources(platformId, listToSend);
  	   
      	    //be aware that the list must returned in the same order that it has been send
      	    int i = 0;
-     	    for (CloudResource resource:resources)
-     	    	resource.setId(resourceListReceived.get(i++).getId());
+     	    for (CloudResource cloudResource:cloudResources)
+     	    	cloudResource.setResource(resourceListReceived.get(i++));
 		}catch(Throwable t){
 			logger.error("Error accessing to AAM server at "+url, t);
 		}
-		return resources;
+		return cloudResources;
 	}
 
 
-	public List<CloudResource> updateResources(String platformId, List<CloudResource> resources)  {
-		List<CloudResource> resourceListReceived = null;
+	public List<CloudResource> updateResources(String platformId, List<CloudResource> cloudResources)  {
+		List<Resource> resourceListReceived = null;
 		try{
             logger.info("User trying to updateResources in "+platformId);
 			
-			
-     	    List<CloudResource> listToSend = resources.stream().map(resource ->	{ CloudResource cloned = null;
- 	    	try {
- 	    		cloned = (CloudResource) resource.clone();
- 	    	} catch (Exception e) {
-			
-				logger.error("Fatal error cloning resource", e);
- 	    	}
- 	    	cloned.setInternalId(""); return cloned;} )
- 	    	 .collect(Collectors.toList());
+     	    List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
+ 	    	.collect(Collectors.toList());
      	    
-     	    resourceListReceived = jsonclient.updateResource(platformId, listToSend);
+     	    resourceListReceived = jsonclient.createResources(platformId, listToSend);
  	   
   	   	
   	   	//	be aware that the list must returned in the same order that it has been send
      	    int i = 0;
-     	    for (CloudResource resource:resources)
-     	    	resource.setId(resourceListReceived.get(i++).getId());
+     	    for (CloudResource cloudResource:cloudResources)
+     	    	cloudResource.setResource(resourceListReceived.get(i++));
 			
 		}catch(Throwable t){
 			logger.error("Error accessing to AAM server at "+url, t);
 		}	
-		return resources;
+		return cloudResources;
 	}
 
 	public List<String> removeResources(String platformId, List<String> resourceIds)  {
