@@ -26,9 +26,12 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
 @Component
 public class RAPResourceMessageHandler {
 
-    private static final String EXCHANGE_NAME_REGISTRATION = "symbIoTe.rh.reg";
+    /*private static final String EXCHANGE_NAME_REGISTRATION = "symbIoTe.rh.reg";
     private static final String EXCHANGE_NAME_UNREGISTRATION = "symbIoTe.rh.unreg";
-    private static final String EXCHANGE_NAME_UPDATED = "symbIoTe.rh.update";
+    private static final String EXCHANGE_NAME_UPDATED = "symbIoTe.rh.update";*/
+    private static final String EXCHANGE_NAME_REGISTRATION = "symbIoTe.rap";
+    private static final String EXCHANGE_NAME_UNREGISTRATION = "symbIoTe.rap";
+    private static final String EXCHANGE_NAME_UPDATED = "symbIoTe.rap";
     private static final String RESOURCE_REGISTRATION_QUEUE_NAME = "symbIoTe.rap.registrationHandler.register_resources";
     private static final String RESOURCE_UNREGISTRATION_QUEUE_NAME = "symbIoTe.rap.registrationHandler.unregister_resources";
     private static final String RESOURCE_UPDATED_QUEUE_NAME = "symbIoTe.rap.registrationHandler.update_resources";
