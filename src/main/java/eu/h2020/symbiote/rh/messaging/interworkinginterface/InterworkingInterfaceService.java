@@ -15,7 +15,7 @@ import feign.RequestLine;
 
 public interface InterworkingInterfaceService {
 	@RequestLine("POST "+RHConstants.DO_CREATE_RESOURCES)
-	@Headers({"Accept: application/json", "Content-Type: application/json"})
+	@Headers({"Accept: application/json", "Content-Type: application/json", "Authorization: test"})
     public ResourceRegistryResponse createResources(@Param(RHConstants.PLATFORM_ID) String platformId, ResourceRegistryRequest resources);
 	
 	@RequestLine("PUT "+RHConstants.DO_UPDATE_RESOURCES)
