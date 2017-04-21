@@ -1,6 +1,9 @@
 package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.core.model.resources.Resource;
+import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
+import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
@@ -32,14 +37,21 @@ public class IIFMessageHandler {
 
 	
 	public List<CloudResource>  createResources(String platformId, List<CloudResource> cloudResources)  {
-		List<Resource> resourceListReceived = null;
+		ArrayList<Resource> resourceListReceived = new ArrayList<Resource>();
 		try{
             logger.info("User trying to createResources in "+platformId);
      	    List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
  	    	.collect(Collectors.toList());
 			
-     	    resourceListReceived = jsonclient.createResources(platformId, listToSend);
- 	   
+			ResourceRegistryRequest request = new ResourceRegistryRequest();
+			request.setResources(listToSend);
+     	    ResourceRegistryResponse response = jsonclient.createResources(platformId, request);
+
+     	    for (Iterator<Resource> iter = response.getResources().iterator(); iter.hasNext();){
+     	    	Resource resource= (Resource) iter.next();
+     	    	resourceListReceived.add(resource);
+     	    }
+            
      	    //be aware that the list must returned in the same order that it has been send
      	    int i = 0;
      	    for (CloudResource cloudResource:cloudResources)
@@ -59,7 +71,7 @@ public class IIFMessageHandler {
      	    List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
  	    	.collect(Collectors.toList());
      	    
-     	    resourceListReceived = jsonclient.createResources(platformId, listToSend);
+     	    resourceListReceived = jsonclient.updateResource(platformId, listToSend);
  	   
   	   	
   	   	//	be aware that the list must returned in the same order that it has been send
