@@ -64,15 +64,21 @@ public class IIFMessageHandler {
 
 
 	public List<CloudResource> updateResources(String platformId, List<CloudResource> cloudResources)  {
-		List<Resource> resourceListReceived = null;
+		ArrayList<Resource> resourceListReceived = new ArrayList<Resource>();
 		try{
             logger.info("User trying to updateResources in "+platformId);
 			
      	    List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
  	    	.collect(Collectors.toList());
-     	    
-     	    resourceListReceived = jsonclient.updateResource(platformId, listToSend);
- 	   
+
+			ResourceRegistryRequest request = new ResourceRegistryRequest();
+			request.setResources(listToSend);
+     	    ResourceRegistryResponse response = jsonclient.updateResource(platformId, request);
+
+     	    for (Iterator<Resource> iter = response.getResources().iterator(); iter.hasNext();){
+     	    	Resource resource= (Resource) iter.next();
+     	    	resourceListReceived.add(resource);
+     	    }   
   	   	
   	   	//	be aware that the list must returned in the same order that it has been send
      	    int i = 0;
@@ -86,10 +92,26 @@ public class IIFMessageHandler {
 	}
 
 	public List<String> removeResources(String platformId, List<String> resourceIds)  {
-		List<String>  result = null;
+		ArrayList<String>  result = null;
 		try{
-            logger.info("User trying to getResources in "+platformId);
-			result = jsonclient.removeResources(platformId, resourceIds);
+			logger.info("User trying to removeResources in "+platformId);
+			ArrayList<Resource> listToSend = new ArrayList<Resource>();
+
+     	    for (Iterator<String> iter = resourceIds.iterator(); iter.hasNext();){
+     	    	String resourceId = (String) iter.next();
+     	    	Resource resource = new Resource();
+     	    	resource.setId(resourceId);
+     	    	listToSend.add(resource);
+     	    } 
+
+			ResourceRegistryRequest request = new ResourceRegistryRequest();
+			request.setResources(listToSend);
+     	    ResourceRegistryResponse response = jsonclient.removeResources(platformId, request);
+
+     	    for (Iterator<Resource> iter = response.getResources().iterator(); iter.hasNext();){
+     	    	Resource resource= (Resource) iter.next();
+     	    	result.add(resource.getId());
+     	    } 
 		}catch(Throwable t){
 			logger.error("Error accessing to AAM server at "+url, t);
 		}

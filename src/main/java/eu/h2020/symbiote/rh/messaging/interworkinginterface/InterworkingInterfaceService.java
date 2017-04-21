@@ -16,15 +16,15 @@ import feign.RequestLine;
 public interface InterworkingInterfaceService {
 	@RequestLine("POST "+RHConstants.DO_CREATE_RESOURCES)
 	@Headers({"Accept: application/json", "Content-Type: application/json", "Authorization: test"})
-    public ResourceRegistryResponse createResources(@Param(RHConstants.PLATFORM_ID) String platformId, ResourceRegistryRequest resources);
+    public ResourceRegistryResponse createResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources);
 	
 	@RequestLine("PUT "+RHConstants.DO_UPDATE_RESOURCES)
-	@Headers({"Accept: application/json", "Content-Type: application/json"})
-    public List<Resource>  updateResource(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources);
+	@Headers({"Accept: application/json", "Content-Type: application/json", "Authorization: test"})
+    public ResourceRegistryResponse  updateResource(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources);
 	
 	@RequestLine("DELETE "+RHConstants.DO_REMOVE_RESOURCES)
-	@Headers({"Accept: application/json", "Content-Type: application/json"})
-    public List<String>  removeResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<String> resourceIds);
+	@Headers({"Accept: application/json", "Content-Type: application/json", "Authorization: test"})
+    public ResourceRegistryResponse  removeResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources);
 
 }
 
