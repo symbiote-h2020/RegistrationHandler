@@ -92,7 +92,7 @@ public class IIFMessageHandler {
 	}
 
 	public List<String> removeResources(String platformId, List<String> resourceIds)  {
-		ArrayList<String>  result = null;
+		ArrayList<String>  result = new ArrayList<String>();
 		try{
 			logger.info("User trying to removeResources in "+platformId);
 			ArrayList<Resource> listToSend = new ArrayList<Resource>();

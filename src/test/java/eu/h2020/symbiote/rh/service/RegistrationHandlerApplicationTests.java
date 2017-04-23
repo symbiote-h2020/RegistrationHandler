@@ -76,7 +76,7 @@ public class RegistrationHandlerApplicationTests {
 
        CloudResource cloudResource = new CloudResource();
        cloudResource.setHost("hostofcloudres");
-       cloudResource.setInternalId("internalId1");
+       cloudResource.setInternalId(INTERNAL_ID);
        cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
