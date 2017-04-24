@@ -81,8 +81,8 @@ public class PlatformInformationManager {
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
   public List<CloudResource> addResources(List<CloudResource> resource) {
-	List<CloudResource> listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
-	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+	List<CloudResource> listWithSymbioteId = iifMessageHandler.createResources(platformId, resource);
+	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithSymbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
     return result;
   }
@@ -96,8 +96,8 @@ public class PlatformInformationManager {
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
   public List<CloudResource>  updateResource(List<CloudResource>  resources) {
-	List<CloudResource> listWithStmbioteId = iifMessageHandler.updateResources(platformId, resources);
-	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+	List<CloudResource> listWithSymbioteId = iifMessageHandler.updateResources(platformId, resources);
+	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithSymbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
     return result;
   }

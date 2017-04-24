@@ -66,7 +66,8 @@ public class IIFMessageHandler {
      	    for (CloudResource cloudResource:cloudResources)
      	    	cloudResource.setResource(resourceListReceived.get(i++));
 		}catch(Throwable t){
-			logger.error("Error accessing to AAM server at "+url, t);
+			logger.error("Error accessing to symbIoTe core.", t);
+			return new ArrayList<CloudResource>();
 		}
 		return cloudResources;
 	}
@@ -95,7 +96,9 @@ public class IIFMessageHandler {
      	    	cloudResource.setResource(resourceListReceived.get(i++));
 			
 		}catch(Throwable t){
-			logger.error("Error accessing to AAM server at "+url, t);
+			logger.error("Error accessing to symbIoTe core.", t);
+			return new ArrayList<CloudResource>();
+
 		}	
 		return cloudResources;
 	}
@@ -133,7 +136,7 @@ public class IIFMessageHandler {
      	    } 
 
 		}catch(Throwable t){
-			logger.error("Error accessing to AAM server at "+url, t);
+			logger.error("Error accessing to symbIoTe core.", t);
 		}
 		return result;
 	}
