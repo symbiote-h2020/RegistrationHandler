@@ -82,9 +82,13 @@ public class PlatformInformationManager {
  */
   public List<CloudResource> addResources(List<CloudResource> resource) {
 	List<CloudResource> listWithSymbioteId = iifMessageHandler.createResources(platformId, resource);
-	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithSymbioteId);
-    rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
-    return result;
+
+  if (listWithSymbioteId.size() > 0 ) {
+	    List<CloudResource> result  = addOrUpdateInInternalRepository(listWithSymbioteId);
+      rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
+      return result;
+    }
+    return new ArrayList<CloudResource>();
   }
 
 //! Update a resource.
@@ -96,10 +100,13 @@ public class PlatformInformationManager {
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
   public List<CloudResource>  updateResource(List<CloudResource>  resources) {
-	List<CloudResource> listWithSymbioteId = iifMessageHandler.updateResources(platformId, resources);
-	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithSymbioteId);
-    rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
-    return result;
+	  List<CloudResource> listWithSymbioteId = iifMessageHandler.updateResources(platformId, resources);
+    if (listWithSymbioteId.size() > 0 ) {
+  	  List<CloudResource> result  = addOrUpdateInInternalRepository(listWithSymbioteId);
+      rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
+      return result;
+    }
+    return new ArrayList<CloudResource>();
   }
 
 //! Delete a resource.
@@ -111,11 +118,14 @@ public class PlatformInformationManager {
  * \return \a deleteResource returns the \a CloudResource that has been just removed 
  */
   public List<CloudResource> deleteResources(List<String> resourceIds) {
-	List<CloudResource> result = null;  
-	List<String> resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
-    result  = deleteInInternalRepository(resultIds);
-    rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resultIds);
-    return result;
+	  List<CloudResource> result = null;  
+	  List<String> resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
+    if (resultIds.size() > 0 ) {
+      result  = deleteInInternalRepository(resultIds);
+      rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resultIds);
+      return result;
+    }
+    return new ArrayList<CloudResource>();
   }
 
 
