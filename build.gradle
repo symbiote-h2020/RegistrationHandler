@@ -41,7 +41,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile group: 'com.netflix.feign', name: 'feign-jackson', version: '8.18.0'
     compile('com.fasterxml.jackson.core:jackson-annotations:2.8.7+')
-	compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT')
+    compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.github.tomakehurst:wiremock')
     testCompile('org.springframework:spring-core')
