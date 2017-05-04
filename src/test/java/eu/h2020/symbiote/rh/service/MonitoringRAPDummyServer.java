@@ -28,8 +28,8 @@ public class MonitoringRAPDummyServer {
 
 	
 	    @RabbitListener(bindings = @QueueBinding(
-	        value = @Queue(value = RESOURCE_REGISTRATION_QUEUE_NAME, durable = "true", autoDelete = "false", exclusive = "false"),
-	        exchange = @Exchange(value = EXCHANGE_NAME_REGISTRATION, ignoreDeclarationExceptions = "false", type = ExchangeTypes.FANOUT),
+	        value = @Queue(value = RESOURCE_REGISTRATION_QUEUE_NAME, durable = "false", autoDelete = "false", exclusive = "false"),
+	        exchange = @Exchange(value = EXCHANGE_NAME_REGISTRATION, ignoreDeclarationExceptions = "false", type = ExchangeTypes.DIRECT),
 	        key = RESOURCE_REGISTRATION_KEY)
 	    )
 	    public void resourceRegistration(Message message, @Headers() Map<String, String> headers) {
@@ -38,8 +38,8 @@ public class MonitoringRAPDummyServer {
 	    }
 	    
 	    @RabbitListener(bindings = @QueueBinding(
-	            value = @Queue(value = RESOURCE_UNREGISTRATION_QUEUE_NAME, durable = "true", autoDelete = "false", exclusive = "false"),
-	            exchange = @Exchange(value = EXCHANGE_NAME_UNREGISTRATION, ignoreDeclarationExceptions = "false", type = ExchangeTypes.FANOUT),
+	            value = @Queue(value = RESOURCE_UNREGISTRATION_QUEUE_NAME, durable = "false", autoDelete = "false", exclusive = "false"),
+	            exchange = @Exchange(value = EXCHANGE_NAME_UNREGISTRATION, ignoreDeclarationExceptions = "false", type = ExchangeTypes.DIRECT),
 	            key = RESOURCE_UNREGISTRATION_KEY)
 	        )
         public void resourceUnregistration(Message message, @Headers() Map<String, String> headers) {
@@ -47,8 +47,8 @@ public class MonitoringRAPDummyServer {
         }
 	    
 	    @RabbitListener(bindings = @QueueBinding(
-	            value = @Queue(value = RESOURCE_UPDATED_QUEUE_NAME, durable = "true", autoDelete = "false", exclusive = "false"),
-	            exchange = @Exchange(value = EXCHANGE_NAME_UPDATED, ignoreDeclarationExceptions = "false", type = ExchangeTypes.FANOUT),
+	            value = @Queue(value = RESOURCE_UPDATED_QUEUE_NAME, durable = "false", autoDelete = "false", exclusive = "false"),
+	            exchange = @Exchange(value = EXCHANGE_NAME_UPDATED, ignoreDeclarationExceptions = "false", type = ExchangeTypes.DIRECT),
 	            key = RESOURCE_UPDATED_KEY)
 	        )
         public void resourceUpdate(Message message, @Headers() Map<String, String> headers) {

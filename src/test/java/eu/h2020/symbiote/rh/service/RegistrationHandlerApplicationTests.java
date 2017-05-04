@@ -32,12 +32,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.core.model.WKTLocation;
 import eu.h2020.symbiote.core.model.resources.Actuator;
+
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
 @SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=true", "security.user=user", "security.password=password"})
@@ -50,6 +53,8 @@ public class RegistrationHandlerApplicationTests {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
     static private MockMvc mockMvc;
+
+	private static final Log logger = LogFactory.getLog(RegistrationHandlerApplicationTests.class);
 
    String uri;
    @Autowired
@@ -74,7 +79,7 @@ public class RegistrationHandlerApplicationTests {
 
        CloudResource cloudResource = new CloudResource();
        cloudResource.setHost("hostofcloudres");
-       cloudResource.setInternalId("internalId1");
+       cloudResource.setInternalId(INTERNAL_ID);
        cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
@@ -93,7 +98,7 @@ public class RegistrationHandlerApplicationTests {
         mockMvc.perform(requestBuilder)
                  .andExpect(status().isOk())
                  .andReturn();         
-        System.out.println("End of test ----------------------------- testCreateResource");
+        logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
        }
 
@@ -112,7 +117,7 @@ public class RegistrationHandlerApplicationTests {
         mockMvc.perform(requestBuilder)
                  .andExpect(status().isOk())
                  .andReturn();         
-        System.out.println("End of test ----------------------------- testCreateResource");
+        logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
 	}
 
@@ -129,7 +134,7 @@ public class RegistrationHandlerApplicationTests {
 			         .andExpect(status().isOk())
 			         .andReturn()
 			         .getResponse();
-	        System.out.println("End of test ----------------------------- testGetResource");
+	        logger.info("End of test ----------------------------- testGetResource");
 			assert(true);
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -154,15 +159,16 @@ public class RegistrationHandlerApplicationTests {
 				         .andReturn()
 				         .getResponse();
 				String r2 = result2.getContentAsString();
-		        System.out.println("testGetResource-------------------------------------------------------- result:"+r2);
+		        logger.info("testGetResource-------------------------------------------------------- result:"+r2);
 				if (!"".equals(r2)){
 					CloudResource resource2 = (CloudResource)mapper.readValue(r2, CloudResource.class);
-			        System.out.println("End of test ----------------------------- testGetResource");
+			        logger.info("End of test ----------------------------- testGetResource");
 					assert(true);
 				}else{
 					assert(false);				
 				}
 		} catch (Throwable t) {
+		    logger.info("failed End of test ----------------------------- testUpdateResource");
 			t.printStackTrace();
 			assert (false);
 		}         
@@ -191,10 +197,10 @@ public class RegistrationHandlerApplicationTests {
 			mockMvc.perform(requestBuilder)
 			         .andExpect(status().isOk())
 			         .andReturn();	        
-			System.out.println("End of test ----------------------------- testDeleteResource");
+			logger.info("End of test ----------------------------- testDeleteResource");
 			assert (true);
 		} catch (Throwable t) {
-	        System.out.println("failed End of test ----------------------------- testDeleteResource");
+	        logger.info("failed End of test ----------------------------- testDeleteResource");
 			t.printStackTrace();
 			assert (false);
 		}         
