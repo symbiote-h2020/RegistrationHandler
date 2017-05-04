@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import eu.h2020.symbiote.cloud.model.CloudResource;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
-
 /**! \class PlatformInformationManager
  * \brief PlatformInformationManager handles the registration of the resources within the platform
  **/
@@ -35,6 +32,7 @@ public class PlatformInformationManager {
   @Value("${platform.id}")
   String platformId;
 
+  
   @Autowired
   private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;
 
@@ -44,19 +42,16 @@ public class PlatformInformationManager {
   @Autowired
   private IIFMessageHandler iifMessageHandler;
 
-  @PostConstruct
-  private void init() {
-  }
 
   private List<CloudResource>  addOrUpdateInInternalRepository(List<CloudResource>  resources){
-	 return resources.stream().map(resource -> {
+	  return resources.stream().map(resource -> {
 		  CloudResource existingResource = resourceRepository.getByInternalId(resource.getInternalId());
 	      if (existingResource != null) {
 	    	  logger.info("update will be done");
 	      }
 	      return resourceRepository.save(resource);
 	 })
-     .collect(Collectors.toList());
+     .collect(Collectors.toList());	 
   }
 
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
@@ -80,9 +75,9 @@ public class PlatformInformationManager {
  * \return \a addResource returns the List of \a CloudResource where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
-  public List<CloudResource> addResources(List<CloudResource> resource) {
-	List<CloudResource> listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
-	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+  public List<CloudResource>  addResources(List<CloudResource> resource) {
+	List<CloudResource>  listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
+	List<CloudResource>  result  = addOrUpdateInInternalRepository(listWithStmbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
     return result;
   }
