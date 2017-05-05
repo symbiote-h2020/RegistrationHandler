@@ -9,18 +9,20 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.commons.security.SecurityHandler;
-import eu.h2020.symbiote.commons.security.certificate.CertificateVerificationException;
-import eu.h2020.symbiote.commons.security.exception.DisabledException;
-import eu.h2020.symbiote.commons.security.token.SymbIoTeToken;
+import eu.h2020.symbiote.security.SecurityHandler;
+import eu.h2020.symbiote.security.certificate.CertificateVerificationException;
+import eu.h2020.symbiote.security.exceptions.sh.SecurityHandlerDisabledException;
+import eu.h2020.symbiote.security.exceptions.SecurityHandlerException;
+import eu.h2020.symbiote.security.token.Token;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
 @Component
 public class SecurityManager {
 	  private static final Log logger = LogFactory.getLog(SecurityManager.class);
 
-	  @Value("${security.coreAAM.url}")
+	  @Value("${symbiote.coreaam.url}")
 	  String coreAAMUrl;
-	  @Value("${security.rabbitMQ.ip}")
+	  @Value("${rabbit.host}")
 	  String rabbitMQHostIP;
 	  @Value("${security.enabled}")
 	  boolean enabled;
@@ -42,11 +44,18 @@ public class SecurityManager {
 		  return enabled;
 	  }
 	  
-	  public SymbIoTeToken requestCoreToken() throws SecurityException{
+	  public Token requestCoreToken() throws SecurityException{
 		  try{
 			  return securityHandler.requestCoreToken(userName, password);
-		  }catch (DisabledException e){
+		  }
+          catch (TokenValidationException e){
+			  logger.debug("Token not validated: " + e);
+		  }
+		  catch (SecurityHandlerDisabledException e){
 			  logger.debug("security handler is disabled");
+		  }		  
+		  catch (SecurityHandlerException e){
+			  logger.debug(e);
 		  }
 		  return null;
 	  }
@@ -54,11 +63,13 @@ public class SecurityManager {
 	  public boolean certificateValidation(KeyStore p12Certificate) throws SecurityException{
 		  try{
 			  return securityHandler.certificateValidation(p12Certificate);
-		  }catch (DisabledException e){
-			  logger.debug("security handler is disabled");
-		  } catch (CertificateVerificationException e) {
+		  }
+          catch (CertificateVerificationException e) {
 			  logger.error("error validating certificate");
-		}
+		  }
+		  catch (SecurityHandlerDisabledException e){
+			  logger.debug("security handler is disabled");
+		  } 
 		return false;
 	  }
 }

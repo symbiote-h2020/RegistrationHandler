@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.h2020.symbiote.commons.security.constants.SHConstants;
-import eu.h2020.symbiote.commons.security.messaging.bean.Credential;
-import eu.h2020.symbiote.commons.security.messaging.bean.Token;
+import eu.h2020.symbiote.security.constants.SecurityHandlerConstants;
+import eu.h2020.symbiote.security.payloads.Credentials;
+import eu.h2020.symbiote.security.token.Token;
 
 @Service
 public class PlatformAAMDummyServer {
@@ -36,16 +36,16 @@ public class PlatformAAMDummyServer {
 	   * @param headers The AMQP headers
 	   */
 	    @RabbitListener(bindings = @QueueBinding(
-	        value = @Queue(value = SHConstants.HOME_PLATFORM_AAM_LOGIN_TOKEN_ROUTING_KEY, durable = "true", autoDelete = "false", exclusive = "false"),
-	        exchange = @Exchange(value = SHConstants.EXCHANGE_NAME, ignoreDeclarationExceptions = "true"),
-	        key = SHConstants.HOME_PLATFORM_AAM_LOGIN_TOKEN_ROUTING_KEY)
+	        value = @Queue(value = SecurityHandlerConstants.HOME_PLATFORM_AAM_LOGIN_TOKEN_ROUTING_KEY, durable = "true", autoDelete = "false", exclusive = "false"),
+	        exchange = @Exchange(value = SecurityHandlerConstants.EXCHANGE_NAME, ignoreDeclarationExceptions = "true"),
+	        key = SecurityHandlerConstants.HOME_PLATFORM_AAM_LOGIN_TOKEN_ROUTING_KEY)
 	    )
 	    public void resourceRegistration(Message message, @Headers() Map<String, String> headers) {
 	    	logger.info("resourceRegistration"+new String(message.getBody()));
     		ObjectMapper mapper = new ObjectMapper();
 			try {
-				Credential credential = mapper.readValue(new String(message.getBody()),  Credential.class);
-	            logger.info("User trying to login "+credential.getUser()+ " - "+credential.getPasswd());
+				Credentials credential = mapper.readValue(new String(message.getBody()),  Credentials.class);
+	            logger.info("User trying to login "+credential.getUsername()+ " - "+credential.getPassword());
 	
 	            
 		      	  Token token = new Token();
