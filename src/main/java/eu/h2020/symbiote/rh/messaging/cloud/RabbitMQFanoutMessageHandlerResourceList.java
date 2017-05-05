@@ -2,7 +2,7 @@ package eu.h2020.symbiote.rh.messaging.cloud;
 
 import java.util.List;
 
-import eu.h2020.symbiote.cloud.model.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.messaging.rabbitmq.GenericRabbitMQFanoutMessageHandler;
 
 

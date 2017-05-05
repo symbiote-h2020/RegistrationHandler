@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.h2020.symbiote.cloud.model.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.PlatformInfoReader;
 
 /**

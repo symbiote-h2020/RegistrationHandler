@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.cloud.model.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
