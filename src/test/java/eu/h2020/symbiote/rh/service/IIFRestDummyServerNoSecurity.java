@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,15 +24,15 @@ import eu.h2020.symbiote.rh.constants.RHConstants;
  */
 @RestController
 @WebAppConfiguration
-@RequestMapping("/testiif")
-public class IIFRestDummyServer {
-  private static final Log logger = LogFactory.getLog(IIFRestDummyServer.class);
+@RequestMapping("/testiifnosec")
+public class IIFRestDummyServerNoSecurity {
+  private static final Log logger = LogFactory.getLog(IIFRestDummyServerNoSecurity.class);
   static int i=0;
   
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<Resource>  createResources(@RequestBody List<Resource> resources, @PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestHeader(RHConstants.HEADER_TOKEN) String headerToken) {
-	  logger.info("User trying to createResources platformId"+platformId + " and token in header "+headerToken);
+  public @ResponseBody List<Resource>  createResources(@RequestBody List<Resource> resources, @PathVariable(RHConstants.PLATFORM_ID) String platformId) {
+	  logger.info("User trying to createResources platformId"+platformId);
       List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
 
@@ -41,8 +40,8 @@ public class IIFRestDummyServer {
   }
   
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<Resource>  updateResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources, @RequestHeader(RHConstants.HEADER_TOKEN) String headerToken) {
-	  logger.info("User trying to updateResources platformId"+platformId + " and token in header "+headerToken);
+  public @ResponseBody List<Resource>  updateResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources) {
+	  logger.info("User trying to updateResources platformId"+platformId);
       List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
 
@@ -50,8 +49,8 @@ public class IIFRestDummyServer {
   }
 
   @RequestMapping(method = RequestMethod.DELETE, path = RHConstants.DO_REMOVE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<String>  removeResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<String> resources, @RequestHeader(RHConstants.HEADER_TOKEN) String headerToken) {
-	  logger.info("User trying to removeResources platformId"+platformId + " and token in header "+headerToken);
+  public @ResponseBody List<String>  removeResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<String> resources) {
+	  logger.info("User trying to removeResources platformId"+platformId);
 	  return resources;
   }
 
