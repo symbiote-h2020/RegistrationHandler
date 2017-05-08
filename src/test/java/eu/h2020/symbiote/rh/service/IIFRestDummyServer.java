@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.h2020.symbiote.core.model.resources.Resource;
 import eu.h2020.symbiote.rh.constants.RHConstants;
-
+import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
+import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 
 /*
  * @author: Elena Garrido
@@ -32,27 +32,31 @@ public class IIFRestDummyServer {
   
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<Resource>  createResources(@RequestBody List<Resource> resources, @PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestHeader(RHConstants.HEADER_TOKEN) String headerToken) {
-	  logger.info("User trying to createResources platformId"+platformId + " and token in header "+headerToken);
-      List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
+  public @ResponseBody ResourceRegistryResponse createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
+    logger.info("User trying to createResources platformId"+platformId);
+    List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
-
-	  return result;
+    ResourceRegistryResponse result = new ResourceRegistryResponse(); 
+    result.setResources(listTosend);
+    return result;
   }
   
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<Resource>  updateResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<Resource> resources, @RequestHeader(RHConstants.HEADER_TOKEN) String headerToken) {
-	  logger.info("User trying to updateResources platformId"+platformId + " and token in header "+headerToken);
-      List<Resource> result = resources.stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
+  public @ResponseBody ResourceRegistryResponse  updateResource(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
+    logger.info("User trying to updateResources platformId"+platformId);
+      List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
-
-	  return result;
+    ResourceRegistryResponse result = new ResourceRegistryResponse(); 
+    result.setResources(listTosend);
+    return result;
   }
 
   @RequestMapping(method = RequestMethod.DELETE, path = RHConstants.DO_REMOVE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody List<String>  removeResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody List<String> resources, @RequestHeader(RHConstants.HEADER_TOKEN) String headerToken) {
-	  logger.info("User trying to removeResources platformId"+platformId + " and token in header "+headerToken);
-	  return resources;
+  public @ResponseBody ResourceRegistryResponse  removeResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
+    logger.info("User trying to removeResources platformId"+platformId);
+    ResourceRegistryResponse result = new ResourceRegistryResponse(); 
+    result.setResources(resources.getResources());
+    return result;
   }
 
   

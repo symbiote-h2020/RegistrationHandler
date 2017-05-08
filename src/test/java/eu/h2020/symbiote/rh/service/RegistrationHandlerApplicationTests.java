@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -206,5 +208,12 @@ public class RegistrationHandlerApplicationTests {
 		}         
 	}
 
-
+    static public class DateUtil {
+        public static Date addDays(Date date, int days) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Calendar.DATE, days); //minus number would decrement the days
+            return cal.getTime();
+        }
+    }
 }
