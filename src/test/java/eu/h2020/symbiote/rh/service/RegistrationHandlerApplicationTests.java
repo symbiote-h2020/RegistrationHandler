@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.core.model.WKTLocation;
 import eu.h2020.symbiote.core.model.resources.Actuator;
-
+import eu.h2020.symbiote.rh.service.aams.DummyAAMAMQPLoginListener;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
@@ -52,9 +52,13 @@ import eu.h2020.symbiote.core.model.resources.Actuator;
 @EnableAutoConfiguration
 public class RegistrationHandlerApplicationTests {
 	static final String INTERNAL_ID = "testPurposeResourceId1";
+
 	@Autowired
 	private WebApplicationContext webApplicationContext;
+
     static private MockMvc mockMvc;
+
+    private DummyAAMAMQPLoginListener dummyAAMAMQPLoginListener = new DummyAAMAMQPLoginListener();
 
 	private static final Log logger = LogFactory.getLog(RegistrationHandlerApplicationTests.class);
 
@@ -68,6 +72,7 @@ public class RegistrationHandlerApplicationTests {
 		AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
 		mockMvc = webAppContextSetup(webApplicationContext).build();
 		MockRestServiceServer.createServer(asyncRestTemplate);
+		dummyAAMAMQPLoginListener.init();
 	}
 
 
@@ -80,7 +85,7 @@ public class RegistrationHandlerApplicationTests {
        actuator.setComments(Arrays.asList("Desc"));
 
        CloudResource cloudResource = new CloudResource();
-       cloudResource.setHost("hostofcloudres");
+       cloudResource.setCloudMonitoringHost("hostofcloudres");
        cloudResource.setInternalId(INTERNAL_ID);
        cloudResource.setResource(actuator);	   
 	   

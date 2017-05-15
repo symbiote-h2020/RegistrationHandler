@@ -50,14 +50,8 @@ public class IIFMessageHandler {
 
 	private Map<String, Object> getAuthHeaders(){
  	    Map<String, Object> headers = new HashMap<String, Object> ();
- 	    if (securityManager.isEnabled()) {
- 	    	headers.put(RHConstants.HEADER_TOKEN, securityManager.requestCoreToken().getToken());
- 	        return headers;
- 	    }
- 	    else {
- 	    	headers.put(RHConstants.HEADER_TOKEN, "test");
- 	        return headers;
- 	    }
+    	headers.put(RHConstants.HEADER_TOKEN, securityManager.requestCoreToken().getToken());
+        return headers;
 	}
 	
 	public List<CloudResource>  createResources(String platformId, List<CloudResource> cloudResources)  {

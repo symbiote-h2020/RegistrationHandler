@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import eu.h2020.symbiote.security.SecurityHandler;
 import eu.h2020.symbiote.security.certificate.CertificateVerificationException;
-import eu.h2020.symbiote.security.exceptions.sh.SecurityHandlerDisabledException;
 import eu.h2020.symbiote.security.exceptions.SecurityHandlerException;
 import eu.h2020.symbiote.security.token.Token;
 import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
@@ -22,10 +21,15 @@ public class SecurityManager {
 
 	  @Value("${symbiote.coreaam.url}")
 	  String coreAAMUrl;
+
 	  @Value("${rabbit.host}")
 	  String rabbitMQHostIP;
-	  @Value("${security.enabled}")
-	  boolean enabled;
+
+	  @Value("${rabbit.username}")
+	  String rabbitMQUsername;	
+
+	  @Value("${rabbit.password}")
+	  String rabbitMQPassword;
 	  
 	  @Value("${security.user}")
 	  String userName;
@@ -38,24 +42,15 @@ public class SecurityManager {
 	  
 	  @PostConstruct
 	  private void init() {
-		  securityHandler = new SecurityHandler(coreAAMUrl, rabbitMQHostIP, enabled); 
-	  }
-	  public boolean isEnabled(){
-		  return enabled;
+		  securityHandler = new SecurityHandler(coreAAMUrl, rabbitMQHostIP, rabbitMQUsername, rabbitMQPassword); 
 	  }
 	  
 	  public Token requestCoreToken() throws SecurityException{
 		  try{
 			  return securityHandler.requestCoreToken(userName, password);
 		  }
-          catch (TokenValidationException e){
-			  logger.debug("Token not validated: " + e);
-		  }
-		  catch (SecurityHandlerDisabledException e){
-			  logger.debug("security handler is disabled");
-		  }		  
-		  catch (SecurityHandlerException e){
-			  logger.debug(e);
+		  catch (SecurityException e){
+			  logger.info(e);
 		  }
 		  return null;
 	  }
@@ -67,9 +62,6 @@ public class SecurityManager {
           catch (CertificateVerificationException e) {
 			  logger.error("error validating certificate");
 		  }
-		  catch (SecurityHandlerDisabledException e){
-			  logger.debug("security handler is disabled");
-		  } 
 		return false;
 	  }
 }
