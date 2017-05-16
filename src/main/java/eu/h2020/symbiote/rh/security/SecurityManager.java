@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.security.SecurityHandler;
+import eu.h2020.symbiote.security.InternalSecurityHandler;
 import eu.h2020.symbiote.security.certificate.CertificateVerificationException;
 import eu.h2020.symbiote.security.exceptions.SecurityHandlerException;
 import eu.h2020.symbiote.security.token.Token;
@@ -37,12 +37,12 @@ public class SecurityManager {
 	  @Value("${security.password}")
 	  String password;
 
-	  SecurityHandler securityHandler;
+	  InternalSecurityHandler securityHandler;
 
 	  
 	  @PostConstruct
 	  private void init() {
-		  securityHandler = new SecurityHandler(coreAAMUrl, rabbitMQHostIP, rabbitMQUsername, rabbitMQPassword); 
+		  securityHandler = new InternalSecurityHandler(coreAAMUrl, rabbitMQHostIP, rabbitMQUsername, rabbitMQPassword); 
 	  }
 	  
 	  public Token requestCoreToken() throws SecurityException{
