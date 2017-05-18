@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 
 import eu.h2020.symbiote.core.model.resources.Resource;
 import eu.h2020.symbiote.rh.constants.RHConstants;
@@ -32,13 +35,25 @@ public class IIFRestDummyServer {
   
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
-  public @ResponseBody ResourceRegistryResponse createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
+  public ResponseEntity<?> createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
     logger.info("User trying to createResources platformId"+platformId);
     List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
-    result.setResources(listTosend);
-    return result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
+    if (listTosend.get(0).getLabels().get(0).equals("invalid")) {
+      logger.info("Token is invalid");
+      httpStatus = HttpStatus.BAD_REQUEST;
+      result.setMessage("Token invalid");
+    }
+    else {
+      logger.info("Token is valid");
+      result.setResources(listTosend);
+      httpStatus = HttpStatus.OK;
+    }
+    return new ResponseEntity<ResourceRegistryResponse>(result, responseHeaders, httpStatus);
   }
   
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")

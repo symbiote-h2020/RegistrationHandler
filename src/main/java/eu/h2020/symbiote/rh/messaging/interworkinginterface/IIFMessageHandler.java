@@ -24,6 +24,7 @@ import eu.h2020.symbiote.rh.security.SecurityManager;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 
 import feign.Feign;
+import feign.FeignException;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 
@@ -74,8 +75,12 @@ public class IIFMessageHandler {
             int i = 0;
             for (CloudResource cloudResource:cloudResources)
                 cloudResource.setResource(resourceListReceived.get(i++));
-        }catch(Throwable t){
-            logger.error("Error accessing to symbIoTe core.", t);
+        } catch (FeignException e) {
+            logger.error("Error accessing symbIoTe core.", e);
+            securityManager.refreshCoreToken();
+            return new ArrayList<CloudResource>();
+        } catch(Throwable t){
+            logger.error("Error accessing symbIoTe core.", t);
             return new ArrayList<CloudResource>();
         }
 		return cloudResources;
@@ -104,11 +109,14 @@ public class IIFMessageHandler {
             for (CloudResource cloudResource:cloudResources)
                 cloudResource.setResource(resourceListReceived.get(i++));
 			
-        }catch(Throwable t){
-            logger.error("Error accessing to symbIoTe core.", t);
+        } catch (FeignException e) {
+            logger.error("Error accessing symbIoTe core.", e);
+            securityManager.refreshCoreToken();
             return new ArrayList<CloudResource>();
-
-        }	
+        } catch(Throwable t){
+            logger.error("Error accessing symbIoTe core.", t);
+            return new ArrayList<CloudResource>();
+        }
         return cloudResources;
     }
 
@@ -143,9 +151,11 @@ public class IIFMessageHandler {
                 Resource resource= (Resource) iter.next();
                 result.add(symbioteToInternalIds.get(resource.getId()));
             } 
-
-        }catch(Throwable t){
-			logger.error("Error accessing to symbIoTe core.", t);
+        } catch (FeignException e) {
+            logger.error("Error accessing symbIoTe core.", e);
+            securityManager.refreshCoreToken();
+        } catch(Throwable t){
+			logger.error("Error accessing symbIoTe core.", t);
         }
         return result;
 	}

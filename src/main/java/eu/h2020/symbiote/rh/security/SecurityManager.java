@@ -55,6 +55,18 @@ public class SecurityManager {
 		  return null;
 	  }
 
+	  public Token refreshCoreToken() throws SecurityException{
+          logger.info("Core Token needs to be refreshed");
+	  	  securityHandler.logout();
+		  try{
+			  return securityHandler.requestCoreToken(userName, password);
+		  }
+		  catch (SecurityException e){
+			  logger.info(e);
+		  }
+		  return null;
+	  }
+
 	  public boolean certificateValidation(KeyStore p12Certificate) throws SecurityException{
 		  try{
 			  return securityHandler.certificateValidation(p12Certificate);

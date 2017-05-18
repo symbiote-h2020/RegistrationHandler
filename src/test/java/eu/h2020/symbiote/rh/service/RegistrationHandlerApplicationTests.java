@@ -92,7 +92,23 @@ public class RegistrationHandlerApplicationTests {
 	   return cloudResource; 
    }
 
-	@Test
+   private CloudResource getTestActuatorBeanInvalid(){
+       Actuator actuator = new Actuator();
+       WKTLocation location = new WKTLocation();
+       location.setValue("location");
+       actuator.setLabels(Arrays.asList("invalid"));
+       actuator.setInterworkingServiceURL("http://example.com/url");
+       actuator.setComments(Arrays.asList("Desc"));
+
+       CloudResource cloudResource = new CloudResource();
+       cloudResource.setCloudMonitoringHost("hostofcloudres");
+       cloudResource.setInternalId(INTERNAL_ID);
+       cloudResource.setResource(actuator);	   
+	   
+	   return cloudResource; 
+   }
+
+	// @Test
 	public void testCreateResource() throws Exception {
 		CloudResource cloudResource = getTestActuatorBean();
         ObjectMapper mapper = new ObjectMapper();
@@ -109,7 +125,7 @@ public class RegistrationHandlerApplicationTests {
         assert(true);
        }
 
-	@Test
+	// @Test
 	public void testCreateResources() throws Exception {
 		CloudResource cloudResource = getTestActuatorBean();
 		List<CloudResource> list = new ArrayList<CloudResource>();
@@ -128,8 +144,26 @@ public class RegistrationHandlerApplicationTests {
         assert(true);
 	}
 
-
 	@Test
+	public void testCreateResourcesWithInvalidToken() throws Exception {
+		CloudResource cloudResource = getTestActuatorBeanInvalid();
+		List<CloudResource> list = new ArrayList<CloudResource>();
+		list.add(cloudResource);
+        ObjectMapper mapper = new ObjectMapper();
+        String objectInJson = mapper.writeValueAsString(list);
+		 
+        RequestBuilder requestBuilder = post("/resources")
+        		.content(objectInJson)
+        		.accept(MediaType.APPLICATION_JSON)
+        		.contentType(MediaType.APPLICATION_JSON);
+        mockMvc.perform(requestBuilder)
+                 .andExpect(status().isOk())
+                 .andReturn();         
+        logger.info("End of test ----------------------------- testCreateResource");
+        assert(true);
+	}
+
+	// @Test
 	public void testGetResource()  {
         RequestBuilder requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID)
         		.accept(MediaType.APPLICATION_JSON)
@@ -150,7 +184,7 @@ public class RegistrationHandlerApplicationTests {
 		
 	}
 	
-	@Test
+	// @Test
 	public void testUpdateResource() {
         try {
         		ObjectMapper mapper = new ObjectMapper();
@@ -182,7 +216,7 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 
-	@Test
+	// @Test
 	public void testDeleteResource() {
         try {
     		ObjectMapper mapper = new ObjectMapper();
