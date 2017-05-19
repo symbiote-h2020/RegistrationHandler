@@ -22,6 +22,7 @@ public class InterworkingInterfaceErrorDecoder implements ErrorDecoder {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String body = Util.toString(response.body().asReader());
+            log.info("Status: " + response.status() + " and responseBody: " + body);
             ResourceRegistryResponse resourceRegistryResponse = mapper.readValue(body, ResourceRegistryResponse.class);
             if (response.status() == 400 && resourceRegistryResponse.getMessage().equals("Token invalid")) {
                 log.info("The Token was invalid");
