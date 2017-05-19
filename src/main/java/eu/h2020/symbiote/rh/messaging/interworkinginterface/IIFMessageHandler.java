@@ -22,6 +22,7 @@ import eu.h2020.symbiote.core.model.resources.Resource;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.rh.security.SecurityManager;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
 import feign.Feign;
 import feign.FeignException;
@@ -45,7 +46,10 @@ public class IIFMessageHandler {
 	@PostConstruct
 	public void createClient() {
 		logger.info("Will use "+ url +" to access to interworking interface");
-		jsonclient = Feign.builder().decoder(new JacksonDecoder()).encoder(new JacksonEncoder()).target(InterworkingInterfaceService.class, url);
+		jsonclient = Feign.builder().errorDecoder(new InterworkingInterfaceDecoder())
+                                    .decoder(new JacksonDecoder())
+                                    .encoder(new JacksonEncoder())
+                                    .target(InterworkingInterfaceService.class, url);
 	}
 
 
@@ -55,7 +59,7 @@ public class IIFMessageHandler {
         return headers;
 	}
 	
-	public List<CloudResource>  createResources(String platformId, List<CloudResource> cloudResources)  {
+	public List<CloudResource> createResources(String platformId, List<CloudResource> cloudResources) throws TokenValidationException {
         ArrayList<Resource> resourceListReceived = new ArrayList<Resource>();
         try{
             logger.info("User trying to createResources in "+platformId);
@@ -76,18 +80,19 @@ public class IIFMessageHandler {
             for (CloudResource cloudResource:cloudResources)
                 cloudResource.setResource(resourceListReceived.get(i++));
         } catch (FeignException e) {
-            logger.error("Error accessing symbIoTe core.", e);
+            logger.error("Exception thrown: ", e);
+            logger.info(e.getClass().getCanonicalName());
             securityManager.refreshCoreToken();
-            return new ArrayList<CloudResource>();
-        } catch(Throwable t){
-            logger.error("Error accessing symbIoTe core.", t);
-            return new ArrayList<CloudResource>();
+            throw e;
+        } catch(Exception e){
+            logger.error("Error accessing symbIoTe core.", e);
+            throw e;
         }
 		return cloudResources;
     }
 
 
-	public List<CloudResource> updateResources(String platformId, List<CloudResource> cloudResources)  {
+	public List<CloudResource> updateResources(String platformId, List<CloudResource> cloudResources) throws TokenValidationException {
         ArrayList<Resource> resourceListReceived = new ArrayList<Resource>();
         try{
             logger.info("User trying to updateResources in "+platformId);
@@ -110,17 +115,17 @@ public class IIFMessageHandler {
                 cloudResource.setResource(resourceListReceived.get(i++));
 			
         } catch (FeignException e) {
-            logger.error("Error accessing symbIoTe core.", e);
+            logger.error(e);
             securityManager.refreshCoreToken();
-            return new ArrayList<CloudResource>();
-        } catch(Throwable t){
-            logger.error("Error accessing symbIoTe core.", t);
-            return new ArrayList<CloudResource>();
+            throw e;
+        } catch(Exception e){
+            logger.error("Error accessing symbIoTe core.", e);
+            throw e;
         }
         return cloudResources;
     }
 
-	public List<String> removeResources(String platformId, List<String> resourceIds)  {
+	public List<String> removeResources(String platformId, List<String> resourceIds) throws TokenValidationException {
         ArrayList<String>  result = new ArrayList<String>();
         ArrayList<String>  debug = new ArrayList<String>();
         HashMap<String,String> symbioteToInternalIds = new HashMap<String,String>();
@@ -152,10 +157,12 @@ public class IIFMessageHandler {
                 result.add(symbioteToInternalIds.get(resource.getId()));
             } 
         } catch (FeignException e) {
-            logger.error("Error accessing symbIoTe core.", e);
+            logger.error(e);
             securityManager.refreshCoreToken();
-        } catch(Throwable t){
-			logger.error("Error accessing symbIoTe core.", t);
+            throw e;
+        } catch(Exception e){
+			logger.error("Error accessing symbIoTe core.", e);
+            throw e;
         }
         return result;
 	}

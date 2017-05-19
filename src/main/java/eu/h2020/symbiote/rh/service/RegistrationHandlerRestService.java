@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
 
 /**! \class RegistrationHandlerRestService 
@@ -68,14 +72,29 @@ public class RegistrationHandlerRestService {
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
   @RequestMapping(method = RequestMethod.POST, path = "/resource")
-  public CloudResource addResource(@RequestBody CloudResource resource) throws ConflictException{
+  public ResponseEntity<?> addResource(@RequestBody CloudResource resource) throws ConflictException{
     logger.info("START OF addResource, in data "+ resource);
-    if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
+    if (resource.getInternalId()==null) 
+      throw new ConflictException("internalId field must be informed");
+
     List<CloudResource> list = new ArrayList<CloudResource>();
+    List<CloudResource> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
     list.add(resource);
-    List<CloudResource> result = infoManager.addResources(list);
+    try {
+      result = infoManager.addResources(list);
+    } catch (TokenValidationException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+    } catch (Exception e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+    }
+
     logger.info("END OF addResource, result "+ result);
-    return result.get(0);
+    return new  ResponseEntity<CloudResource>(result.get(0), responseHeaders, HttpStatus.OK);
     
  }
 
@@ -90,11 +109,24 @@ public class RegistrationHandlerRestService {
  */
   
   @RequestMapping(method = RequestMethod.POST, path = "/resources")
-  public List<CloudResource> addResources(@RequestBody List<CloudResource> resources) throws ConflictException{
+  public ResponseEntity<?> addResources(@RequestBody List<CloudResource> resources) throws ConflictException{
     logger.info("START OF addResource, in data "+ resources);
-    List<CloudResource> result = infoManager.addResources(resources);
+    List<CloudResource> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
+    try {
+      result = infoManager.addResources(resources);
+    } catch (TokenValidationException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+    } catch (Exception e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+    }
+
     logger.info("END OF addResources, result "+ result);
-    return result;
+    return new  ResponseEntity<List<CloudResource>>(result, responseHeaders, HttpStatus.OK);
     
  }
   
@@ -107,14 +139,28 @@ public class RegistrationHandlerRestService {
  * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
  */
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
-  public CloudResource updateResource(@RequestBody CloudResource resource) {
+  public ResponseEntity<?> updateResource(@RequestBody CloudResource resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    if (resource.getInternalId()==null) throw new ConflictException("internalId field must be informed");
+    if (resource.getInternalId()==null)
+     throw new ConflictException("internalId field must be informed");
     List<CloudResource> list = new ArrayList<CloudResource>();
     list.add(resource);
-    List<CloudResource>  result = infoManager.updateResource(list);
+    List<CloudResource> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
+    try {
+      result = infoManager.updateResource(list);
+    } catch (TokenValidationException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+    } catch (Exception e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+    }
+
     logger.info("END OF updateResource, result "+ result);
-    return result.get(0);
+    return new  ResponseEntity<CloudResource>(result.get(0), responseHeaders, HttpStatus.OK);
   }
 
 //! Update a resource.
@@ -126,11 +172,24 @@ public class RegistrationHandlerRestService {
  * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
  */
   @RequestMapping(method = RequestMethod.PUT, path = "/resources")
-  public List<CloudResource> updateResources(@RequestBody List<CloudResource> resource) {
+  public ResponseEntity<?> updateResources(@RequestBody List<CloudResource> resource) {
     logger.info("START OF updateResource, in data "+ resource);
-    List<CloudResource>  result = infoManager.updateResource(resource);    
+    List<CloudResource> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
+    try {
+      result = infoManager.updateResource(resource); 
+    } catch (TokenValidationException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+    } catch (Exception e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+    }
+
     logger.info("END OF updateResource, result "+ result);
-    return result;
+    return new  ResponseEntity<List<CloudResource>>(result, responseHeaders, HttpStatus.OK);
   }
 
 //! Delete a resource.
@@ -142,25 +201,52 @@ public class RegistrationHandlerRestService {
  * \return \a deleteResource returns the \a CloudResource that has been just removed 
  */
   @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
-  public CloudResource deleteResource(@RequestParam String resourceInternalId) {
+  public ResponseEntity<?> deleteResource(@RequestParam String resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
     List<String> list = new ArrayList<String>();
     list.add(resourceInternalId);
-    List<CloudResource>  result = infoManager.deleteResources(list);
+    List<CloudResource> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
+    try {
+
+      result = infoManager.deleteResources(list);
+    } catch (TokenValidationException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+    } catch (Exception e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+    }
+
     if (result.size()>0){
     	logger.info("END OF deleteResource, result "+ result.get(0));
-    	return result.get(0);
-    }else{
+      return new ResponseEntity<CloudResource>(result.get(0), responseHeaders, HttpStatus.OK);
+    }  else {
     	logger.info("END OF deleteResource, the resource didn't exist");
-    	return null;
+      return new ResponseEntity<String>("The resource didn't exist", responseHeaders, HttpStatus.BAD_REQUEST);
     }
   }
  
   @RequestMapping(method = RequestMethod.DELETE, path = "/resources")
-  public List<CloudResource> deleteResources(@RequestParam List<String> resourceInternalId) {
+  public ResponseEntity<?> deleteResources(@RequestParam List<String> resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
-    List<CloudResource> result = infoManager.deleteResources(resourceInternalId);
+    List<CloudResource> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+
+    try {
+      result = infoManager.deleteResources(resourceInternalId);
+    } catch (TokenValidationException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+    } catch (Exception e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+    }
+
     logger.info("END OF deleteResource, result "+ result);
-    return result;
+    return new ResponseEntity<List<CloudResource>>(result, responseHeaders, HttpStatus.OK);
   }
 }

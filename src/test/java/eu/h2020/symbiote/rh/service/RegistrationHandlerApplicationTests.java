@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
@@ -42,6 +43,9 @@ import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.core.model.WKTLocation;
 import eu.h2020.symbiote.core.model.resources.Actuator;
 import eu.h2020.symbiote.rh.service.aams.DummyAAMAMQPLoginListener;
+
+import static org.junit.Assert.assertEquals;
+
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
@@ -156,9 +160,11 @@ public class RegistrationHandlerApplicationTests {
         		.content(objectInJson)
         		.accept(MediaType.APPLICATION_JSON)
         		.contentType(MediaType.APPLICATION_JSON);
-        mockMvc.perform(requestBuilder)
-                 .andExpect(status().isOk())
-                 .andReturn();         
+        MvcResult result = mockMvc.perform(requestBuilder)
+                 .andExpect(status().isBadRequest())
+                 .andReturn(); 
+
+        assertEquals("Token was invalid, but now refreshed. Reissue your request", result.getResponse().getContentAsString()); 
         logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
 	}

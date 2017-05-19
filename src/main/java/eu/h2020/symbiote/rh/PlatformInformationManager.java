@@ -14,6 +14,8 @@ import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+
 /**! \class PlatformInformationManager
  * \brief PlatformInformationManager handles the registration of the resources within the platform
  **/
@@ -56,7 +58,8 @@ public class PlatformInformationManager {
 
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
-	  for (String resourceId:resourceIds){
+
+	  for (String resourceId:resourceIds) {
 		  CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
 	      if (existingResource != null) {
 	    	  result.add(existingResource);
@@ -75,9 +78,19 @@ public class PlatformInformationManager {
  * \return \a addResource returns the List of \a CloudResource where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
-  public List<CloudResource>  addResources(List<CloudResource> resource) {
-	List<CloudResource>  listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
-	List<CloudResource>  result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+  public List<CloudResource> addResources(List<CloudResource> resource) throws TokenValidationException {
+	  List<CloudResource>  listWithStmbioteId; 
+	  List<CloudResource>  result;
+
+    try {
+      listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
+    } catch (TokenValidationException e){
+      throw e;
+    } catch (Exception e){
+      throw e;
+    }
+
+    result  = addOrUpdateInInternalRepository(listWithStmbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
     return result;
   }
@@ -90,9 +103,19 @@ public class PlatformInformationManager {
  * \param resources List of \a CloudResource to be updated within the system
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
-  public List<CloudResource>  updateResource(List<CloudResource>  resources) {
-	List<CloudResource> listWithStmbioteId = iifMessageHandler.updateResources(platformId, resources);
-	List<CloudResource> result  = addOrUpdateInInternalRepository(listWithStmbioteId);
+  public List<CloudResource>  updateResource(List<CloudResource>  resources) throws TokenValidationException {
+	  List<CloudResource> listWithStmbioteId;
+	  List<CloudResource> result;
+    
+    try {
+      listWithStmbioteId = iifMessageHandler.updateResources(platformId, resources);
+    } catch (TokenValidationException e){
+      throw e;
+    } catch (Exception e){
+      throw e;
+    }
+    
+    result = addOrUpdateInInternalRepository(listWithStmbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
     return result;
   }
@@ -105,9 +128,18 @@ public class PlatformInformationManager {
  * \param resourceId \a internalId to the resource to be removed 
  * \return \a deleteResource returns the \a CloudResource that has been just removed 
  */
-  public List<CloudResource> deleteResources(List<String> resourceIds) {
-	List<CloudResource> result = null;  
-	List<String> resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
+  public List<CloudResource> deleteResources(List<String> resourceIds) throws TokenValidationException {
+	  List<CloudResource> result = null;  
+	  List<String> resultIds;
+
+    try {
+      resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
+    } catch (TokenValidationException e){
+      throw e;
+    } catch (Exception e){
+      throw e;
+    }
+
     result  = deleteInInternalRepository(resultIds);
     rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resultIds);
     return result;
