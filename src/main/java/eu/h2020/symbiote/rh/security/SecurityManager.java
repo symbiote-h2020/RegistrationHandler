@@ -46,6 +46,7 @@ public class SecurityManager {
 	  }
 	  
 	  public Token requestCoreToken() throws SecurityException{
+          logger.info("Requesting core token");
 		  try{
 			  return securityHandler.requestCoreToken(userName, password);
 		  }
@@ -55,19 +56,13 @@ public class SecurityManager {
 		  return null;
 	  }
 
-	  public Token refreshCoreToken() throws SecurityException{
-          logger.info("Core Token needs to be refreshed");
-	  	  securityHandler.logout();
-		  try{
-			  return securityHandler.requestCoreToken(userName, password);
-		  }
-		  catch (SecurityException e){
-			  logger.info(e);
-		  }
-		  return null;
+	  public void removeSavedTokens() throws SecurityException{
+          logger.info("Removing stored tokens");
+          securityHandler.logout();
 	  }
 
 	  public boolean certificateValidation(KeyStore p12Certificate) throws SecurityException{
+          logger.info("Validating certificate");
 		  try{
 			  return securityHandler.certificateValidation(p12Certificate);
 		  }

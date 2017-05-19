@@ -13,8 +13,8 @@ import java.io.IOException;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
-public class InterworkingInterfaceDecoder implements ErrorDecoder {
-    private static Log log = LogFactory.getLog(InterworkingInterfaceDecoder.class);
+public class InterworkingInterfaceErrorDecoder implements ErrorDecoder {
+    private static Log log = LogFactory.getLog(InterworkingInterfaceErrorDecoder.class);
     
 
     @Override

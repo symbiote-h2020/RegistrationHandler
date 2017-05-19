@@ -161,10 +161,10 @@ public class RegistrationHandlerApplicationTests {
         		.accept(MediaType.APPLICATION_JSON)
         		.contentType(MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(requestBuilder)
-                 .andExpect(status().isBadRequest())
+                 .andExpect(status().isUnauthorized())
                  .andReturn(); 
 
-        assertEquals("Token was invalid, but now refreshed. Reissue your request", result.getResponse().getContentAsString()); 
+        assertEquals("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", result.getResponse().getContentAsString()); 
         logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
 	}

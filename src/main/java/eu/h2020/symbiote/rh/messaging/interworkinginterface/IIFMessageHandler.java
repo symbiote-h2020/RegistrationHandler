@@ -47,7 +47,7 @@ public class IIFMessageHandler {
 	@PostConstruct
 	public void createClient() {
 		logger.info("Will use "+ url +" to access to interworking interface");
-		jsonclient = Feign.builder().errorDecoder(new InterworkingInterfaceDecoder())
+		jsonclient = Feign.builder().errorDecoder(new InterworkingInterfaceErrorDecoder())
                                     .decoder(new JacksonDecoder())
                                     .encoder(new JacksonEncoder())
                                     .target(InterworkingInterfaceService.class, url);
@@ -82,7 +82,7 @@ public class IIFMessageHandler {
                 cloudResource.setResource(resourceListReceived.get(i++));
         } catch (TokenValidationException e) {
             logger.error(e);
-            securityManager.refreshCoreToken();
+            securityManager.removeSavedTokens();
             throw e;
         } catch(Exception e){
             logger.error("Error accessing symbIoTe core.", e);
@@ -116,7 +116,7 @@ public class IIFMessageHandler {
 			
         } catch (TokenValidationException e) {
             logger.error(e);
-            securityManager.refreshCoreToken();
+            securityManager.removeSavedTokens();
             throw e;
         } catch(Exception e){
             logger.error("Error accessing symbIoTe core.", e);
@@ -158,7 +158,7 @@ public class IIFMessageHandler {
             } 
         } catch (TokenValidationException e) {
             logger.error(e);
-            securityManager.refreshCoreToken();
+            securityManager.removeSavedTokens();
             throw e;
         } catch(Exception e){
 			logger.error("Error accessing symbIoTe core.", e);

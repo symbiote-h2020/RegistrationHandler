@@ -86,8 +86,8 @@ public class RegistrationHandlerRestService {
     try {
         result = infoManager.addResources(list);
     } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+        httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
@@ -118,8 +118,8 @@ public class RegistrationHandlerRestService {
     try {
         result = infoManager.addResources(resources);
     } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+         httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
@@ -152,8 +152,8 @@ public class RegistrationHandlerRestService {
     try {
         result = infoManager.updateResources(list);
     } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+        httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
@@ -181,8 +181,8 @@ public class RegistrationHandlerRestService {
     try {
         result = infoManager.updateResources(resource); 
     } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+        httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
@@ -212,8 +212,8 @@ public class RegistrationHandlerRestService {
     try {
         result = infoManager.deleteResources(list);
     } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+        httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
@@ -238,8 +238,8 @@ public class RegistrationHandlerRestService {
     try {
         result = infoManager.deleteResources(resourceInternalId);
     } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
+        httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
