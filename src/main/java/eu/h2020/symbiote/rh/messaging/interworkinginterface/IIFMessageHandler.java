@@ -23,6 +23,7 @@ import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.rh.security.SecurityManager;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+import org.springframework.http.ResponseEntity;
 
 import feign.Feign;
 import feign.FeignException;
@@ -79,9 +80,8 @@ public class IIFMessageHandler {
             int i = 0;
             for (CloudResource cloudResource:cloudResources)
                 cloudResource.setResource(resourceListReceived.get(i++));
-        } catch (FeignException e) {
-            logger.error("Exception thrown: ", e);
-            logger.info(e.getClass().getCanonicalName());
+        } catch (TokenValidationException e) {
+            logger.error(e);
             securityManager.refreshCoreToken();
             throw e;
         } catch(Exception e){
@@ -114,7 +114,7 @@ public class IIFMessageHandler {
             for (CloudResource cloudResource:cloudResources)
                 cloudResource.setResource(resourceListReceived.get(i++));
 			
-        } catch (FeignException e) {
+        } catch (TokenValidationException e) {
             logger.error(e);
             securityManager.refreshCoreToken();
             throw e;
@@ -156,7 +156,7 @@ public class IIFMessageHandler {
                 Resource resource= (Resource) iter.next();
                 result.add(symbioteToInternalIds.get(resource.getId()));
             } 
-        } catch (FeignException e) {
+        } catch (TokenValidationException e) {
             logger.error(e);
             securityManager.refreshCoreToken();
             throw e;

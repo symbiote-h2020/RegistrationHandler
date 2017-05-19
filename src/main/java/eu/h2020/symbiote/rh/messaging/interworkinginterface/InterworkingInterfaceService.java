@@ -10,22 +10,24 @@ import feign.HeaderMap;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
+import org.springframework.http.ResponseEntity;
 
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
 public interface InterworkingInterfaceService {
 	@RequestLine("POST "+RHConstants.DO_CREATE_RESOURCES)
 	@Headers({"Accept: application/json", "Content-Type: application/json"})
-    public ResourceRegistryResponse createResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources, @HeaderMap Map<String, Object> headers);
+    public ResourceRegistryResponse createResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources, @HeaderMap Map<String, Object> headers) throws TokenValidationException;
 	
 	@RequestLine("PUT "+RHConstants.DO_UPDATE_RESOURCES)
 	@Headers({"Accept: application/json", "Content-Type: application/json"})
-    public ResourceRegistryResponse  updateResource(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources, @HeaderMap Map<String, Object> headers);
+    public ResourceRegistryResponse updateResource(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources, @HeaderMap Map<String, Object> headers) throws TokenValidationException;
 	
 	@RequestLine("DELETE "+RHConstants.DO_REMOVE_RESOURCES)
 	@Headers({"Accept: application/json", "Content-Type: application/json"})
-    public ResourceRegistryResponse  removeResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources, @HeaderMap Map<String, Object> headers);
+    public ResourceRegistryResponse removeResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources, @HeaderMap Map<String, Object> headers) throws TokenValidationException;
 
 }
 

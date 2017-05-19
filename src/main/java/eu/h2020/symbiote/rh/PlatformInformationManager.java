@@ -103,7 +103,7 @@ public class PlatformInformationManager {
  * \param resources List of \a CloudResource to be updated within the system
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
-  public List<CloudResource>  updateResource(List<CloudResource>  resources) throws TokenValidationException {
+  public List<CloudResource> updateResources(List<CloudResource>  resources) throws TokenValidationException {
 	  List<CloudResource> listWithStmbioteId;
 	  List<CloudResource> result;
     
@@ -114,7 +114,7 @@ public class PlatformInformationManager {
     } catch (Exception e){
       throw e;
     }
-    
+
     result = addOrUpdateInInternalRepository(listWithStmbioteId);
     rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
     return result;

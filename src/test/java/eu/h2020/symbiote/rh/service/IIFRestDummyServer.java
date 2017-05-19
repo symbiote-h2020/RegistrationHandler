@@ -36,7 +36,7 @@ public class IIFRestDummyServer {
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
-    logger.info("User trying to createResources platformId"+platformId);
+    logger.info("User trying to createResources with platformId "+platformId);
     List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
@@ -58,7 +58,7 @@ public class IIFRestDummyServer {
   
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public @ResponseBody ResourceRegistryResponse  updateResource(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
-    logger.info("User trying to updateResources platformId"+platformId);
+    logger.info("User trying to updateResources with platformId "+platformId);
       List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
       .collect(Collectors.toList());
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
@@ -68,7 +68,7 @@ public class IIFRestDummyServer {
 
   @RequestMapping(method = RequestMethod.DELETE, path = RHConstants.DO_REMOVE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public @ResponseBody ResourceRegistryResponse  removeResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
-    logger.info("User trying to removeResources platformId"+platformId);
+    logger.info("User trying to removeResources with platformId "+platformId);
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
     result.setResources(resources.getResources());
     return result;

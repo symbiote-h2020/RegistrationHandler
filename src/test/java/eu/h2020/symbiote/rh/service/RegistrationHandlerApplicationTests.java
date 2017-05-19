@@ -80,39 +80,39 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 
-   private CloudResource getTestActuatorBean(){
-       Actuator actuator = new Actuator();
-       WKTLocation location = new WKTLocation();
-       location.setValue("location");
-       actuator.setLabels(Arrays.asList("Act1"));
-       actuator.setInterworkingServiceURL("http://example.com/url");
-       actuator.setComments(Arrays.asList("Desc"));
+	private CloudResource getTestActuatorBean(){
+	   Actuator actuator = new Actuator();
+	   WKTLocation location = new WKTLocation();
+	   location.setValue("location");
+	   actuator.setLabels(Arrays.asList("Act1"));
+	   actuator.setInterworkingServiceURL("http://example.com/url");
+	   actuator.setComments(Arrays.asList("Desc"));
 
-       CloudResource cloudResource = new CloudResource();
-       cloudResource.setCloudMonitoringHost("hostofcloudres");
-       cloudResource.setInternalId(INTERNAL_ID);
-       cloudResource.setResource(actuator);	   
+	   CloudResource cloudResource = new CloudResource();
+	   cloudResource.setCloudMonitoringHost("hostofcloudres");
+	   cloudResource.setInternalId(INTERNAL_ID);
+	   cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
-   }
+	}
 
-   private CloudResource getTestActuatorBeanInvalid(){
-       Actuator actuator = new Actuator();
-       WKTLocation location = new WKTLocation();
-       location.setValue("location");
-       actuator.setLabels(Arrays.asList("invalid"));
-       actuator.setInterworkingServiceURL("http://example.com/url");
-       actuator.setComments(Arrays.asList("Desc"));
+	private CloudResource getTestActuatorBeanInvalid(){
+	   Actuator actuator = new Actuator();
+	   WKTLocation location = new WKTLocation();
+	   location.setValue("location");
+	   actuator.setLabels(Arrays.asList("invalid"));
+	   actuator.setInterworkingServiceURL("http://example.com/url");
+	   actuator.setComments(Arrays.asList("Desc"));
 
-       CloudResource cloudResource = new CloudResource();
-       cloudResource.setCloudMonitoringHost("hostofcloudres");
-       cloudResource.setInternalId(INTERNAL_ID);
-       cloudResource.setResource(actuator);	   
+	   CloudResource cloudResource = new CloudResource();
+	   cloudResource.setCloudMonitoringHost("hostofcloudres");
+	   cloudResource.setInternalId(INTERNAL_ID);
+	   cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
-   }
+	}
 
-	// @Test
+	@Test
 	public void testCreateResource() throws Exception {
 		CloudResource cloudResource = getTestActuatorBean();
         ObjectMapper mapper = new ObjectMapper();
@@ -129,7 +129,7 @@ public class RegistrationHandlerApplicationTests {
         assert(true);
        }
 
-	// @Test
+	@Test
 	public void testCreateResources() throws Exception {
 		CloudResource cloudResource = getTestActuatorBean();
 		List<CloudResource> list = new ArrayList<CloudResource>();
@@ -169,7 +169,7 @@ public class RegistrationHandlerApplicationTests {
         assert(true);
 	}
 
-	// @Test
+	@Test
 	public void testGetResource()  {
         RequestBuilder requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID)
         		.accept(MediaType.APPLICATION_JSON)
@@ -190,7 +190,7 @@ public class RegistrationHandlerApplicationTests {
 		
 	}
 	
-	// @Test
+	@Test
 	public void testUpdateResource() {
         try {
         		ObjectMapper mapper = new ObjectMapper();
@@ -222,13 +222,13 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 
-	// @Test
+	@Test
 	public void testDeleteResource() {
         try {
     		ObjectMapper mapper = new ObjectMapper();
 			CloudResource cloudResource = getTestActuatorBean();
     		String objectInJson = mapper.writeValueAsString(cloudResource);
-    		 
+    		logger.info(objectInJson);
             RequestBuilder requestBuilder = post("/resource")
             		.content(objectInJson)
             		.accept(MediaType.APPLICATION_JSON)

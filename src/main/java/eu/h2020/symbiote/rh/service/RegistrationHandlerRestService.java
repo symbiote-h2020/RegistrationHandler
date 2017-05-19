@@ -84,7 +84,7 @@ public class RegistrationHandlerRestService {
 
     list.add(resource);
     try {
-      result = infoManager.addResources(list);
+        result = infoManager.addResources(list);
     } catch (TokenValidationException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
@@ -116,7 +116,7 @@ public class RegistrationHandlerRestService {
     HttpStatus httpStatus;
 
     try {
-      result = infoManager.addResources(resources);
+        result = infoManager.addResources(resources);
     } catch (TokenValidationException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
@@ -150,7 +150,7 @@ public class RegistrationHandlerRestService {
     HttpStatus httpStatus;
 
     try {
-      result = infoManager.updateResource(list);
+        result = infoManager.updateResources(list);
     } catch (TokenValidationException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
@@ -179,7 +179,7 @@ public class RegistrationHandlerRestService {
     HttpStatus httpStatus;
 
     try {
-      result = infoManager.updateResource(resource); 
+        result = infoManager.updateResources(resource); 
     } catch (TokenValidationException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
@@ -210,8 +210,7 @@ public class RegistrationHandlerRestService {
     HttpStatus httpStatus;
 
     try {
-
-      result = infoManager.deleteResources(list);
+        result = infoManager.deleteResources(list);
     } catch (TokenValidationException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
@@ -237,7 +236,7 @@ public class RegistrationHandlerRestService {
     HttpStatus httpStatus;
 
     try {
-      result = infoManager.deleteResources(resourceInternalId);
+        result = infoManager.deleteResources(resourceInternalId);
     } catch (TokenValidationException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<String>("Token was invalid, but now refreshed. Reissue your request", responseHeaders, httpStatus);
