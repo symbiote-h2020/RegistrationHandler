@@ -1,2 +1,3 @@
+rootProject.name = 'RegistrationHandler'
 include 'registration-handler-interface'
 //include 'open-iot-registration-handler-impl'

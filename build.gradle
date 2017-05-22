@@ -6,18 +6,34 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE"
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath group: 'com.cinnober.gradle', name: 'semver-git', version: '2.2.1'
+        classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
     }
 }
 
+// code
+apply plugin: "io.spring.dependency-management"
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
-jar {
-    baseName = 'registration-handler'
-    version = '0.0.1-SNAPSHOT'
-}
+// code quality
+apply plugin: 'jacoco'
+apply plugin: 'org.owasp.dependencycheck'
+
+// IDEs
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+// publishing
+apply plugin: 'com.cinnober.gradle.semver-git'
+
+// XXX please change with your commits according to http://semver.org/
+project.version = '0.2.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -28,27 +44,61 @@ repositories {
         url 'https://repo.spring.io/libs-snapshot'
     }
 }
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
-
-
-dependencies {
-    compile('org.springframework.cloud:spring-cloud-starter-config')
-    compile('org.springframework.cloud:spring-cloud-starter-eureka')
-    compile('org.springframework.cloud:spring-cloud-starter-feign')
-    compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
-    compile('org.springframework.boot:spring-boot-starter-data-mongodb')
-    compile group: 'com.netflix.feign', name: 'feign-jackson', version: '8.18.0'
-    compile('com.fasterxml.jackson.core:jackson-annotations:2.8.7+')
-    compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('com.github.tomakehurst:wiremock')
-    testCompile('org.springframework:spring-core')
-}
-
+// Spring related configs
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.RELEASE"
     }
 }
+
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+
+    compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT')
+
+    // Spring
+    compile('org.springframework.cloud:spring-cloud-starter-config')
+    compile('org.springframework.cloud:spring-cloud-starter-eureka')
+    compile('org.springframework.cloud:spring-cloud-starter-zipkin')
+    compile('org.springframework.cloud:spring-cloud-starter-feign')
+    compile('org.springframework.boot:spring-boot-starter-amqp')
+    compile('org.springframework.boot:spring-boot-starter-data-rest')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-data-mongodb')
+
+    // test only
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.github.tomakehurst:wiremock')
+    testCompile('org.springframework:spring-core')
+}
+
+// code quality below
+task generateJavaDocs(type: Javadoc) {
+    source = sourceSets.main.allJava
+    destinationDir = reporting.file("javadocs")
+}
+
+// jacoco configuration section
+jacoco {
+    toolVersion = "0.7.9"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+// owasp config
+dependencyCheck {
+    outputDirectory = "build/reports/security"
+}
+
+// including code quality extensions into the build
+check.dependsOn(jacocoTestReport, 'dependencyCheck')
