@@ -33,12 +33,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Dummy REST service mimicking exposed AAM features required by SymbIoTe users and reachable via CoreInterface in the Core and Interworking Interfaces on Platforms' side.
  *
  * @author Mikołaj Dobski (PSNC)
  */
+@ApiIgnore(value="Dummy AAM Server")
 @RestController
 @WebAppConfiguration
 public class DummyAAMRestListeners {

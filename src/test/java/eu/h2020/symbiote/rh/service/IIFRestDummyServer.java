@@ -22,10 +22,13 @@ import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 
+import springfox.documentation.annotations.ApiIgnore;
+
 /*
  * @author: Elena Garrido
  * @version: 12/02/2017
  */
+@ApiIgnore(value="Dummy Interworking Interface Server")
 @RestController
 @WebAppConfiguration
 @RequestMapping("/testiif")
