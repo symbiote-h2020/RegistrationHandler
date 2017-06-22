@@ -25,8 +25,8 @@ public interface ResourceRepository extends MongoRepository<CloudResource, Strin
 	
 	/**
 	 * Retrieves a colud resource using the symbiote id
-	 * @param resourceId
-	 * @return
+	 * @param resourceId symbiote id of the resource to delete
+	 * @return the resource if found
 	 */
 	CloudResource getByResourceId(String resourceId);
 

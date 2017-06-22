@@ -44,18 +44,6 @@ public class PlatformInformationManager {
   @Autowired
   private IIFMessageHandler iifMessageHandler;
 
-
-  /*private List<CloudResource>  addOrUpdateInInternalRepository(List<CloudResource>  resources){
-	  return resources.stream().map(resource -> {
-		  CloudResource existingResource = resourceRepository.getByInternalId(resource.getInternalId());
-	      if (existingResource != null) {
-	    	  logger.info("update will be done");
-	      }
-	      return resourceRepository.save(resource);
-	 })
-     .collect(Collectors.toList());	 
-  }*/
-
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
 
@@ -154,10 +142,10 @@ public class PlatformInformationManager {
 	  List<CloudResource> result = null;  
 	  List<String> resultIds;
 	  
-	  List<String> found = resourceIds.stream().map(resourceId -> {
+	  List<CloudResource> found = resourceIds.stream().map(resourceId -> {
 	    CloudResource resource = resourceRepository.getByInternalId(resourceId);
 	    if ((resource != null) && (resource.getResource() != null)) {
-	      return resource.getResource().getId();
+	      return resource;
       } else {
 	      return null;
       }
