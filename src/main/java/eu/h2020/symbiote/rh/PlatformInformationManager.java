@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**! \class PlatformInformationManager
  * \brief PlatformInformationManager handles the registration of the resources within the platform
@@ -59,10 +60,10 @@ public class PlatformInformationManager {
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
 
 	  for (String resourceId:resourceIds) {
-		  CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
+		  CloudResource existingResource = resourceRepository.getByResourceId(resourceId);
 	      if (existingResource != null) {
 	    	  result.add(existingResource);
-	    	  resourceRepository.delete(resourceId);
+	    	  resourceRepository.delete(existingResource.getInternalId());
 	      }
 	  }
 	  return result;
@@ -152,9 +153,19 @@ public class PlatformInformationManager {
   public List<CloudResource> deleteResources(List<String> resourceIds) throws TokenValidationException {
 	  List<CloudResource> result = null;  
 	  List<String> resultIds;
+	  
+	  List<String> found = resourceIds.stream().map(resourceId -> {
+	    CloudResource resource = resourceRepository.getByInternalId(resourceId);
+	    if ((resource != null) && (resource.getResource() != null)) {
+	      return resource.getResource().getId();
+      } else {
+	      return null;
+      }
+    }).filter(resource -> resource != null).collect(Collectors.toList());
+    
 
     try {
-      resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
+      resultIds = iifMessageHandler.removeResources(platformId, found);
     } catch (TokenValidationException e){
       throw e;
     } catch (Exception e){
