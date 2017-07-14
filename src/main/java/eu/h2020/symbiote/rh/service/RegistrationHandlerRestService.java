@@ -1,24 +1,24 @@
 package eu.h2020.symbiote.rh.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.rh.PlatformInformationManager;
+import eu.h2020.symbiote.rh.exceptions.ConflictException;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
 
-import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.rh.PlatformInformationManager;
-import eu.h2020.symbiote.rh.exceptions.ConflictException;
-import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**! \class RegistrationHandlerRestService 
@@ -90,7 +90,7 @@ public class RegistrationHandlerRestService {
         return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
     }
 
     logger.info("END OF addResource, result "+ result);
@@ -122,7 +122,7 @@ public class RegistrationHandlerRestService {
         return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
     }
 
     logger.info("END OF addResources, result "+ result);
@@ -156,7 +156,7 @@ public class RegistrationHandlerRestService {
         return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
     }
 
     logger.info("END OF updateResource, result "+ result);
@@ -185,7 +185,7 @@ public class RegistrationHandlerRestService {
         return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
     }
 
     logger.info("END OF updateResource, result "+ result);
@@ -216,7 +216,7 @@ public class RegistrationHandlerRestService {
         return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
     }
 
     if (result.size()>0){
@@ -242,7 +242,7 @@ public class RegistrationHandlerRestService {
         return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error", responseHeaders, httpStatus);
+        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
     }
 
     logger.info("END OF deleteResource, result "+ result);
