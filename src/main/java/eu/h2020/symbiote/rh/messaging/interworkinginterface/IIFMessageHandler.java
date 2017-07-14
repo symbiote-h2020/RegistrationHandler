@@ -1,13 +1,16 @@
 package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.stream.Collectors;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
+import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
+import eu.h2020.symbiote.core.model.resources.Resource;
+import eu.h2020.symbiote.rh.constants.RHConstants;
+import eu.h2020.symbiote.rh.security.SecurityManager;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
-import javax.annotation.PostConstruct;
+import feign.Feign;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,20 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
-import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
-import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.core.model.resources.Resource;
-import eu.h2020.symbiote.rh.constants.RHConstants;
-import eu.h2020.symbiote.rh.security.SecurityManager;
-import eu.h2020.symbiote.rh.db.ResourceRepository;
-import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
-import org.springframework.http.ResponseEntity;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import feign.Feign;
-import feign.FeignException;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
+import javax.annotation.PostConstruct;
 
 @Component
 public class IIFMessageHandler {
@@ -41,8 +38,8 @@ public class IIFMessageHandler {
     @Autowired
 	private SecurityManager securityManager;
 
-    @Autowired
-    private ResourceRepository resourceRepository;
+    //@Autowired
+    //private ResourceRepository resourceRepository;
 	
 	@PostConstruct
 	public void createClient() {
@@ -125,46 +122,29 @@ public class IIFMessageHandler {
         return cloudResources;
     }
 
-	public List<String> removeResources(String platformId, List<String> resourceIds) throws TokenValidationException {
-        ArrayList<String>  result = new ArrayList<String>();
-        ArrayList<String>  debug = new ArrayList<String>();
-        HashMap<String,String> symbioteToInternalIds = new HashMap<String,String>();
+	public List<String> removeResources(String platformId, List<CloudResource> resources) throws TokenValidationException {
 
         try{
             logger.info("User trying to removeResources in "+platformId);
-            ArrayList<Resource> listToSend = new ArrayList<Resource>();
-
-            for (Iterator<String> iter = resourceIds.iterator(); iter.hasNext();){
-                String resourceId = (String) iter.next();
-                Resource resource = new Resource();
-                CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
-		        
-                if (existingResource != null) {
-                    resource.setId(existingResource.getResource().getId());
-                    listToSend.add(resource);
-                    debug.add(existingResource.getResource().getId());
-                    symbioteToInternalIds.put(existingResource.getResource().getId(),resourceId);
-                }
-
-            } 
+            List<Resource> listToSend = resources.stream().map(resource -> resource.getResource()).collect(Collectors.toList());
 
             ResourceRegistryRequest request = new ResourceRegistryRequest();
             request.setResources(listToSend);
             ResourceRegistryResponse response = jsonclient.removeResources(platformId, request, getAuthHeaders());
-
-            for (Iterator<Resource> iter = response.getResources().iterator(); iter.hasNext();){
-                Resource resource= (Resource) iter.next();
-                result.add(symbioteToInternalIds.get(resource.getId()));
-            } 
+            
+            if (response.getResources() != null) {
+                return response.getResources().stream().map(resource -> resource.getId()).collect(Collectors.toList());
+            } else {
+                return new ArrayList<>();
+            }
         } catch (TokenValidationException e) {
             logger.error(e);
             securityManager.removeSavedTokens();
             throw e;
         } catch(Exception e){
-			logger.error("Error accessing symbIoTe core.", e);
+			      logger.error("Error accessing symbIoTe core.", e);
             throw e;
         }
-        return result;
 	}
 
 }
