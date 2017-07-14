@@ -1,8 +1,8 @@
 package eu.h2020.symbiote.rh.db;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
  * Created by jose on 27/09/16.
@@ -22,5 +22,12 @@ public interface ResourceRepository extends MongoRepository<CloudResource, Strin
 	 * \return \a getByInternalId returns the \a CloudResource identified by  \a resourceId
 	 */
 	CloudResource getByInternalId(String resourceId);
+	
+	/**
+	 * Retrieves a colud resource using the symbiote id
+	 * @param resourceId symbiote id of the resource to delete
+	 * @return the resource if found
+	 */
+	CloudResource getByResourceId(String resourceId);
 
 }
