@@ -1,8 +1,10 @@
 package eu.h2020.symbiote.rh;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.rh.db.ResourceRepository;
+import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
+import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
+import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.rh.db.ResourceRepository;
-import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
-import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
-import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**! \class PlatformInformationManager
  * \brief PlatformInformationManager handles the registration of the resources within the platform
@@ -44,29 +44,65 @@ public class PlatformInformationManager {
   @Autowired
   private IIFMessageHandler iifMessageHandler;
 
-
-  private List<CloudResource>  addOrUpdateInInternalRepository(List<CloudResource>  resources){
-	  return resources.stream().map(resource -> {
-		  CloudResource existingResource = resourceRepository.getByInternalId(resource.getInternalId());
-	      if (existingResource != null) {
-	    	  logger.info("update will be done");
-	      }
-	      return resourceRepository.save(resource);
-	 })
-     .collect(Collectors.toList());	 
-  }
-
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
 
 	  for (String resourceId:resourceIds) {
-		  CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
+		  CloudResource existingResource = resourceRepository.getByResourceId(resourceId);
 	      if (existingResource != null) {
 	    	  result.add(existingResource);
-	    	  resourceRepository.delete(resourceId);
+	    	  resourceRepository.delete(existingResource.getInternalId());
 	      }
 	  }
 	  return result;
+  }
+  
+  private List<CloudResource> addOrUpdateResources(List<CloudResource> resources) throws TokenValidationException {
+    List<CloudResource> toAdd = new ArrayList<>();
+    List<CloudResource> toUpdate = new ArrayList<>();
+    
+    List<CloudResource> result = new ArrayList<>();
+    
+    resources.stream().forEach(resource -> {
+      String internalId = resource.getInternalId();
+      if (internalId == null) {
+        logger.warn("No internal id provided for resource. It will be ignored");
+      } else {
+        CloudResource existing = resourceRepository.getByInternalId(internalId);
+        if (existing == null) {
+          toAdd.add(resource);
+        } else {
+          if (resource.getResource() != null) {
+            if (existing.getResource() != null) {
+              if (existing.getResource().getId() != null) {
+                resource.getResource().setId(existing.getResource().getId());
+                toUpdate.add(resource);
+              } else {
+                logger.error("Found registered resource " + existing.getInternalId() + " without symbiote id");
+              }
+            } else {
+              logger.error("Found registered resource " + existing.getInternalId() + " without resource information");
+            }
+          } else {
+            logger.error("No resource information provided for resource " + resource.getInternalId());
+          }
+        }
+      }
+    });
+    
+    if (!toAdd.isEmpty()) {
+      List<CloudResource> added = iifMessageHandler.createResources(platformId, toAdd);
+      result.addAll(resourceRepository.save(added));
+      rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(added);
+    }
+    
+    if (!toUpdate.isEmpty()) {
+      List<CloudResource> updated = iifMessageHandler.updateResources(platformId, toUpdate);
+      result.addAll(resourceRepository.save(updated));
+      rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(updated);
+    }
+    
+    return result;
   }
 
 //! Create a resource.
@@ -79,20 +115,7 @@ public class PlatformInformationManager {
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
   public List<CloudResource> addResources(List<CloudResource> resource) throws TokenValidationException {
-	  List<CloudResource>  listWithStmbioteId; 
-	  List<CloudResource>  result;
-
-    try {
-      listWithStmbioteId = iifMessageHandler.createResources(platformId, resource);
-    } catch (TokenValidationException e){
-      throw e;
-    } catch (Exception e){
-      throw e;
-    }
-
-    result  = addOrUpdateInInternalRepository(listWithStmbioteId);
-    rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(result);
-    return result;
+	  return addOrUpdateResources(resource);
   }
 
 //! Update a resource.
@@ -104,20 +127,7 @@ public class PlatformInformationManager {
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
   public List<CloudResource> updateResources(List<CloudResource>  resources) throws TokenValidationException {
-	  List<CloudResource> listWithStmbioteId;
-	  List<CloudResource> result;
-    
-    try {
-      listWithStmbioteId = iifMessageHandler.updateResources(platformId, resources);
-    } catch (TokenValidationException e){
-      throw e;
-    } catch (Exception e){
-      throw e;
-    }
-
-    result = addOrUpdateInInternalRepository(listWithStmbioteId);
-    rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(result);
-    return result;
+	  return addOrUpdateResources(resources);
   }
 
 //! Delete a resource.
@@ -131,9 +141,19 @@ public class PlatformInformationManager {
   public List<CloudResource> deleteResources(List<String> resourceIds) throws TokenValidationException {
 	  List<CloudResource> result = null;  
 	  List<String> resultIds;
+	  
+	  List<CloudResource> found = resourceIds.stream().map(resourceId -> {
+	    CloudResource resource = resourceRepository.getByInternalId(resourceId);
+	    if ((resource != null) && (resource.getResource() != null)) {
+	      return resource;
+      } else {
+	      return null;
+      }
+    }).filter(resource -> resource != null).collect(Collectors.toList());
+    
 
     try {
-      resultIds = iifMessageHandler.removeResources(platformId, resourceIds);
+      resultIds = iifMessageHandler.removeResources(platformId, found);
     } catch (TokenValidationException e){
       throw e;
     } catch (Exception e){
