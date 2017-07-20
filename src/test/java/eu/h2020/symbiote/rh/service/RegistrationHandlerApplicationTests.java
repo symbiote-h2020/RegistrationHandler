@@ -1,18 +1,15 @@
 package eu.h2020.symbiote.rh.service;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Calendar;
-import java.util.Date;
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.core.model.WKTLocation;
+import eu.h2020.symbiote.core.model.resources.Actuator;
+import eu.h2020.symbiote.rh.service.aams.DummyAAMAMQPLoginListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -33,18 +30,23 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.core.model.WKTLocation;
-import eu.h2020.symbiote.core.model.resources.Actuator;
-import eu.h2020.symbiote.rh.service.aams.DummyAAMAMQPLoginListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -106,7 +108,7 @@ public class RegistrationHandlerApplicationTests {
 
 	   CloudResource cloudResource = new CloudResource();
 	   cloudResource.setCloudMonitoringHost("hostofcloudres");
-	   cloudResource.setInternalId(INTERNAL_ID);
+	   cloudResource.setInternalId(INTERNAL_ID+1);
 	   cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
@@ -124,26 +126,31 @@ public class RegistrationHandlerApplicationTests {
         		.contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(requestBuilder)
                  .andExpect(status().isOk())
-                 .andReturn();         
-        logger.info("End of test ----------------------------- testCreateResource");
-        assert(true);
-       }
-
-	@Test
-	public void testCreateResources() throws Exception {
-		CloudResource cloudResource = getTestActuatorBean();
-		List<CloudResource> list = new ArrayList<CloudResource>();
-		list.add(cloudResource);
-        ObjectMapper mapper = new ObjectMapper();
-        String objectInJson = mapper.writeValueAsString(list);
-		 
-        RequestBuilder requestBuilder = post("/resources")
-        		.content(objectInJson)
-        		.accept(MediaType.APPLICATION_JSON)
-        		.contentType(MediaType.APPLICATION_JSON);
-        mockMvc.perform(requestBuilder)
-                 .andExpect(status().isOk())
-                 .andReturn();         
+                 .andReturn();
+        
+        requestBuilder = get("/resources")
+						.accept(MediaType.APPLICATION_JSON);
+        
+        String strResponse = mockMvc.perform(requestBuilder)
+						.andExpect(status().isOk())
+						.andReturn().getResponse().getContentAsString();
+        List<CloudResource> body = mapper.readValue(strResponse,
+						new TypeReference<List<CloudResource>>(){});
+        
+        assert(!body.isEmpty());
+        
+        requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID)
+						.accept(MediaType.APPLICATION_JSON);
+				strResponse = mockMvc.perform(requestBuilder)
+														 .andExpect(status().isOk())
+														 .andReturn().getResponse().getContentAsString();
+        CloudResource resource = mapper.readValue(strResponse, CloudResource.class);
+        
+        assert(resource != null);
+        assert(INTERNAL_ID.equals(resource.getInternalId()));
+        assert(resource.getResource() != null);
+        assert(resource.getResource().getId() != null);
+        
         logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
 	}
@@ -162,8 +169,14 @@ public class RegistrationHandlerApplicationTests {
         		.contentType(MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(requestBuilder)
                  .andExpect(status().isUnauthorized())
-                 .andReturn(); 
-
+                 .andReturn();
+		
+		requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID+1)
+												 .accept(MediaType.APPLICATION_JSON);
+		mockMvc.perform(requestBuilder)
+											.andExpect(status().isOk()).andExpect(
+													MockMvcResultMatchers.content().string(""));
+		
         assertEquals("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", result.getResponse().getContentAsString()); 
         logger.info("End of test ----------------------------- testCreateResource");
         assert(true);

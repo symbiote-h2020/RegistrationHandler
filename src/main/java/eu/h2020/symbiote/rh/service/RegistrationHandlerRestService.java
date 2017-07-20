@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -61,6 +61,16 @@ public class RegistrationHandlerRestService {
     logger.info("END OF getResource, result "+ result);
     return result;
   }
+  
+  public <T> ResponseEntity<?> cleanListResult(ResponseEntity<List<T>> result) {
+    if (HttpStatus.OK.equals(result.getStatusCode()) &&
+            result.hasBody() && result.getBody() != null && !result.getBody().isEmpty()) {
+      return new ResponseEntity<T>(result.getBody().get(0), result.getHeaders(),
+                                                  result.getStatusCode());
+    } else {
+      return result;
+    }
+  }
 
 //! Create a resource.
 /*!
@@ -73,29 +83,7 @@ public class RegistrationHandlerRestService {
  */
   @RequestMapping(method = RequestMethod.POST, path = "/resource")
   public ResponseEntity<?> addResource(@RequestBody CloudResource resource) throws ConflictException{
-    logger.info("START OF addResource, in data "+ resource);
-    if (resource.getInternalId()==null) 
-      throw new ConflictException("internalId field must be informed");
-
-    List<CloudResource> list = new ArrayList<CloudResource>();
-    List<CloudResource> result;
-    HttpHeaders responseHeaders = new HttpHeaders();
-    HttpStatus httpStatus;
-
-    list.add(resource);
-    try {
-        result = infoManager.addResources(list);
-    } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.UNAUTHORIZED;
-        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
-    } catch (Exception e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
-    }
-
-    logger.info("END OF addResource, result "+ result);
-    return new  ResponseEntity<CloudResource>(result.get(0), responseHeaders, HttpStatus.OK);
-    
+    return cleanListResult((ResponseEntity<List<CloudResource>>)addResources(Arrays.asList(resource)));
  }
 
 //! Create a resource.
@@ -140,27 +128,7 @@ public class RegistrationHandlerRestService {
  */
   @RequestMapping(method = RequestMethod.PUT, path = "/resource")
   public ResponseEntity<?> updateResource(@RequestBody CloudResource resource) {
-    logger.info("START OF updateResource, in data "+ resource);
-    if (resource.getInternalId()==null)
-     throw new ConflictException("internalId field must be informed");
-    List<CloudResource> list = new ArrayList<CloudResource>();
-    list.add(resource);
-    List<CloudResource> result;
-    HttpHeaders responseHeaders = new HttpHeaders();
-    HttpStatus httpStatus;
-
-    try {
-        result = infoManager.updateResources(list);
-    } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.UNAUTHORIZED;
-        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
-    } catch (Exception e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
-    }
-
-    logger.info("END OF updateResource, result "+ result);
-    return new  ResponseEntity<CloudResource>(result.get(0), responseHeaders, HttpStatus.OK);
+    return cleanListResult((ResponseEntity<List<CloudResource>>)updateResources(Arrays.asList(resource)));
   }
 
 //! Update a resource.
@@ -202,30 +170,7 @@ public class RegistrationHandlerRestService {
  */
   @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
   public ResponseEntity<?> deleteResource(@RequestParam String resourceInternalId) {
-    logger.info("START OF deleteResource, in data "+ resourceInternalId);
-    List<String> list = new ArrayList<String>();
-    list.add(resourceInternalId);
-    List<CloudResource> result;
-    HttpHeaders responseHeaders = new HttpHeaders();
-    HttpStatus httpStatus;
-
-    try {
-        result = infoManager.deleteResources(list);
-    } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.UNAUTHORIZED;
-        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
-    } catch (Exception e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
-    }
-
-    if (result.size()>0){
-    	logger.info("END OF deleteResource, result "+ result.get(0));
-      return new ResponseEntity<CloudResource>(result.get(0), responseHeaders, HttpStatus.OK);
-    }  else {
-    	logger.info("END OF deleteResource, the resource didn't exist");
-      return new ResponseEntity<String>("The resource didn't exist", responseHeaders, HttpStatus.BAD_REQUEST);
-    }
+    return cleanListResult((ResponseEntity<List<CloudResource>>)deleteResources(Arrays.asList(resourceInternalId)));
   }
  
   @RequestMapping(method = RequestMethod.DELETE, path = "/resources")
