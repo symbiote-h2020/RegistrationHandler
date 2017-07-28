@@ -1,11 +1,17 @@
 package eu.h2020.symbiote.rh.service;
 
 
-import java.util.List;
-import java.util.stream.Collectors;
+import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
+import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
+import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
+import eu.h2020.symbiote.core.model.resources.Resource;
+import eu.h2020.symbiote.rh.constants.RHConstants;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,14 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
 
-import eu.h2020.symbiote.core.model.resources.Resource;
-import eu.h2020.symbiote.rh.constants.RHConstants;
-import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
-import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /*
  * @author: Elena Garrido
@@ -33,17 +35,24 @@ public class IIFRestDummyServer {
   private static final Log logger = LogFactory.getLog(IIFRestDummyServer.class);
   static int i=0;
   
+  private Map<String, Resource> saveResources(@RequestBody ResourceRegistryRequest resources) {
+    return resources.getResources().entrySet().stream()
+               .filter(entry -> !"invalid".equals(entry.getValue().getLabels().get(0)))
+               .collect(Collectors.toMap(
+                   e -> e.getKey(),
+                   e -> {e.getValue().setId("symbiote"+i++); return e.getValue();}));
+  }
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public ResponseEntity<?> createResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
     logger.info("User trying to createResources with platformId "+platformId);
-    List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
-      .collect(Collectors.toList());
+    Map<String, Resource> listTosend = saveResources(resources);
+  
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
     HttpHeaders responseHeaders = new HttpHeaders();
     HttpStatus httpStatus;
 
-    if (listTosend.get(0).getLabels().get(0).equals("invalid")) {
+    if (listTosend.size() != resources.getResources().size()) {
       logger.info("Token is invalid");
       httpStatus = HttpStatus.BAD_REQUEST;
       result.setMessage("Token invalid");
@@ -59,8 +68,7 @@ public class IIFRestDummyServer {
   @RequestMapping(method = RequestMethod.PUT, path = RHConstants.DO_UPDATE_RESOURCES,  produces = "application/json", consumes = "application/json")
   public @ResponseBody ResourceRegistryResponse  updateResource(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
     logger.info("User trying to updateResources with platformId "+platformId);
-      List<Resource> listTosend = resources.getResources().stream().map(resource -> { resource.setId("symbiote"+i++); return resource;})
-      .collect(Collectors.toList());
+    Map<String, Resource> listTosend = saveResources(resources);
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
     result.setResources(listTosend);
     return result;
@@ -73,8 +81,29 @@ public class IIFRestDummyServer {
     result.setResources(resources.getResources());
     return result;
   }
-
   
+  private Resource createFakeResource(String id) {
+    Resource resource = new Resource();
+    resource.setId(id);
+    return resource;
+  }
+  
+  @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RDF_RESOURCES,  produces = "application/json", consumes = "application/json")
+  public @ResponseBody ResourceRegistryResponse createRdfResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody RDFResourceRegistryRequest resources) {
+    
+    ResourceRegistryResponse response = new ResourceRegistryResponse();
+    
+    Map<String, Resource> resourceMap = new HashMap<>();
+  
+    resourceMap.put("http://www.testcompany.eu/customPlatform/service1234", createFakeResource("service1234"));
+    resourceMap.put("http://www.testcompany.eu/customPlatform/sensor1", createFakeResource("sensor1"));
+    resourceMap.put("http://www.testcompany.eu/customPlatform/actuator1", createFakeResource("actuator1"));
+  
+    response.setResources(resourceMap);
+    
+    return response;
+    
+  }
 
 }
 

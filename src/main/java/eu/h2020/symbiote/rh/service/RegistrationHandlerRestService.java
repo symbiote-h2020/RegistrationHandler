@@ -1,6 +1,7 @@
 package eu.h2020.symbiote.rh.service;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
 import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
@@ -31,6 +32,11 @@ import java.util.List;
  */
 @RestController
 public class RegistrationHandlerRestService {
+  
+  private interface ValidatedOperation<T> {
+    List<?> execute(T input) throws TokenValidationException;
+  }
+  
   private static final Log logger = LogFactory.getLog(RegistrationHandlerRestService.class);
 
   @Autowired
@@ -62,6 +68,13 @@ public class RegistrationHandlerRestService {
     return result;
   }
   
+  /**
+   * When wanting a result of just one element but using an operation that acts over a list of resources,
+   * we just want to return the first of them. This method gets the first one in a safe way.
+   * @param result The result of the list operation
+   * @param <T> The type of the list
+   * @return The result containing just one element
+   */
   public <T> ResponseEntity<?> cleanListResult(ResponseEntity<List<T>> result) {
     if (HttpStatus.OK.equals(result.getStatusCode()) &&
             result.hasBody() && result.getBody() != null && !result.getBody().isEmpty()) {
@@ -71,7 +84,32 @@ public class RegistrationHandlerRestService {
       return result;
     }
   }
-
+  
+  /**
+   * Act upon a list of resources calling the Interworking interface API to the function passed as parameter.
+   * @param input The input list to pass to the Interworking API
+   * @param function The Interworking API method to apply to the input
+   * @return The response of the operation
+   */
+  private <T> ResponseEntity<?> modifyResources(T input, ValidatedOperation function){
+    List<?> result;
+    HttpHeaders responseHeaders = new HttpHeaders();
+    HttpStatus httpStatus;
+  
+    try {
+      result = function.execute(input);
+    } catch (TokenValidationException e) {
+      httpStatus = HttpStatus.UNAUTHORIZED;
+      return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
+    } catch (Exception e) {
+      httpStatus = HttpStatus.BAD_REQUEST;
+      return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
+    }
+  
+    logger.info("END OF addResources, result "+ result);
+    return new  ResponseEntity<List<?>>(result, responseHeaders, HttpStatus.OK);
+  }
+  
 //! Create a resource.
 /*!
  * The addResource method stores \a CloudResource passed as parameter in the  
@@ -99,23 +137,18 @@ public class RegistrationHandlerRestService {
   @RequestMapping(method = RequestMethod.POST, path = "/resources")
   public ResponseEntity<?> addResources(@RequestBody List<CloudResource> resources) throws ConflictException{
     logger.info("START OF addResource, in data "+ resources);
-    List<CloudResource> result;
-    HttpHeaders responseHeaders = new HttpHeaders();
-    HttpStatus httpStatus;
-
-    try {
-        result = infoManager.addResources(resources);
-    } catch (TokenValidationException e) {
-         httpStatus = HttpStatus.UNAUTHORIZED;
-        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
-    } catch (Exception e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
-    }
-
-    logger.info("END OF addResources, result "+ result);
-    return new  ResponseEntity<List<CloudResource>>(result, responseHeaders, HttpStatus.OK);
-    
+    return modifyResources(resources, (resourceList -> infoManager.addResources(resources)));
+ }
+  
+  /**
+   * Register RDF resources into the core
+   * @param resources List of resources to register
+   * @return A list of the resources registered in JSON
+   * @throws ConflictException If some resources have already been registered
+   */
+ @RequestMapping(method = RequestMethod.POST, path = "/rdf-resources")
+ public ResponseEntity<?> addRdfResources(@RequestBody RdfCloudResorceList resources) throws ConflictException{
+   return modifyResources(resources, (input -> infoManager.addRdfResources((RdfCloudResorceList) input)));
  }
   
 //! Update a resource.
@@ -140,24 +173,9 @@ public class RegistrationHandlerRestService {
  * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
  */
   @RequestMapping(method = RequestMethod.PUT, path = "/resources")
-  public ResponseEntity<?> updateResources(@RequestBody List<CloudResource> resource) {
-    logger.info("START OF updateResource, in data "+ resource);
-    List<CloudResource> result;
-    HttpHeaders responseHeaders = new HttpHeaders();
-    HttpStatus httpStatus;
-
-    try {
-        result = infoManager.updateResources(resource); 
-    } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.UNAUTHORIZED;
-        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
-    } catch (Exception e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
-    }
-
-    logger.info("END OF updateResource, result "+ result);
-    return new  ResponseEntity<List<CloudResource>>(result, responseHeaders, HttpStatus.OK);
+  public ResponseEntity<?> updateResources(@RequestBody List<CloudResource> resources) {
+    logger.info("START OF updateResource, in data "+ resources);
+    return modifyResources(resources, (resourceList -> infoManager.updateResources(resources)));
   }
 
 //! Delete a resource.
@@ -176,21 +194,6 @@ public class RegistrationHandlerRestService {
   @RequestMapping(method = RequestMethod.DELETE, path = "/resources")
   public ResponseEntity<?> deleteResources(@RequestParam List<String> resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
-    List<CloudResource> result;
-    HttpHeaders responseHeaders = new HttpHeaders();
-    HttpStatus httpStatus;
-
-    try {
-        result = infoManager.deleteResources(resourceInternalId);
-    } catch (TokenValidationException e) {
-        httpStatus = HttpStatus.UNAUTHORIZED;
-        return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
-    } catch (Exception e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
-    }
-
-    logger.info("END OF deleteResource, result "+ result);
-    return new ResponseEntity<List<CloudResource>>(result, responseHeaders, HttpStatus.OK);
+    return modifyResources(resourceInternalId, (resourceList -> infoManager.deleteResources(resourceInternalId)));
   }
 }

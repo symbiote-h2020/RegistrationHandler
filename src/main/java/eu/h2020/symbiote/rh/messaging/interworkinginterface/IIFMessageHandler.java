@@ -1,6 +1,8 @@
 package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
+import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 import eu.h2020.symbiote.core.model.resources.Resource;
@@ -18,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +29,11 @@ import javax.annotation.PostConstruct;
 
 @Component
 public class IIFMessageHandler {
+  
+  private interface IIFOperation<T> {
+    ResourceRegistryResponse operation(String platformId, T request, Map<String, Object> headers) throws TokenValidationException;
+  }
+  
 	private static final Log logger = LogFactory.getLog(IIFMessageHandler.class);
 	
 	private InterworkingInterfaceService jsonclient;
@@ -57,94 +62,77 @@ public class IIFMessageHandler {
         return headers;
 	}
 	
+	private <T> Map<String, Resource> executeRequest(String platformId, T request, IIFOperation operation) throws TokenValidationException {
+    try {
+      ResourceRegistryResponse response = operation.operation(platformId, request, getAuthHeaders());
+      
+     return response.getResources();
+     
+    } catch (TokenValidationException e) {
+      logger.error(e);
+      securityManager.removeSavedTokens();
+      throw e;
+    } catch(Exception e){
+      logger.error("Error accessing symbIoTe core.", e);
+      throw e;
+    }
+  }
+	
+	private List<CloudResource> createOrUpdateResources(String platformId, List<CloudResource> cloudResources, IIFOperation operation) throws TokenValidationException {
+	 Map<String, CloudResource> idMap = new HashMap<>();
+	 for (int i=0; i < cloudResources.size(); i++) {
+	   idMap.put(String.valueOf(i), cloudResources.get(i));
+   }
+   
+   ResourceRegistryRequest request = new ResourceRegistryRequest();
+   request.setResources(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getResource())));
+    Map<String, Resource> saved = executeRequest(platformId, request, operation);
+  
+    return idMap.entrySet().stream().filter(entry -> saved.containsKey(entry.getKey()))
+                .map(entry -> {
+                  entry.getValue().setResource(saved.get(entry.getKey()));
+                  return entry.getValue();
+                }).collect(Collectors.toList());
+  }
+	
 	public List<CloudResource> createResources(String platformId, List<CloudResource> cloudResources) throws TokenValidationException {
-        ArrayList<Resource> resourceListReceived = new ArrayList<Resource>();
-        try{
-            logger.info("User trying to createResources in "+platformId);
-            List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
-            .collect(Collectors.toList());
-			
-            ResourceRegistryRequest request = new ResourceRegistryRequest();
-            request.setResources(listToSend);
-            ResourceRegistryResponse response = jsonclient.createResources(platformId, request, getAuthHeaders());
-
-            for (Iterator<Resource> iter = response.getResources().iterator(); iter.hasNext();){
-                Resource resource= (Resource) iter.next();
-                resourceListReceived.add(resource);
-            }
-            
-     	    //be aware that the list must returned in the same order that it has been send
-            int i = 0;
-            for (CloudResource cloudResource:cloudResources)
-                cloudResource.setResource(resourceListReceived.get(i++));
-        } catch (TokenValidationException e) {
-            logger.error(e);
-            securityManager.removeSavedTokens();
-            throw e;
-        } catch(Exception e){
-            logger.error("Error accessing symbIoTe core.", e);
-            throw e;
-        }
-		return cloudResources;
+        return createOrUpdateResources(platformId, cloudResources, ((platformId1, request, headers) -> {
+          return jsonclient.createResources(platformId1, (ResourceRegistryRequest) request, headers);
+        }));
+    }
+    
+    public List<CloudResource> addRdfResources(String platformId, RdfCloudResorceList resources) throws TokenValidationException {
+	    Map<String, String> idMap = resources.getIdMappings();
+  
+      RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();
+      request.setRdfInfo(resources.getRdfInfo());
+  
+      Map<String, Resource> response = executeRequest(platformId, request, ((platformId1, request1, headers) -> {
+        return jsonclient.createRdfResources(platformId1, (RDFResourceRegistryRequest) request1, headers);
+      }));
+	    
+	    return idMap.entrySet().stream().filter(entry -> response.get(entry.getKey()) != null)
+          .map(entry -> {
+            CloudResource cloudResource = new CloudResource();
+            cloudResource.setInternalId(entry.getValue());
+            cloudResource.setResource(response.get(entry.getKey()));
+            return cloudResource;
+          }).collect(Collectors.toList());
     }
 
 
 	public List<CloudResource> updateResources(String platformId, List<CloudResource> cloudResources) throws TokenValidationException {
-        ArrayList<Resource> resourceListReceived = new ArrayList<Resource>();
-        try{
-            logger.info("User trying to updateResources in "+platformId);
-			
-            List<Resource> listToSend = cloudResources.stream().map(resource ->	{ return resource.getResource(); } )
-            .collect(Collectors.toList());
-
-            ResourceRegistryRequest request = new ResourceRegistryRequest();
-            request.setResources(listToSend);
-            ResourceRegistryResponse response = jsonclient.updateResource(platformId, request, getAuthHeaders());
-
-            for (Iterator<Resource> iter = response.getResources().iterator(); iter.hasNext();){
-                Resource resource= (Resource) iter.next();
-                resourceListReceived.add(resource);
-            }   
-  	   	
-  	   	//	be aware that the list must returned in the same order that it has been send
-            int i = 0;
-            for (CloudResource cloudResource:cloudResources)
-                cloudResource.setResource(resourceListReceived.get(i++));
-			
-        } catch (TokenValidationException e) {
-            logger.error(e);
-            securityManager.removeSavedTokens();
-            throw e;
-        } catch(Exception e){
-            logger.error("Error accessing symbIoTe core.", e);
-            throw e;
-        }
-        return cloudResources;
+    return createOrUpdateResources(platformId, cloudResources, ((platformId1, request, headers) -> {
+      return jsonclient.updateResource(platformId1, (ResourceRegistryRequest) request, headers);
+    }));
     }
 
 	public List<String> removeResources(String platformId, List<CloudResource> resources) throws TokenValidationException {
-
-        try{
-            logger.info("User trying to removeResources in "+platformId);
-            List<Resource> listToSend = resources.stream().map(resource -> resource.getResource()).collect(Collectors.toList());
-
-            ResourceRegistryRequest request = new ResourceRegistryRequest();
-            request.setResources(listToSend);
-            ResourceRegistryResponse response = jsonclient.removeResources(platformId, request, getAuthHeaders());
-            
-            if (response.getResources() != null) {
-                return response.getResources().stream().map(resource -> resource.getId()).collect(Collectors.toList());
-            } else {
-                return new ArrayList<>();
-            }
-        } catch (TokenValidationException e) {
-            logger.error(e);
-            securityManager.removeSavedTokens();
-            throw e;
-        } catch(Exception e){
-			      logger.error("Error accessing symbIoTe core.", e);
-            throw e;
-        }
+    List<CloudResource> result = createOrUpdateResources(platformId, resources, ((platformId1, request, headers) -> {
+      return jsonclient.removeResources(platformId1, (ResourceRegistryRequest) request, headers);
+    }));
+    
+    return result.stream().map(resource -> resource.getResource().getId()).collect(Collectors.toList());
 	}
 
 }

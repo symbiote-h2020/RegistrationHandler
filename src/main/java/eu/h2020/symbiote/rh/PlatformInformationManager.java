@@ -1,7 +1,9 @@
 package eu.h2020.symbiote.rh;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
+import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
 import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
@@ -104,7 +106,7 @@ public class PlatformInformationManager {
     
     return result;
   }
-
+  
 //! Create a resource.
 /*!
  * The addResource method stores \a List of \a CloudResource passed as parameter in the  
@@ -117,8 +119,20 @@ public class PlatformInformationManager {
   public List<CloudResource> addResources(List<CloudResource> resource) throws TokenValidationException {
 	  return addOrUpdateResources(resource);
   }
-
-//! Update a resource.
+  
+  public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws TokenValidationException {
+  
+    resources.getIdMappings().values().forEach(resouceId ->
+    {
+      if (resourceRepository.getByInternalId(resouceId) != null) {
+        throw new ConflictException("Resource with id " + resouceId + " already registered. Can't continue with register request.");
+    }});
+  
+    List<CloudResource> newResources = iifMessageHandler.addRdfResources(platformId, resources);
+    return resourceRepository.save(newResources);
+  }
+  
+  //! Update a resource.
 /*!
  * The updateResource method updates the Liost of \a CloudResource passed as parameter into the   
  * mondodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.

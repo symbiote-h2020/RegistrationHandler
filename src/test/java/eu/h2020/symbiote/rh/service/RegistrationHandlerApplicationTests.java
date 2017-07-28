@@ -4,8 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
+import eu.h2020.symbiote.core.model.RDFFormat;
+import eu.h2020.symbiote.core.model.RDFInfo;
 import eu.h2020.symbiote.core.model.WKTLocation;
 import eu.h2020.symbiote.core.model.resources.Actuator;
+import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.service.aams.DummyAAMAMQPLoginListener;
 
 import org.apache.commons.logging.Log;
@@ -38,7 +42,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -51,7 +57,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
-@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif", "security.coreaam.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=true", "security.user=user", "security.password=password"})
+@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif", "security.coreaam.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=true", "security.user=user", "security.password=password", "spring.data.mongodb.port=18034"})
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
@@ -65,6 +71,9 @@ public class RegistrationHandlerApplicationTests {
     static private MockMvc mockMvc;
 
     private DummyAAMAMQPLoginListener dummyAAMAMQPLoginListener = new DummyAAMAMQPLoginListener();
+  
+  @Autowired
+  private ResourceRepository resourceRepository;
 
 	private static final Log logger = LogFactory.getLog(RegistrationHandlerApplicationTests.class);
 
@@ -180,6 +189,57 @@ public class RegistrationHandlerApplicationTests {
         assertEquals("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", result.getResponse().getContentAsString()); 
         logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
+	}
+	
+	@Test
+	public void testCreateRdfResources() throws Exception {
+	  
+	  //TODO: Investigate a way to test without MongoDB connection
+    resourceRepository.delete("internal1");
+    resourceRepository.delete("internal2");
+    resourceRepository.delete("internal3");
+	  
+	  Map<String, String> expected = new HashMap<>();
+	  expected.put("internal1", "service1234");
+	  expected.put("internal2", "sensor1");
+	  expected.put("internal3", "actuator1");
+	  
+		Map<String, String> mapping = new HashMap<>();
+		
+		mapping.put("http://www.testcompany.eu/customPlatform/service1234", "internal1");
+		mapping.put("http://www.testcompany.eu/customPlatform/sensor1", "internal2");
+		mapping.put("http://www.testcompany.eu/customPlatform/actuator1", "internal3");
+		
+		RdfCloudResorceList list = new RdfCloudResorceList();
+		list.setIdMappings(mapping);
+		
+		RDFInfo info = new RDFInfo();
+		info.setRdf("some rdf");
+		info.setRdfFormat(RDFFormat.NTriples);
+		
+		list.setRdfInfo(info);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String objectInJson = mapper.writeValueAsString(list);
+		
+		RequestBuilder requestBuilder = post("/rdf-resources")
+																				.content(objectInJson)
+																				.accept(MediaType.APPLICATION_JSON)
+																				.contentType(MediaType.APPLICATION_JSON);
+		String response = mockMvc.perform(requestBuilder)
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+    
+    List<CloudResource> body = mapper.readValue(response,
+        new TypeReference<List<CloudResource>>(){});
+    
+    assert body != null;
+    assert body.size() == 3;
+    
+    body.forEach(resource -> {
+      assert expected.get(resource.getInternalId()).equals(resource.getResource().getId());
+    });
+		
 	}
 
 	@Test

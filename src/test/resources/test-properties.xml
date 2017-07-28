@@ -3,6 +3,7 @@
 	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 						http://www.springframework.org/schema/beans/spring-beans.xsd        
 						http://www.springframework.org/schema/aop 
@@ -12,7 +13,26 @@
 						http://www.springframework.org/schema/context 
 						http://www.springframework.org/schema/context/spring-context.xsd        
 						http://www.springframework.org/schema/task 
-						http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+						http://www.springframework.org/schema/task/spring-task-3.0.xsd
+                        http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
 	<context:property-placeholder location="classpath:test.properties" />
+
+    <bean name="fongo" class="com.github.fakemongo.Fongo">
+        <constructor-arg value="InMemoryMongo" />
+    </bean>
+    <bean id="mongo" factory-bean="fongo" factory-method="getMongo" />
+
+    <mongo:db-factory id="mongoDbFactory" mongo-ref="mongo" />
+
+    <!-- localhost settings for mongo -->
+    <!--<mongo:db-factory id="mongoDbFactory" /> -->
+
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg ref="mongoDbFactory" />
+    </bean>
+
+    <!-- Base package to scan the mongo repositories -->
+    <!-- Set your CompanyRepository package -->
+    <mongo:repositories base-package="eu.h2020.symbiote.rh.db"  />
 </beans>
