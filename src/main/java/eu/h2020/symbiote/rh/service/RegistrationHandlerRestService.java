@@ -92,7 +92,7 @@ public class RegistrationHandlerRestService {
   /**
    * Endpoint for create a Resource
    * The addResource method stores \a CloudResource passed as parameter in the  
-   * monngodb database and send the information to the \a Interworking Interface, \a Resource Access Proxy component and \a Monitoring components.
+   * mongodb database and send the information to the \a Interworking Interface, \a Resource Access Proxy component and \a Monitoring components.
    *
    * @param resource  CloudResource to be created within the system
    * @return CloudResource where the Symbiote id is included.
@@ -107,7 +107,7 @@ public class RegistrationHandlerRestService {
 		@ApiResponse(code = 401, message = "Resource UNAUTHORIZED"), 
 		@ApiResponse(code = 400, message = "Resource BAD_REQUEST") 
 		})
-  public ResponseEntity<?> addResource(@ApiParam(value = "resource to add") @RequestParam(value = "resource", required = false) @RequestBody CloudResource resource) throws ConflictException{
+  public ResponseEntity<?> addResource(@ApiParam(value = "resource to add") @RequestBody CloudResource resource) throws ConflictException{
     logger.info("START OF addResource, in data "+ resource);
     if (resource.getInternalId()==null) 
       throw new ConflictException("internalId field must be informed");
@@ -161,7 +161,7 @@ public class RegistrationHandlerRestService {
 		@ApiResponse(code = 401, message = "Resource UNAUTHORIZED"), 
 		@ApiResponse(code = 400, message = "Resource BAD_REQUEST") 
 		})
-  public ResponseEntity<?> addResources(@ApiParam(value = "list of resource to add") @RequestParam(value = "resource", required = false) @RequestBody List<CloudResource> resources) throws ConflictException{
+  public ResponseEntity<?> addResources(@ApiParam(value = "list of resource to add")  @RequestBody List<CloudResource> resources) throws ConflictException{
 	logger.info("START OF addResource, in data "+ resources);
     List<CloudResource> result;
     HttpHeaders responseHeaders = new HttpHeaders();
@@ -192,7 +192,7 @@ public class RegistrationHandlerRestService {
  */
   /**
    * Endpoint to updates \a CloudResource passed as parameter into the   
-   * mondodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
+   * mongodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
    *
    * @param resource CloudResource to be updated within the system
    * @return returns the \a CloudResource where the Symbiote id is included. 
@@ -241,7 +241,7 @@ public class RegistrationHandlerRestService {
   /**
    * 
    * Endpoint to updates to updates a list of CloudResource passed as parameter into the   
-   * mondodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
+   * mongodb database and sends the information to the \a Interworking Interface and \a Resource Access Proxy component.
    *
    * @param resource a list of CloudResource to be updated within the system
    * @return a updateResource returns the \a CloudResource where the Symbiote id is included.  
