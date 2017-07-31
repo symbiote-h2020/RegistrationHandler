@@ -73,8 +73,7 @@ dependencies {
             4) never commit build.gradle which has project dependencies active as it will break CI builds
     */
     // compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT') { changing = true }
-    // compile('com.github.symbiote-h2020:SymbIoTeLibraries:1.0.0-sym381-SNAPSHOT') { changing = true }
-    compile project(':SymbIoTeLibraries')
+    compile('com.github.symbiote-h2020:SymbIoTeLibraries:1.0.0')
 
 
     // Spring
@@ -91,7 +90,6 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.github.tomakehurst:wiremock')
     testCompile('org.springframework:spring-core')
-    testCompile('com.github.fakemongo:fongo:2.1.0')
 }
 
 // code quality below
@@ -99,8 +97,6 @@ task generateJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
     destinationDir = reporting.file("javadocs")
 }
-
-
 
 // jacoco configuration section
 jacoco {

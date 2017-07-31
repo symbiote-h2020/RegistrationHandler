@@ -1,4 +1,3 @@
 rootProject.name = 'RegistrationHandler'
 include 'registration-handler-interface'
-include ':SymbIoTeLibraries'
-project(':SymbIoTeLibraries').projectDir = new File('../SymbIoTeLibraries')
+//include 'open-iot-registration-handler-impl'
