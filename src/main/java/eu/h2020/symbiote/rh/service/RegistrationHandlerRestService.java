@@ -4,7 +4,7 @@ import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
 import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
-import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +34,7 @@ import java.util.List;
 public class RegistrationHandlerRestService {
   
   private interface ValidatedOperation<T> {
-    List<?> execute(T input) throws TokenValidationException;
+    List<?> execute(T input) throws SecurityHandlerException;
   }
   
   private static final Log logger = LogFactory.getLog(RegistrationHandlerRestService.class);
@@ -98,7 +98,7 @@ public class RegistrationHandlerRestService {
   
     try {
       result = function.execute(input);
-    } catch (TokenValidationException e) {
+    } catch (SecurityHandlerException e) {
       httpStatus = HttpStatus.UNAUTHORIZED;
       return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {

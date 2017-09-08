@@ -6,7 +6,7 @@ import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
-import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +59,7 @@ public class PlatformInformationManager {
 	  return result;
   }
   
-  private List<CloudResource> addOrUpdateResources(List<CloudResource> resources) throws TokenValidationException {
+  private List<CloudResource> addOrUpdateResources(List<CloudResource> resources) throws SecurityHandlerException {
     List<CloudResource> toAdd = new ArrayList<>();
     List<CloudResource> toUpdate = new ArrayList<>();
     
@@ -116,11 +116,11 @@ public class PlatformInformationManager {
  * \return \a addResource returns the List of \a CloudResource where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
-  public List<CloudResource> addResources(List<CloudResource> resource) throws TokenValidationException {
+  public List<CloudResource> addResources(List<CloudResource> resource) throws SecurityHandlerException {
 	  return addOrUpdateResources(resource);
   }
   
-  public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws TokenValidationException {
+  public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws SecurityHandlerException {
   
     resources.getIdMappings().values().forEach(resouceId ->
     {
@@ -140,7 +140,7 @@ public class PlatformInformationManager {
  * \param resources List of \a CloudResource to be updated within the system
  * \return \a updateResource returns the List \a CloudResource where the Symbiote id is included. 
  */
-  public List<CloudResource> updateResources(List<CloudResource>  resources) throws TokenValidationException {
+  public List<CloudResource> updateResources(List<CloudResource>  resources) throws SecurityHandlerException {
 	  return addOrUpdateResources(resources);
   }
 
@@ -152,7 +152,7 @@ public class PlatformInformationManager {
  * \param resourceId \a internalId to the resource to be removed 
  * \return \a deleteResource returns the \a CloudResource that has been just removed 
  */
-  public List<CloudResource> deleteResources(List<String> resourceIds) throws TokenValidationException {
+  public List<CloudResource> deleteResources(List<String> resourceIds) throws SecurityHandlerException {
 	  List<CloudResource> result = null;  
 	  List<String> resultIds;
 	  
@@ -165,14 +165,9 @@ public class PlatformInformationManager {
       }
     }).filter(resource -> resource != null).collect(Collectors.toList());
     
-
-    try {
-      resultIds = iifMessageHandler.removeResources(platformId, found);
-    } catch (TokenValidationException e){
-      throw e;
-    } catch (Exception e){
-      throw e;
-    }
+    
+    resultIds = iifMessageHandler.removeResources(platformId, found);
+ 
 
     result  = deleteInInternalRepository(resultIds);
     rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resultIds);

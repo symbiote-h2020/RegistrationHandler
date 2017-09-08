@@ -1,17 +1,21 @@
 package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 
-import feign.codec.ErrorDecoder;
+import com.google.gson.JsonSyntaxException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
+import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
+
 import feign.FeignException;
 import feign.Response;
 import feign.Util;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonSyntaxException;
+import feign.codec.ErrorDecoder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.io.IOException;
 
-import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
-import eu.h2020.symbiote.security.exceptions.aam.TokenValidationException;
+import java.io.IOException;
 
 public class InterworkingInterfaceErrorDecoder implements ErrorDecoder {
     private static Log log = LogFactory.getLog(InterworkingInterfaceErrorDecoder.class);
@@ -26,7 +30,7 @@ public class InterworkingInterfaceErrorDecoder implements ErrorDecoder {
             ResourceRegistryResponse resourceRegistryResponse = mapper.readValue(body, ResourceRegistryResponse.class);
             if (response.status() == 400 && resourceRegistryResponse.getMessage().equals("Token invalid")) {
                 log.info("The Token was invalid");
-                return new TokenValidationException("Token invalid");
+                return new SecurityHandlerException("Token invalid");
 
             }
         } catch (JsonSyntaxException e) {
