@@ -1,20 +1,20 @@
 package eu.h2020.symbiote.rh.inforeader;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.rh.PlatformInfoReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.rh.PlatformInfoReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jose on 27/09/16.
@@ -30,7 +30,7 @@ public class FilePlatformInfoReader implements PlatformInfoReader{
 
     private static final String RESOURCES_FILE_NAME = "resources.json";
 
-    @Value("${symbiote.platform.file.location}")
+    @Value("${symbiote.platform.file.location ?: file:///var/tmp/resources}")
     String fileLocation;
 
 

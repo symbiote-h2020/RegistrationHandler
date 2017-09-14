@@ -6,6 +6,7 @@ import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +104,8 @@ public class RegistrationHandlerRestService {
       return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
       httpStatus = HttpStatus.BAD_REQUEST;
-      return new ResponseEntity<String>("Internal Error: "+e.getMessage(), responseHeaders, httpStatus);
+      String stacktrace = ExceptionUtils.getStackTrace(e);
+      return new ResponseEntity<String>("Internal Error: "+stacktrace, responseHeaders, httpStatus);
     }
   
     logger.info("END OF addResources, result "+ result);

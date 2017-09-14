@@ -11,7 +11,6 @@ import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerExcep
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,9 +32,6 @@ import java.util.stream.Collectors;
 public class PlatformInformationManager {
 
   private static final Log logger = LogFactory.getLog(PlatformInformationManager.class);
-  @Value("${platform.id}")
-  String platformId;
-
   
   @Autowired
   private RAPResourceMessageHandler rapresourceRegistrationMessageHandler;
@@ -93,13 +89,13 @@ public class PlatformInformationManager {
     });
     
     if (!toAdd.isEmpty()) {
-      List<CloudResource> added = iifMessageHandler.createResources(platformId, toAdd);
+      List<CloudResource> added = iifMessageHandler.createResources(toAdd);
       result.addAll(resourceRepository.save(added));
       rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(added);
     }
     
     if (!toUpdate.isEmpty()) {
-      List<CloudResource> updated = iifMessageHandler.updateResources(platformId, toUpdate);
+      List<CloudResource> updated = iifMessageHandler.updateResources(toUpdate);
       result.addAll(resourceRepository.save(updated));
       rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(updated);
     }
@@ -128,7 +124,7 @@ public class PlatformInformationManager {
         throw new ConflictException("Resource with id " + resouceId + " already registered. Can't continue with register request.");
     }});
   
-    List<CloudResource> newResources = iifMessageHandler.addRdfResources(platformId, resources);
+    List<CloudResource> newResources = iifMessageHandler.addRdfResources(resources);
     return resourceRepository.save(newResources);
   }
   
@@ -166,7 +162,7 @@ public class PlatformInformationManager {
     }).filter(resource -> resource != null).collect(Collectors.toList());
     
     
-    resultIds = iifMessageHandler.removeResources(platformId, found);
+    resultIds = iifMessageHandler.removeResources(found);
  
 
     result  = deleteInInternalRepository(resultIds);
