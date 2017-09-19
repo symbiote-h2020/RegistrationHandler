@@ -135,7 +135,7 @@ public class IIFMessageHandler {
   }
   
   public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws SecurityHandlerException {
-    Map<String, String> idMap = resources.getIdMappings();
+    Map<String, CloudResource> idMap = resources.getIdMappings();
     
     RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();
     request.setBody(resources.getRdfInfo());
@@ -146,8 +146,7 @@ public class IIFMessageHandler {
     
     return idMap.entrySet().stream().filter(entry -> response.get(entry.getKey()) != null)
                .map(entry -> {
-                 CloudResource cloudResource = new CloudResource();
-                 cloudResource.setInternalId(entry.getValue());
+                 CloudResource cloudResource = entry.getValue();
                  cloudResource.setResource(response.get(entry.getKey()));
                  return cloudResource;
                }).collect(Collectors.toList());

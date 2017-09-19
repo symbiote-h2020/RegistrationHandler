@@ -32,11 +32,12 @@ import java.util.stream.Collectors;
 @WebAppConfiguration
 @RequestMapping("/testiif")
 public class IIFRestDummyServer {
+  
   private static final Log logger = LogFactory.getLog(IIFRestDummyServer.class);
   static int i=0;
   
   private Map<String, Resource> saveResources(@RequestBody ResourceRegistryRequest resources) {
-    return resources.getResources().entrySet().stream()
+    return resources.getBody().entrySet().stream()
                .filter(entry -> !"invalid".equals(entry.getValue().getLabels().get(0)))
                .collect(Collectors.toMap(
                    e -> e.getKey(),
@@ -52,14 +53,14 @@ public class IIFRestDummyServer {
     HttpHeaders responseHeaders = new HttpHeaders();
     HttpStatus httpStatus;
 
-    if (listTosend.size() != resources.getResources().size()) {
+    if (listTosend.size() != resources.getBody().size()) {
       logger.info("Token is invalid");
       httpStatus = HttpStatus.BAD_REQUEST;
       result.setMessage("Token invalid");
     }
     else {
       logger.info("Token is valid");
-      result.setResources(listTosend);
+      result.setBody(listTosend);
       httpStatus = HttpStatus.OK;
     }
     return new ResponseEntity<ResourceRegistryResponse>(result, responseHeaders, httpStatus);
@@ -70,7 +71,7 @@ public class IIFRestDummyServer {
     logger.info("User trying to updateResources with platformId "+platformId);
     Map<String, Resource> listTosend = saveResources(resources);
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
-    result.setResources(listTosend);
+    result.setBody(listTosend);
     return result;
   }
 
@@ -78,7 +79,7 @@ public class IIFRestDummyServer {
   public @ResponseBody ResourceRegistryResponse  removeResources(@PathVariable(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources) {
     logger.info("User trying to removeResources with platformId "+platformId);
     ResourceRegistryResponse result = new ResourceRegistryResponse(); 
-    result.setResources(resources.getResources());
+    result.setBody(resources.getBody());
     return result;
   }
   
@@ -99,7 +100,7 @@ public class IIFRestDummyServer {
     resourceMap.put("http://www.testcompany.eu/customPlatform/sensor1", createFakeResource("sensor1"));
     resourceMap.put("http://www.testcompany.eu/customPlatform/actuator1", createFakeResource("actuator1"));
   
-    response.setResources(resourceMap);
+    response.setBody(resourceMap);
     
     return response;
     

@@ -118,10 +118,10 @@ public class PlatformInformationManager {
   
   public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws SecurityHandlerException {
   
-    resources.getIdMappings().values().forEach(resouceId ->
+    resources.getIdMappings().values().forEach(resource ->
     {
-      if (resourceRepository.getByInternalId(resouceId) != null) {
-        throw new ConflictException("Resource with id " + resouceId + " already registered. Can't continue with register request.");
+      if (resourceRepository.getByInternalId(resource.getInternalId()) != null) {
+        throw new ConflictException("Resource with id " + resource.getInternalId() + " already registered. Can't continue with register request.");
     }});
   
     List<CloudResource> newResources = iifMessageHandler.addRdfResources(resources);

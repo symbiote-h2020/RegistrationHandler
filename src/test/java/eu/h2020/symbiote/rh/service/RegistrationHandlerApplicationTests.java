@@ -3,6 +3,7 @@ package eu.h2020.symbiote.rh.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.h2020.symbiote.cloud.model.CloudResourceParams;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
 import eu.h2020.symbiote.core.model.RDFFormat;
@@ -10,7 +11,8 @@ import eu.h2020.symbiote.core.model.RDFInfo;
 import eu.h2020.symbiote.core.model.WKTLocation;
 import eu.h2020.symbiote.core.model.resources.Actuator;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
-import eu.h2020.symbiote.rh.service.aams.DummyAAMAMQPLoginListener;
+import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
+import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,13 +34,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -57,7 +55,29 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
-@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif", "security.coreaam.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=true", "security.user=user", "security.password=password", "spring.data.mongodb.port=18034"})
+@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT,
+		properties = {
+		"eureka.client.enabled=false",
+										 "spring.cloud.sleuth.enabled=false",
+										 "reghandler.reader.impl=dummyPlatformInfoReader",
+										 "reghandler.init.autoregister=false",
+										 "platform.id=helloid",
+										 "server.port=18033",
+										 "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif",
+										 "rabbit.host=localhost",
+										 "rabbit.username=guest",
+										 "rabbit.password=guest",
+										 "symbIoTe.coreaam.url=http://localhost:18033",
+										 "symbIoTe.component.clientId=reghandler@Test1Platform",
+										 "symbIoTe.component.username=Test1",
+										 "symbIoTe.component.password=Test1",
+										 "symbIoTe.component.keystore.path=keystore.jks",
+										 "symbIoTe.component.keystore.password=kspw",
+										 "symbIoTe.component.registry.id=registry",
+										 "symbIoTe.localaam.url=https://localhost:18033",
+										 "symbIoTe.targetaam.id=SymbIoTe_Core_AAM",
+										 "symbIoTe.aam.integration=false",
+										 "spring.data.mongodb.port=18034"})
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
@@ -70,7 +90,6 @@ public class RegistrationHandlerApplicationTests {
 
     static private MockMvc mockMvc;
 
-    private DummyAAMAMQPLoginListener dummyAAMAMQPLoginListener = new DummyAAMAMQPLoginListener();
   
   @Autowired
   private ResourceRepository resourceRepository;
@@ -87,9 +106,27 @@ public class RegistrationHandlerApplicationTests {
 		AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
 		mockMvc = webAppContextSetup(webApplicationContext).build();
 		MockRestServiceServer.createServer(asyncRestTemplate);
-		dummyAAMAMQPLoginListener.init();
 	}
 
+	private CloudResource createTestCloudResource(String internalId) {
+   	CloudResource resource = new CloudResource();
+   	resource.setInternalId(internalId);
+   	resource.setPluginId("plugin_"+internalId);
+   	resource.setCloudMonitoringHost("monitoring_"+internalId);
+		try {
+			SingleTokenAccessPolicySpecifier testPolicy = new SingleTokenAccessPolicySpecifier(
+          SingleTokenAccessPolicySpecifier.SingleTokenAccessPolicyType.PUBLIC, null
+      );
+			resource.setSingleTokenAccessPolicy(testPolicy);
+		} catch (InvalidArgumentsException e) {
+			e.printStackTrace();
+		}
+		CloudResourceParams params = new CloudResourceParams();
+		params.setType("Actuator");
+		resource.setParams(params);
+		
+		return resource;
+	}
 
 	private CloudResource getTestActuatorBean(){
 	   Actuator actuator = new Actuator();
@@ -99,9 +136,7 @@ public class RegistrationHandlerApplicationTests {
 	   actuator.setInterworkingServiceURL("http://example.com/url");
 	   actuator.setComments(Arrays.asList("Desc"));
 
-	   CloudResource cloudResource = new CloudResource();
-	   cloudResource.setCloudMonitoringHost("hostofcloudres");
-	   cloudResource.setInternalId(INTERNAL_ID);
+	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID);
 	   cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
@@ -115,9 +150,7 @@ public class RegistrationHandlerApplicationTests {
 	   actuator.setInterworkingServiceURL("http://example.com/url");
 	   actuator.setComments(Arrays.asList("Desc"));
 
-	   CloudResource cloudResource = new CloudResource();
-	   cloudResource.setCloudMonitoringHost("hostofcloudres");
-	   cloudResource.setInternalId(INTERNAL_ID+1);
+	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID+1);
 	   cloudResource.setResource(actuator);	   
 	   
 	   return cloudResource; 
@@ -163,33 +196,6 @@ public class RegistrationHandlerApplicationTests {
         logger.info("End of test ----------------------------- testCreateResource");
         assert(true);
 	}
-
-	@Test
-	public void testCreateResourcesWithInvalidToken() throws Exception {
-		CloudResource cloudResource = getTestActuatorBeanInvalid();
-		List<CloudResource> list = new ArrayList<CloudResource>();
-		list.add(cloudResource);
-        ObjectMapper mapper = new ObjectMapper();
-        String objectInJson = mapper.writeValueAsString(list);
-		 
-        RequestBuilder requestBuilder = post("/resources")
-        		.content(objectInJson)
-        		.accept(MediaType.APPLICATION_JSON)
-        		.contentType(MediaType.APPLICATION_JSON);
-        MvcResult result = mockMvc.perform(requestBuilder)
-                 .andExpect(status().isUnauthorized())
-                 .andReturn();
-		
-		requestBuilder = get("/resource?resourceInternalId="+INTERNAL_ID+1)
-												 .accept(MediaType.APPLICATION_JSON);
-		mockMvc.perform(requestBuilder)
-											.andExpect(status().isOk()).andExpect(
-													MockMvcResultMatchers.content().string(""));
-		
-        assertEquals("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", result.getResponse().getContentAsString()); 
-        logger.info("End of test ----------------------------- testCreateResource");
-        assert(true);
-	}
 	
 	@Test
 	public void testCreateRdfResources() throws Exception {
@@ -204,11 +210,11 @@ public class RegistrationHandlerApplicationTests {
 	  expected.put("internal2", "sensor1");
 	  expected.put("internal3", "actuator1");
 	  
-		Map<String, String> mapping = new HashMap<>();
+		Map<String, CloudResource> mapping = new HashMap<>();
 		
-		mapping.put("http://www.testcompany.eu/customPlatform/service1234", "internal1");
-		mapping.put("http://www.testcompany.eu/customPlatform/sensor1", "internal2");
-		mapping.put("http://www.testcompany.eu/customPlatform/actuator1", "internal3");
+		mapping.put("http://www.testcompany.eu/customPlatform/service1234", createTestCloudResource("internal1"));
+		mapping.put("http://www.testcompany.eu/customPlatform/sensor1", createTestCloudResource("internal2"));
+		mapping.put("http://www.testcompany.eu/customPlatform/actuator1", createTestCloudResource("internal3"));
 		
 		RdfCloudResorceList list = new RdfCloudResorceList();
 		list.setIdMappings(mapping);
