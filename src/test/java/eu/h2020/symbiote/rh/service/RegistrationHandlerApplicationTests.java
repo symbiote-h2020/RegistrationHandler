@@ -63,7 +63,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 										 "reghandler.init.autoregister=false",
 										 "platform.id=helloid",
 										 "server.port=18033",
-										 "symbIoTe.interworkinginterface.url=http://localhost:18033/testiif",
+										 "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiif",
+										 "symbIoTe.interworking.interface.url=http://www.example.com/Test1Platform",
 										 "rabbit.host=localhost",
 										 "rabbit.username=guest",
 										 "rabbit.password=guest",
@@ -78,7 +79,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 										 "symbIoTe.targetaam.id=SymbIoTe_Core_AAM",
 										 "symbIoTe.aam.integration=false",
 										 "spring.data.mongodb.port=18034"})
-//@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.interworkinginterface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
+//@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -227,6 +228,8 @@ public class RegistrationHandlerApplicationTests {
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String objectInJson = mapper.writeValueAsString(list);
+		
+		System.out.println("Sending rdf information:\n"+objectInJson);
 		
 		RequestBuilder requestBuilder = post("/rdf-resources")
 																				.content(objectInJson)

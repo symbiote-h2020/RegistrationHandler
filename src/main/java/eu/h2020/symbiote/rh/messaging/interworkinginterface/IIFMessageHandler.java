@@ -64,6 +64,12 @@ public class IIFMessageHandler {
   @Value("${symbIoTe.aam.integration}")
   private boolean useSecurity;
   
+  @Value("${symbIoTe.core.cloud.interface.url}")
+  private String url;
+  
+  @Value("${symbIoTe.interworking.interface.url}")
+  private String interworkingUrl;
+  
   private interface IIFOperation<T> {
     ResourceRegistryResponse operation(String platformId, T request) throws SecurityHandlerException;
   }
@@ -71,9 +77,6 @@ public class IIFMessageHandler {
   private static final Log logger = LogFactory.getLog(IIFMessageHandler.class);
   
   private InterworkingInterfaceService jsonclient;
-  
-  @Value("${symbIoTe.interworkinginterface.url}")
-  private String url;
   
   @PostConstruct
   public void createClient() throws SecurityHandlerException {
@@ -138,6 +141,7 @@ public class IIFMessageHandler {
     Map<String, CloudResource> idMap = resources.getIdMappings();
     
     RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();
+    request.setInterworkingServiceUrl(interworkingUrl);
     request.setBody(resources.getRdfInfo());
     
     Map<String, Resource> response = executeRequest(request, ((platformId1, request1) -> {
