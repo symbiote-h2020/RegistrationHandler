@@ -179,6 +179,7 @@ public class RegistrationHandlerApplicationTests {
 						.andReturn().getResponse().getContentAsString();
         List<CloudResource> body = mapper.readValue(strResponse,
 						new TypeReference<List<CloudResource>>(){});
+		
         
         assert(!body.isEmpty());
         
