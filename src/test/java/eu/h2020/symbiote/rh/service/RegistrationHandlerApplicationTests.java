@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.h2020.symbiote.cloud.model.CloudResourceParams;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.core.model.RDFFormat;
 import eu.h2020.symbiote.core.model.RDFInfo;
 import eu.h2020.symbiote.core.model.WKTLocation;
@@ -217,7 +217,7 @@ public class RegistrationHandlerApplicationTests {
 		mapping.put("http://www.testcompany.eu/customPlatform/sensor1", createTestCloudResource("internal2"));
 		mapping.put("http://www.testcompany.eu/customPlatform/actuator1", createTestCloudResource("internal3"));
 		
-		RdfCloudResorceList list = new RdfCloudResorceList();
+		RdfCloudResourceList list = new RdfCloudResourceList();
 		list.setIdMappings(mapping);
 		
 		RDFInfo info = new RDFInfo();
