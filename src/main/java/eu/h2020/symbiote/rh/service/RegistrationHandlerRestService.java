@@ -1,7 +1,7 @@
 package eu.h2020.symbiote.rh.service;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
@@ -149,8 +149,8 @@ public class RegistrationHandlerRestService {
    * @throws ConflictException If some resources have already been registered
    */
  @RequestMapping(method = RequestMethod.POST, path = "/rdf-resources")
- public ResponseEntity<?> addRdfResources(@RequestBody RdfCloudResorceList resources) throws ConflictException{
-   return modifyResources(resources, (input -> infoManager.addRdfResources((RdfCloudResorceList) input)));
+ public ResponseEntity<?> addRdfResources(@RequestBody RdfCloudResourceList resources) throws ConflictException{
+   return modifyResources(resources, (input -> infoManager.addRdfResources((RdfCloudResourceList) input)));
  }
   
 //! Update a resource.

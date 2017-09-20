@@ -1,7 +1,7 @@
 package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
@@ -137,7 +137,7 @@ public class IIFMessageHandler {
     }));
   }
   
-  public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws SecurityHandlerException {
+  public List<CloudResource> addRdfResources(RdfCloudResourceList resources) throws SecurityHandlerException {
     Map<String, CloudResource> idMap = resources.getIdMappings();
     
     RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();

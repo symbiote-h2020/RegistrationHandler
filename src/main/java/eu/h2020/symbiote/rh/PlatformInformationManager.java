@@ -1,7 +1,7 @@
 package eu.h2020.symbiote.rh;
 
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
-import eu.h2020.symbiote.cloud.model.internal.RdfCloudResorceList;
+import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
@@ -116,7 +116,7 @@ public class PlatformInformationManager {
 	  return addOrUpdateResources(resource);
   }
   
-  public List<CloudResource> addRdfResources(RdfCloudResorceList resources) throws SecurityHandlerException {
+  public List<CloudResource> addRdfResources(RdfCloudResourceList resources) throws SecurityHandlerException {
   
     resources.getIdMappings().values().forEach(resource ->
     {
