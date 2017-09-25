@@ -6,6 +6,8 @@ import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 
+import feign.FeignException;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,7 +105,11 @@ public class RegistrationHandlerRestService {
       httpStatus = HttpStatus.UNAUTHORIZED;
       return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
-      httpStatus = HttpStatus.BAD_REQUEST;
+      if (e instanceof FeignException) {
+        httpStatus = HttpStatus.valueOf(((FeignException)e).status());
+      } else {
+        httpStatus = HttpStatus.BAD_REQUEST;
+      }
       String stacktrace = ExceptionUtils.getStackTrace(e);
       return new ResponseEntity<String>("Internal Error: "+stacktrace, responseHeaders, httpStatus);
     }

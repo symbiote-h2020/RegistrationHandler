@@ -168,7 +168,7 @@ public class IIFMessageHandler {
       return jsonclient.removeResources(platformId1, (ResourceRegistryRequest) request);
     }));
     
-    return result.stream().map(resource -> resource.getResource().getId()).collect(Collectors.toList());
+    return result.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList());
   }
   
 }

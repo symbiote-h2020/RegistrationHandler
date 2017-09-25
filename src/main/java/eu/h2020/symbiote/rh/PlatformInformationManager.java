@@ -46,7 +46,7 @@ public class PlatformInformationManager {
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
 
 	  for (String resourceId:resourceIds) {
-		  CloudResource existingResource = resourceRepository.getByResourceId(resourceId);
+		  CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
 	      if (existingResource != null) {
 	    	  result.add(existingResource);
 	    	  resourceRepository.delete(existingResource.getInternalId());
