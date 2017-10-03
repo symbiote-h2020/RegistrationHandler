@@ -125,7 +125,9 @@ public class PlatformInformationManager {
     }});
   
     List<CloudResource> newResources = iifMessageHandler.addRdfResources(resources);
-    return resourceRepository.save(newResources);
+    List<CloudResource> updated = resourceRepository.save(newResources);
+    rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(updated);
+    return updated;
   }
   
   //! Update a resource.
