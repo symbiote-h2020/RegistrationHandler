@@ -121,6 +121,7 @@ public class IIFMessageHandler {
     }
     
     ResourceRegistryRequest request = new ResourceRegistryRequest();
+    request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getSingleTokenFilteringPolicy())));
     request.setBody(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getResource())));
     Map<String, Resource> saved = executeRequest(request, operation);
     
@@ -141,6 +142,7 @@ public class IIFMessageHandler {
     Map<String, CloudResource> idMap = resources.getIdMappings();
     
     RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();
+    request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getSingleTokenFilteringPolicy())));
     request.setInterworkingServiceUrl(interworkingUrl);
     request.setBody(resources.getRdfInfo());
     
