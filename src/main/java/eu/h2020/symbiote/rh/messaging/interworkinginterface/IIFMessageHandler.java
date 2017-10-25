@@ -5,8 +5,10 @@ import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
-import eu.h2020.symbiote.core.model.resources.Resource;
+import eu.h2020.symbiote.model.cim.Resource;
 import eu.h2020.symbiote.security.ComponentSecurityHandlerFactory;
+import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
+import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 import eu.h2020.symbiote.security.communication.SymbioteAuthorizationClient;
 import eu.h2020.symbiote.security.handler.IComponentSecurityHandler;
@@ -114,6 +116,18 @@ public class IIFMessageHandler {
     }
   }
   
+  private SingleTokenAccessPolicySpecifier sanitizePolicy(SingleTokenAccessPolicySpecifier policy) {
+    if (policy != null) {
+      return policy;
+    } else {
+      try {
+        return new SingleTokenAccessPolicySpecifier(SingleTokenAccessPolicySpecifier.SingleTokenAccessPolicyType.PUBLIC, null);
+      } catch (InvalidArgumentsException e1) {
+        return null;
+      }
+    }
+  }
+  
   private List<CloudResource> createOrUpdateResources(List<CloudResource> cloudResources, IIFOperation operation) throws SecurityHandlerException {
     Map<String, CloudResource> idMap = new HashMap<>();
     for (int i = 0; i < cloudResources.size(); i++) {
@@ -121,7 +135,10 @@ public class IIFMessageHandler {
     }
     
     ResourceRegistryRequest request = new ResourceRegistryRequest();
-    request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getSingleTokenFilteringPolicy())));
+    request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(
+        e -> e.getKey(),
+        e -> sanitizePolicy(e.getValue().getSingleTokenFilteringPolicy()))));
+    
     request.setBody(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getResource())));
     Map<String, Resource> saved = executeRequest(request, operation);
     
@@ -142,7 +159,9 @@ public class IIFMessageHandler {
     Map<String, CloudResource> idMap = resources.getIdMappings();
     
     RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();
-    request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getSingleTokenFilteringPolicy())));
+    request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(
+        e -> e.getKey(),
+        e -> sanitizePolicy(e.getValue().getSingleTokenFilteringPolicy()))));
     request.setInterworkingServiceUrl(interworkingUrl);
     request.setBody(resources.getRdfInfo());
     

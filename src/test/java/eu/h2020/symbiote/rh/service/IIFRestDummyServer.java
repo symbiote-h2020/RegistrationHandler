@@ -4,7 +4,7 @@ package eu.h2020.symbiote.rh.service;
 import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
-import eu.h2020.symbiote.core.model.resources.Resource;
+import eu.h2020.symbiote.model.cim.Resource;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 
 import org.apache.commons.logging.Log;
@@ -38,7 +38,7 @@ public class IIFRestDummyServer {
   
   private Map<String, Resource> saveResources(@RequestBody ResourceRegistryRequest resources) {
     return resources.getBody().entrySet().stream()
-               .filter(entry -> !"invalid".equals(entry.getValue().getLabels().get(0)))
+               .filter(entry -> !"invalid".equals(entry.getValue().getName()))
                .collect(Collectors.toMap(
                    e -> e.getKey(),
                    e -> {e.getValue().setId("symbiote"+i++); return e.getValue();}));

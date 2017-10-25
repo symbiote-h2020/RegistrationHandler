@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.h2020.symbiote.cloud.model.CloudResourceParams;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
-import eu.h2020.symbiote.core.model.RDFFormat;
-import eu.h2020.symbiote.core.model.RDFInfo;
-import eu.h2020.symbiote.core.model.WKTLocation;
-import eu.h2020.symbiote.core.model.resources.Actuator;
+import eu.h2020.symbiote.core.internal.RDFFormat;
+import eu.h2020.symbiote.core.internal.RDFInfo;
+import eu.h2020.symbiote.model.cim.Actuator;
+import eu.h2020.symbiote.model.cim.WKTLocation;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
 import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
@@ -133,9 +133,9 @@ public class RegistrationHandlerApplicationTests {
 	   Actuator actuator = new Actuator();
 	   WKTLocation location = new WKTLocation();
 	   location.setValue("location");
-	   actuator.setLabels(Arrays.asList("Act1"));
+	   actuator.setName("Act1");
 	   actuator.setInterworkingServiceURL("http://example.com/url");
-	   actuator.setComments(Arrays.asList("Desc"));
+	   actuator.setDescription(Arrays.asList("Desc"));
 
 	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID);
 	   cloudResource.setResource(actuator);	   
@@ -147,9 +147,9 @@ public class RegistrationHandlerApplicationTests {
 	   Actuator actuator = new Actuator();
 	   WKTLocation location = new WKTLocation();
 	   location.setValue("location");
-	   actuator.setLabels(Arrays.asList("invalid"));
+	   actuator.setName("invalid");
 	   actuator.setInterworkingServiceURL("http://example.com/url");
-	   actuator.setComments(Arrays.asList("Desc"));
+	   actuator.setDescription(Arrays.asList("Desc"));
 
 	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID+1);
 	   cloudResource.setResource(actuator);	   
