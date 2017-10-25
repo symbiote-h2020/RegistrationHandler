@@ -74,8 +74,8 @@ dependencies {
     */
     compile('com.github.symbiote-h2020:SymbIoTeSecurity:21.+'){ changing = true }
     compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT') { changing = true }
-    /*compile project(':SymbIoTeLibraries')
-    compile project(':SymbIoTeSecurity')*/
+    //compile project(':SymbIoTeLibraries')
+    //compile project(':SymbIoTeSecurity')
 
 
     // Spring
