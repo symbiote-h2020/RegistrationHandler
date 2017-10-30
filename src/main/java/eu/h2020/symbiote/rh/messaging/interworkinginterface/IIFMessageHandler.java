@@ -33,7 +33,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class IIFMessageHandler {
   
-  @Value("${symbIoTe.coreaam.url}")
+  @Value("${symbIoTe.core.interface.url}")
   private String coreAAMAddress;
   
   @Value("${symbIoTe.component.keystore.password}")

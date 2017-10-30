@@ -68,7 +68,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 										 "rabbit.host=localhost",
 										 "rabbit.username=guest",
 										 "rabbit.password=guest",
-										 "symbIoTe.coreaam.url=http://localhost:18033",
+										 "symbIoTe.core.interface.url=http://localhost:18033",
 										 "symbIoTe.component.clientId=reghandler@Test1Platform",
 										 "symbIoTe.component.username=Test1",
 										 "symbIoTe.component.password=Test1",
