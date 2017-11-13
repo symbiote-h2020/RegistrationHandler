@@ -36,8 +36,8 @@ import java.util.List;
 @RestController
 public class RegistrationHandlerRestService {
   
-  private interface ValidatedOperation<T> {
-    List<?> execute(T input) throws SecurityHandlerException;
+  private interface ValidatedOperation<T,R> {
+    R execute(T input) throws SecurityHandlerException;
   }
   
   private static final Log logger = LogFactory.getLog(RegistrationHandlerRestService.class);
@@ -94,8 +94,8 @@ public class RegistrationHandlerRestService {
    * @param function The Interworking API method to apply to the input
    * @return The response of the operation
    */
-  private <T> ResponseEntity<?> modifyResources(T input, ValidatedOperation function){
-    List<?> result;
+  private <T,R> ResponseEntity<?> modifyResources(T input, ValidatedOperation<T,R> function){
+    R result;
     HttpHeaders responseHeaders = new HttpHeaders();
     HttpStatus httpStatus;
   
@@ -115,7 +115,7 @@ public class RegistrationHandlerRestService {
     }
   
     logger.info("END OF addResources, result "+ result);
-    return new  ResponseEntity<List<?>>(result, responseHeaders, HttpStatus.OK);
+    return new  ResponseEntity<R>(result, responseHeaders, HttpStatus.OK);
   }
   
 //! Create a resource.
@@ -185,6 +185,12 @@ public class RegistrationHandlerRestService {
     logger.info("START OF updateResource, in data "+ resources);
     return modifyResources(resources, (resourceList -> infoManager.updateResources(resources)));
   }
+  
+  @RequestMapping(method = RequestMethod.PUT, path = "/sync")
+  public ResponseEntity<?> sync() {
+    logger.info("START OF core synchronization");
+    return modifyResources(Void.TYPE, (voidObject -> infoManager.sync()));
+  }
 
 //! Delete a resource.
 /*!
@@ -203,5 +209,11 @@ public class RegistrationHandlerRestService {
   public ResponseEntity<?> deleteResources(@RequestParam List<String> resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
     return modifyResources(resourceInternalId, (resourceList -> infoManager.deleteResources(resourceInternalId)));
+  }
+  
+  @RequestMapping(method = RequestMethod.DELETE, path = "/clear")
+  public ResponseEntity<?> clearResources() {
+    logger.info("START OF clear resources");
+    return modifyResources(Void.TYPE, (voidObject -> infoManager.clearResources()));
   }
 }

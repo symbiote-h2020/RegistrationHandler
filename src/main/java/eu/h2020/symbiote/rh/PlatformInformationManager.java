@@ -1,7 +1,11 @@
 package eu.h2020.symbiote.rh;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
+import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.rh.messaging.cloud.RAPResourceMessageHandler;
@@ -11,6 +15,7 @@ import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerExcep
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -41,6 +46,9 @@ public class PlatformInformationManager {
 
   @Autowired
   private IIFMessageHandler iifMessageHandler;
+  
+  @Autowired
+  MongoTemplate mongoTemplate;
 
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
@@ -170,6 +178,22 @@ public class PlatformInformationManager {
     result  = deleteInInternalRepository(resultIds);
     rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(resultIds);
     return result;
+  }
+  
+  public Void clearResources() throws SecurityHandlerException {
+    List<CloudResource> existing = resourceRepository.findAll();
+    iifMessageHandler.clearData();
+    DBCollection collection = mongoTemplate.getCollection(RHConstants.RESOURCE_COLLECTION);
+    collection.remove(new BasicDBObject());
+    rapresourceRegistrationMessageHandler.sendResourcesUnregistrationMessage(existing.stream().map(
+        resource -> resource.getInternalId()).collect(Collectors.toList()));
+    return null;
+  }
+  
+  public List<CloudResource> sync() throws SecurityHandlerException {
+    List<CloudResource> existing = resourceRepository.findAll();
+    clearResources();
+    return addResources(existing);
   }
 
 
