@@ -7,6 +7,10 @@ package eu.h2020.symbiote.rh;
  */
 
 import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -14,20 +18,22 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Configuration
 @EnableMongoRepositories
 class AppConfig extends AbstractMongoConfiguration {
-
+    
+    @Value("${rh.mongo.uri:#{null}}")
+    private String mongoUri;
+    
     @Override
     protected String getDatabaseName() {
         return "symbiote-cloud-rh-database";
     }
-
+    
     @Override
     public Mongo mongo() throws Exception {
-        return new Mongo();
-    }
-
-    @Override
-    protected String getMappingBasePackage() {
-        return "com.oreilly.springdata.mongodb";
+        if (mongoUri != null) {
+            return new MongoClient(new MongoClientURI(mongoUri));
+        } else {
+            return new MongoClient();
+        }
     }
 
 }
