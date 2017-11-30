@@ -33,7 +33,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class IIFMessageHandler {
   
-  @Value("${symbIoTe.core.interface.url}")
+  @Value("${symbIoTe.coreaam.url}")
   private String coreAAMAddress;
   
   @Value("${symbIoTe.component.keystore.password}")
@@ -190,6 +190,10 @@ public class IIFMessageHandler {
     }));
     
     return result.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList());
+  }
+  
+  public void clearData() throws SecurityHandlerException {
+    jsonclient.clearData(platformId);
   }
   
 }

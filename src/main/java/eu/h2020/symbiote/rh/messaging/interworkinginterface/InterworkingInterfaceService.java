@@ -3,6 +3,7 @@ package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
+import eu.h2020.symbiote.core.internal.ClearDataResponse;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 
 import feign.Headers;
@@ -27,7 +28,11 @@ public interface InterworkingInterfaceService {
 	@RequestLine("DELETE "+RHConstants.DO_REMOVE_RESOURCES)
 	@Headers({"Accept: application/json", "Content-Type: application/json"})
 	ResourceRegistryResponse removeResources(@Param(RHConstants.PLATFORM_ID) String platformId, @RequestBody ResourceRegistryRequest resources);
-
+	
+	@RequestLine("POST "+RHConstants.DO_CLEAR_DATA)
+	@Headers({"Accept: application/json", "Content-Type: application/json"})
+	ClearDataResponse clearData(@Param(RHConstants.PLATFORM_ID) String platformId);
+	
 	
 }
 

@@ -1,6 +1,7 @@
 package eu.h2020.symbiote.rh;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
@@ -16,7 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
  */
 //@EnableDiscoveryClient    //when Eureka available
-//@EnableAutoConfiguration
+@EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
 
