@@ -102,9 +102,11 @@ public class RegistrationHandlerRestService {
     try {
       result = function.execute(input);
     } catch (SecurityHandlerException e) {
+      logger.error("Security exception thrown:", e);
       httpStatus = HttpStatus.UNAUTHORIZED;
       return new ResponseEntity<String>("Stored core token was invalid, so it was cleared. Reissue your request and you will automatically get a new core token", responseHeaders, httpStatus);
     } catch (Exception e) {
+      logger.error("Generic exception thrown:", e);
       if (e instanceof FeignException) {
         httpStatus = HttpStatus.valueOf(((FeignException)e).status());
       } else {

@@ -179,6 +179,7 @@ public class IIFMessageHandler {
   
   
   public List<CloudResource> updateResources(List<CloudResource> cloudResources) throws SecurityHandlerException {
+	  logger.trace("Updating resources");
     return createOrUpdateResources(cloudResources, ((platformId1, request) -> {
       return jsonclient.updateResource(platformId1, (ResourceRegistryRequest) request);
     }));
@@ -191,5 +192,15 @@ public class IIFMessageHandler {
     
     return result.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList());
   }
+
+	@Override
+	public String toString() {
+		return "IIFMessageHandler [coreAAMAddress=" + coreAAMAddress + ", keystorePassword=" + keystorePassword
+				+ ", keystorePath=" + keystorePath + ", clientId=" + clientId + ", registryId=" + registryId
+				+ ", localAAMAddress=" + localAAMAddress + ", username=" + username + ", password=" + password
+				+ ", platformId=" + platformId + ", targetAAMId=" + targetAAMId + ", useSecurity=" + useSecurity + ", url="
+				+ url + ", interworkingUrl=" + interworkingUrl + ", jsonclient=" + jsonclient + "]";
+	}
+  
   
 }

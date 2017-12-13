@@ -89,12 +89,15 @@ public class PlatformInformationManager {
     });
     
     if (!toAdd.isEmpty()) {
+      logger.info("Adding the following resources: "+toAdd)	;
+      logger.info("Using the following handler for this operation: "+iifMessageHandler);
       List<CloudResource> added = iifMessageHandler.createResources(toAdd);
       result.addAll(resourceRepository.save(added));
       rapresourceRegistrationMessageHandler.sendResourcesRegistrationMessage(added);
     }
     
     if (!toUpdate.isEmpty()) {
+      logger.info("Updating the following resources: "+toUpdate)	;
       List<CloudResource> updated = iifMessageHandler.updateResources(toUpdate);
       result.addAll(resourceRepository.save(updated));
       rapresourceRegistrationMessageHandler.sendResourcesUpdateMessage(updated);
