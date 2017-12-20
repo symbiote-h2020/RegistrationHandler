@@ -2,7 +2,6 @@ package eu.h2020.symbiote.rh.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import eu.h2020.symbiote.cloud.model.CloudResourceParams;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
@@ -11,9 +10,10 @@ import eu.h2020.symbiote.core.internal.RDFInfo;
 import eu.h2020.symbiote.model.cim.Actuator;
 import eu.h2020.symbiote.model.cim.WKTLocation;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
+import eu.h2020.symbiote.security.accesspolicies.common.AccessPolicyType;
+import eu.h2020.symbiote.security.accesspolicies.common.IAccessPolicySpecifier;
 import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
 import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -38,17 +38,9 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -115,10 +107,10 @@ public class RegistrationHandlerApplicationTests {
    	resource.setPluginId("plugin_"+internalId);
    	resource.setCloudMonitoringHost("monitoring_"+internalId);
 		try {
-			SingleTokenAccessPolicySpecifier testPolicy = new SingleTokenAccessPolicySpecifier(
-          SingleTokenAccessPolicySpecifier.SingleTokenAccessPolicyType.PUBLIC, null
-      );
-			resource.setSingleTokenAccessPolicy(testPolicy);
+			IAccessPolicySpecifier testPolicy = new SingleTokenAccessPolicySpecifier(
+					AccessPolicyType.PUBLIC, null
+			);
+			resource.setAccessPolicy(testPolicy);
 		} catch (InvalidArgumentsException e) {
 			e.printStackTrace();
 		}

@@ -7,28 +7,27 @@ import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 import eu.h2020.symbiote.model.cim.Resource;
 import eu.h2020.symbiote.security.ComponentSecurityHandlerFactory;
+import eu.h2020.symbiote.security.accesspolicies.common.AccessPolicyType;
+import eu.h2020.symbiote.security.accesspolicies.common.IAccessPolicySpecifier;
 import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
 import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 import eu.h2020.symbiote.security.communication.SymbioteAuthorizationClient;
 import eu.h2020.symbiote.security.handler.IComponentSecurityHandler;
-
 import feign.Client;
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
 
 @Component
 public class IIFMessageHandler {
@@ -115,13 +114,13 @@ public class IIFMessageHandler {
       throw e;
     }
   }
-  
-  private SingleTokenAccessPolicySpecifier sanitizePolicy(SingleTokenAccessPolicySpecifier policy) {
+
+  private IAccessPolicySpecifier sanitizePolicy(IAccessPolicySpecifier policy) {
     if (policy != null) {
       return policy;
     } else {
       try {
-        return new SingleTokenAccessPolicySpecifier(SingleTokenAccessPolicySpecifier.SingleTokenAccessPolicyType.PUBLIC, null);
+        return new SingleTokenAccessPolicySpecifier(AccessPolicyType.PUBLIC, null);
       } catch (InvalidArgumentsException e1) {
         return null;
       }
@@ -137,7 +136,7 @@ public class IIFMessageHandler {
     ResourceRegistryRequest request = new ResourceRegistryRequest();
     request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(
         e -> e.getKey(),
-        e -> sanitizePolicy(e.getValue().getSingleTokenFilteringPolicy()))));
+            e -> sanitizePolicy(e.getValue().getAccessPolicy()))));
     
     request.setBody(idMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getResource())));
     Map<String, Resource> saved = executeRequest(request, operation);
@@ -161,7 +160,7 @@ public class IIFMessageHandler {
     RDFResourceRegistryRequest request = new RDFResourceRegistryRequest();
     request.setFilteringPolicies(idMap.entrySet().stream().collect(Collectors.toMap(
         e -> e.getKey(),
-        e -> sanitizePolicy(e.getValue().getSingleTokenFilteringPolicy()))));
+            e -> sanitizePolicy(e.getValue().getAccessPolicy()))));
     request.setInterworkingServiceUrl(interworkingUrl);
     request.setBody(resources.getRdfInfo());
     
