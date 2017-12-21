@@ -7,6 +7,8 @@ package eu.h2020.symbiote.rh;
  */
 
 import com.mongodb.Mongo;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -15,14 +17,20 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories
 class AppConfig extends AbstractMongoConfiguration {
 
-    @Override
+	private String mongoHost;
+	
+	public AppConfig(@Value("${spring.data.mongodb.host:localhost}") String mongoHost) {
+		this.mongoHost = mongoHost;
+	}
+
+	@Override
     protected String getDatabaseName() {
         return "symbiote-cloud-rh-database";
     }
 
     @Override
     public Mongo mongo() throws Exception {
-        return new Mongo();
+        return new Mongo(mongoHost);
     }
 
     @Override
