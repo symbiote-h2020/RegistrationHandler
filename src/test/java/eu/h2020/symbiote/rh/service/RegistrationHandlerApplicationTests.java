@@ -70,7 +70,9 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 										 "symbIoTe.localaam.url=https://localhost:18033",
 										 "symbIoTe.targetaam.id=SymbIoTe_Core_AAM",
 										 "symbIoTe.aam.integration=false",
-										 "spring.data.mongodb.port=18034"})
+				"spring.data.mongodb.port=18034",
+				//TODO update coreAAM URL value, this was added just to be able to start tests
+				"symbIoTe.coreaam.url=http://localhost:18033"})
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
