@@ -142,3 +142,21 @@ logs
 
 # Keystores
 *.jks
+### Gradle template
+/build/
+
+# Ignore Gradle GUI config
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+
+# Cache of project
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+/gradle/
+TestAAM.keystore
+gradle/wrapper/gradle-wrapper.properties
+gradlew
+gradlew.bat
+src/main/resources/.goutputstream-KAMS6Y
+src/main/resources/bootstrap_fill.properties
