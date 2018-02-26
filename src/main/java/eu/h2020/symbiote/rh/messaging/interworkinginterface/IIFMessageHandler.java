@@ -70,7 +70,9 @@ public class IIFMessageHandler {
   
   @Value("${symbIoTe.interworking.interface.url}")
   private String interworkingUrl;
-  
+
+
+
   private interface IIFOperation<T> {
     ResourceRegistryResponse operation(String platformId, T request) throws SecurityHandlerException;
   }
@@ -191,7 +193,7 @@ public class IIFMessageHandler {
     return result.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList());
   }
   
-  public void clearData() throws SecurityHandlerException {
+  public void clearData() {
     jsonclient.clearData(platformId);
   }
   

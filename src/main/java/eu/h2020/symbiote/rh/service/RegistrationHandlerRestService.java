@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**! \class RegistrationHandlerRestService 
@@ -215,5 +216,21 @@ public class RegistrationHandlerRestService {
   public ResponseEntity<?> clearResources() {
     logger.info("START OF clear resources");
     return modifyResources(Void.TYPE, (voidObject -> infoManager.clearResources()));
+  }
+
+  public ResponseEntity<?> updateLocalResources(List<CloudResource> input) {
+    return modifyResources(input, (resourceList -> infoManager.updateLocalResources(resourceList)));
+  }
+
+  public ResponseEntity<?> removeLocalResources(List<String> input) {
+    return modifyResources(input, (resourceList -> infoManager.removeLocalResources(resourceList)));
+  }
+
+  public ResponseEntity<?> shareResources(Map<String, Map<String, Boolean>> input) {
+    return modifyResources(input, (resourceMap -> infoManager.shareResources(resourceMap)));
+  }
+
+  public ResponseEntity<?> unshareResources(Map<String, List<String>> input) {
+    return modifyResources(input, (resourceMap -> infoManager.unshareResources(resourceMap)));
   }
 }

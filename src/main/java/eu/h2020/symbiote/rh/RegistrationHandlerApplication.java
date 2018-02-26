@@ -1,8 +1,12 @@
 package eu.h2020.symbiote.rh;
 
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 
 /**! \class RegistrationHandlerApplication
@@ -20,6 +24,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
+
+	@Value("${rh.exchange.name}")
+	private String exchangeName;
+
+	@Bean
+	DirectExchange rhExchange() {
+		return new DirectExchange(exchangeName, true, false);
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(RegistrationHandlerApplication.class, args);
