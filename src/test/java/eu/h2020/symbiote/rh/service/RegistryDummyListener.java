@@ -30,7 +30,7 @@ public class RegistryDummyListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = RabbitConfiguration.REGISTRY_UPDATE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_UPDATE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "false"),
             exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_UPDATE_KEY_NAME)
     )
@@ -43,7 +43,7 @@ public class RegistryDummyListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = RabbitConfiguration.REGISTRY_DELETE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_DELETE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "false"),
             exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_REMOVE_KEY_NAME)
     )
@@ -55,7 +55,7 @@ public class RegistryDummyListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = RabbitConfiguration.REGISTRY_SHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_SHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "false"),
             exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_SHARE_KEY_NAME)
     )
@@ -82,7 +82,7 @@ public class RegistryDummyListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = RabbitConfiguration.REGISTRY_UNSHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_UNSHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "false"),
             exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_UNSHARE_KEY_NAME)
     )

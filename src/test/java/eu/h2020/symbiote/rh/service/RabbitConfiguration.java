@@ -24,22 +24,22 @@ public class RabbitConfiguration {
 
     @Bean
     public Queue updateQueue() {
-        return new Queue(REGISTRY_UPDATE_QUEUE_NAME, false, true, true);
+        return new Queue(REGISTRY_UPDATE_QUEUE_NAME, false, false, true);
     }
 
     @Bean
     public Queue deleteQueue() {
-        return new Queue(REGISTRY_DELETE_QUEUE_NAME, false, true, true);
+        return new Queue(REGISTRY_DELETE_QUEUE_NAME, false, false, true);
     }
 
     @Bean
     public Queue shareQueue() {
-        return new Queue(REGISTRY_SHARE_QUEUE_NAME, false, true, true);
+        return new Queue(REGISTRY_SHARE_QUEUE_NAME, false, false, true);
     }
 
     @Bean
     public Queue unshareQueue() {
-        return new Queue(REGISTRY_UNSHARE_QUEUE_NAME, false, true, true);
+        return new Queue(REGISTRY_UNSHARE_QUEUE_NAME, false, false, true);
     }
 
     @Bean

@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
                 "reghandler.reader.impl=dummyPlatformInfoReader",
                 "reghandler.init.autoregister=false",
                 "platform.id=helloid",
-                "server.port=18033",
+                "server.port=18034",
                 "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiif",
                 "symbIoTe.interworking.interface.url=http://www.example.com/Test1Platform",
                 "rabbit.host=localhost",
@@ -79,7 +79,7 @@ public class FederationsTest {
 
     @Before
     public void setUp() throws Exception {
-        regHandlerClient = SymbioteComponentClientFactory.createClient("http://localhost:18033",
+        regHandlerClient = SymbioteComponentClientFactory.createClient("http://localhost:18034",
                 RegistrationHandlerClient.class, null);
         resourceRepository.deleteAll();
     }
