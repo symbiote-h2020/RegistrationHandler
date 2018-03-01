@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class TestUtils {
 
-    public static CloudResource createTestCloudResource(String internalId) {
+    private static CloudResource createTestCloudResource(String internalId) {
         CloudResource resource = new CloudResource();
         resource.setInternalId(internalId);
         resource.setPluginId("plugin_"+internalId);
@@ -37,7 +37,7 @@ public class TestUtils {
         Actuator actuator = new Actuator();
         WKTLocation location = new WKTLocation();
         location.setValue("location");
-        actuator.setName("Act1");
+        actuator.setName(name);
         actuator.setInterworkingServiceURL("http://example.com/url");
         actuator.setDescription(Arrays.asList("Desc"));
 

@@ -4,6 +4,9 @@ import eu.h2020.symbiote.client.RegistrationHandlerClient;
 import eu.h2020.symbiote.client.SymbioteComponentClientFactory;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
+import org.apache.commons.collections4.Factory;
+import org.apache.commons.collections4.FactoryUtils;
+import org.apache.commons.collections4.map.LazyMap;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -21,9 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
@@ -61,6 +63,11 @@ import java.util.Map;
 public class FederationsTest {
 
     public static final int NUM_TEST_RESOURCES = 4;
+    private static final int NUM_FEDERATIONS = 2;
+
+    public static final String RES_PF = "internal";
+    public static final String FED_PF = "federation";
+
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -89,7 +96,7 @@ public class FederationsTest {
     public void testFederations() {
         List<CloudResource> testResources = new ArrayList<>();
         for (int i=0; i < NUM_TEST_RESOURCES; i++ ) {
-            testResources.add(TestUtils.createTestCloudResource("internal"+i));
+            testResources.add(TestUtils.getTestActuatorBean(RES_PF +i, "Act"+i));
         }
 
         List<CloudResource> registered = regHandlerClient.addLocalResources(testResources);
@@ -99,5 +106,75 @@ public class FederationsTest {
         for (CloudResource resource : registered) {
             resource.getFederationInfo().isEmpty();
         }
+
+        List<String> fedIds = new ArrayList<>();
+        for (int i=0; i < NUM_FEDERATIONS; i++) {
+            fedIds.add(FED_PF + i);
+        }
+
+        Map<String, Map<String, Boolean>> sharingMap = new HashMap<>();
+
+        for (int i=0; i < NUM_FEDERATIONS; i++) {
+            String fedId = FED_PF+i;
+            sharingMap.put(fedId, new HashMap<>());
+            for (int j=0; j < NUM_TEST_RESOURCES; j++) {
+                if ((j+1)%(i+1) == 0) {
+                    Boolean bartered = j % 2 == 0;
+                    sharingMap.get(fedId).put(RES_PF + j, bartered);
+                }
+            }
+        }
+
+        Map<String, List<CloudResource>> sharedResources = regHandlerClient.shareResources(sharingMap);
+        for (Map.Entry<String, List<CloudResource>> entry : sharedResources.entrySet()) {
+            int i = new Integer(entry.getKey().substring(FED_PF.length()));
+            for (CloudResource resource : entry.getValue()) {
+                assert resource.getFederationInfo().containsKey(entry.getKey());
+                int j = new Integer(resource.getInternalId().substring(RES_PF.length()));
+                assert (j+1)%(i+1) == 0;
+                assert (j%2 == 0) == resource.getFederationInfo().get(entry.getKey()).getBartering();
+
+                CloudResource savedResource = resourceRepository.getByInternalId(resource.getInternalId());
+                assert savedResource != null;
+                assert savedResource.getFederationInfo().keySet().size() == resource.getFederationInfo().size();
+                assert savedResource.getFederationInfo().keySet().containsAll(resource.getFederationInfo().keySet());
+            }
+        }
+
+        Map<String, List<String>> unshareMap = LazyMap.lazyMap(new HashMap<String, List<String>>(), new Factory<List<String>>() {
+            @Override
+            public List<String> create() {
+                return new ArrayList<>();
+            }
+        });
+
+        List<CloudResource> allResources = resourceRepository.findAll();
+        for (CloudResource resource : allResources) {
+            Set<String> fedKeys = resource.getFederationInfo().keySet();
+            if (fedKeys.size() > 0) {
+                String toRemove = fedKeys.iterator().next();
+                List<String> fedShare = unshareMap.get(toRemove);
+                fedShare.add(resource.getInternalId());
+            }
+        }
+
+        Map<String, List<String>> unshared = regHandlerClient.unshareResources(unshareMap);
+
+        for (Map.Entry<String, List<String>> entry : unshared.entrySet()) {
+            for (String resourceId : entry.getValue()) {
+                CloudResource resource = resourceRepository.getByInternalId(resourceId);
+                assert !resource.getFederationInfo().containsKey(entry.getKey());
+            }
+        }
+
+        List<String> toRemove = resourceRepository.findAll().stream().map(resource -> resource.getInternalId())
+                .collect(Collectors.toList());
+        List<String> removed = regHandlerClient.removeLocalResources(toRemove);
+
+        assert removed.size() == toRemove.size();
+        assert removed.containsAll(toRemove);
+        assert toRemove.containsAll(removed);
+        assert resourceRepository.findAll().isEmpty();
+
     }
 }

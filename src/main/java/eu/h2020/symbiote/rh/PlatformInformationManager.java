@@ -229,11 +229,21 @@ public class PlatformInformationManager {
 	return null;
   }
 
+  private void updateL1ResourceInformation(List<CloudResource> updated) {
+    for (CloudResource updatedResource : updated) {
+      CloudResource existing = resourceRepository.getByInternalId(updatedResource.getInternalId());
+      if (existing != null && existing.getResource() != null) {
+        updatedResource.setResource(existing.getResource());
+      }
+    }
+  }
+
   public Map<String, List<CloudResource>> shareResources(Map<String, Map<String, Boolean>> resourceMap) {
     List<CloudResource> updated = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
             registryExchangeName, RHConstants.RESOURCE_LOCAL_SHARE_KEY_NAME,
             resourceMap, new TypeReference<List<CloudResource>>(){});
 
+    updateL1ResourceInformation(updated);
     updated = resourceRepository.save(updated);
 
     rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_UPDATED_KEY_NAME, updated);
@@ -260,10 +270,12 @@ public class PlatformInformationManager {
             registryExchangeName, RHConstants.RESOURCE_LOCAL_UNSHARE_KEY_NAME,
             resourceMap, new TypeReference<List<CloudResource>>(){});
 
+    updateL1ResourceInformation(updated);
     updated = resourceRepository.save(updated);
 
     Map<String, List<String>> result = new HashMap<>();
     rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_UPDATED_KEY_NAME, updated);
+    
     for (Map.Entry<String, List<String>> entry : resourceMap.entrySet()) {
       for (String resourceId : entry.getValue()) {
         CloudResource resource = resourceRepository.getByInternalId(resourceId);
@@ -282,11 +294,11 @@ public class PlatformInformationManager {
   }
 
   public List<CloudResource> updateLocalResources(List<CloudResource> resourceList) {
+
     List<CloudResource> toRegiter = new ArrayList<>();
     for (CloudResource resource : resourceList) {
       CloudResource existing = resourceRepository.getByInternalId(resource.getInternalId());
       if (existing != null) {
-        resource.getResource().setId(existing.getResource().getId());
         resource.setFederationInfo(existing.getFederationInfo());
       }
       toRegiter.add(resource);
@@ -295,6 +307,13 @@ public class PlatformInformationManager {
     List<CloudResource> registered = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
             registryExchangeName, RHConstants.RESOURCE_LOCAL_UPDATE_KEY_NAME, toRegiter,
             new TypeReference<List<CloudResource>>(){});
+
+    for (CloudResource resource : registered) {
+      CloudResource existing = resourceRepository.getByInternalId(resource.getInternalId());
+      if (existing != null && existing.getResource() != null && existing.getResource().getId() != null) {
+        resource.getResource().setId(existing.getResource().getId());
+      }
+    }
 
     registered = resourceRepository.save(registered);
 
@@ -308,6 +327,12 @@ public class PlatformInformationManager {
             registryExchangeName, RHConstants.RESOURCE_LOCAL_REMOVE_KEY_NAME, resourceList,
             new TypeReference<List<String>>(){});
 
+    for (String resourceId : removed){
+      CloudResource existing = resourceRepository.getByInternalId(resourceId);
+      if (existing.getResource().getId() == null) {
+        resourceRepository.delete(existing);
+      }
+    }
     rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_REMOVED_KEY_NAME, removed);
 
     return removed;

@@ -104,7 +104,7 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 	private CloudResource createTestCloudResource(String internalId) {
-   		return TestUtils.createTestCloudResource(internalId);
+   		return TestUtils.getTestActuatorBean(internalId,"Act1");
 	}
 
 	private CloudResource getTestActuatorBean(){
