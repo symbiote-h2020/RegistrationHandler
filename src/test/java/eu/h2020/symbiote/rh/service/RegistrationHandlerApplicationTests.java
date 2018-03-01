@@ -104,51 +104,15 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 	private CloudResource createTestCloudResource(String internalId) {
-   	CloudResource resource = new CloudResource();
-   	resource.setInternalId(internalId);
-   	resource.setPluginId("plugin_"+internalId);
-   	resource.setCloudMonitoringHost("monitoring_"+internalId);
-		try {
-			IAccessPolicySpecifier testPolicy = new SingleTokenAccessPolicySpecifier(
-					AccessPolicyType.PUBLIC, null
-			);
-			resource.setAccessPolicy(testPolicy);
-		} catch (InvalidArgumentsException e) {
-			e.printStackTrace();
-		}
-		CloudResourceParams params = new CloudResourceParams();
-		params.setType("Actuator");
-		resource.setParams(params);
-		
-		return resource;
+   		return TestUtils.createTestCloudResource(internalId);
 	}
 
 	private CloudResource getTestActuatorBean(){
-	   Actuator actuator = new Actuator();
-	   WKTLocation location = new WKTLocation();
-	   location.setValue("location");
-	   actuator.setName("Act1");
-	   actuator.setInterworkingServiceURL("http://example.com/url");
-	   actuator.setDescription(Arrays.asList("Desc"));
-
-	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID);
-	   cloudResource.setResource(actuator);	   
-	   
-	   return cloudResource; 
+   		return TestUtils.getTestActuatorBean(INTERNAL_ID, "Act1");
 	}
 
 	private CloudResource getTestActuatorBeanInvalid(){
-	   Actuator actuator = new Actuator();
-	   WKTLocation location = new WKTLocation();
-	   location.setValue("location");
-	   actuator.setName("invalid");
-	   actuator.setInterworkingServiceURL("http://example.com/url");
-	   actuator.setDescription(Arrays.asList("Desc"));
-
-	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID+1);
-	   cloudResource.setResource(actuator);	   
-	   
-	   return cloudResource; 
+   		return TestUtils.getTestActuatorBean(INTERNAL_ID+1, "invalid");
 	}
 
 	@Test

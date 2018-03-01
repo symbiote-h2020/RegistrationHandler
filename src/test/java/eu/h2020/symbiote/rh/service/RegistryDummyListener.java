@@ -1,15 +1,19 @@
 package eu.h2020.symbiote.rh.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.ResourceSharingInformation;
 import eu.h2020.symbiote.rh.constants.RHConstants;
-import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -17,24 +21,33 @@ public class RegistryDummyListener {
 
     private Map<String, CloudResource> resourceMap = new HashMap<>();
 
+    private ObjectMapper mapper = new ObjectMapper();
+
+    private <T> Message toMessage(T payload) throws JsonProcessingException {
+        return MessageBuilder.withBody(mapper.writeValueAsBytes(payload)).andProperties(
+                MessagePropertiesBuilder.newInstance().setContentType(MessageProperties.CONTENT_TYPE_JSON).build()
+        ).build();
+    }
+
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = FederationsTest.REGISTRY_UPDATE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
-            exchange = @Exchange(value = FederationsTest.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_UPDATE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_UPDATE_KEY_NAME)
     )
-    private List<CloudResource> updateResources(List<CloudResource> resourceList) {
+    private List<CloudResource> updateResources(List<CloudResource> resourceList) throws IOException {
         for (CloudResource resource : resourceList) {
             resourceMap.put(resource.getInternalId(), resource);
         }
+
         return resourceList;
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = FederationsTest.REGISTRY_DELETE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
-            exchange = @Exchange(value = FederationsTest.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_DELETE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_REMOVE_KEY_NAME)
     )
-    private List<String> deleteResources(List<String> resourceList) {
+    private List<String> deleteResources(List<String> resourceList) throws IOException {
         for (String resource : resourceList) {
             resourceMap.remove(resource);
         }
@@ -42,11 +55,11 @@ public class RegistryDummyListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = FederationsTest.REGISTRY_SHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
-            exchange = @Exchange(value = FederationsTest.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_SHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_SHARE_KEY_NAME)
     )
-    private List<CloudResource> shareResources(Map<String, Map<String, Boolean>> sharingMap) {
+    private List<CloudResource> shareResources(Map<String, Map<String, Boolean>> sharingMap) throws IOException {
         List<CloudResource> result = new ArrayList<>();
         for (Map.Entry<String,Map<String, Boolean>> federationInfo : sharingMap.entrySet()) {
             String federation = federationInfo.getKey();
@@ -69,11 +82,11 @@ public class RegistryDummyListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = FederationsTest.REGISTRY_UNSHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
-            exchange = @Exchange(value = FederationsTest.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
+            value = @Queue(value = RabbitConfiguration.REGISTRY_UNSHARE_QUEUE_NAME, durable = "false", autoDelete = "true", exclusive = "true"),
+            exchange = @Exchange(value = RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME, type = ExchangeTypes.DIRECT, durable = "false", autoDelete = "true"),
             key = RHConstants.RESOURCE_LOCAL_UNSHARE_KEY_NAME)
     )
-    private List<CloudResource> unshareResources(Map<String, List<String>> unshareMap) {
+    private List<CloudResource> unshareResources(Map<String, List<String>> unshareMap) throws IOException {
         List<CloudResource> result = new ArrayList<>();
         for (Map.Entry<String,List<String>> federationInfo : unshareMap.entrySet()) {
             String federation = federationInfo.getKey();

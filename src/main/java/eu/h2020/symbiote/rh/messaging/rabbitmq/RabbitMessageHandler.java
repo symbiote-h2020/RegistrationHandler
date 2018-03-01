@@ -42,18 +42,10 @@ public class RabbitMessageHandler<T>{
      * @throws Exception
      */
     public void sendMessage(String exchangeName, String keyName, T object) {
-        try {
-            logger.debug("START OF sendMessage to key"+keyName);
-            ObjectMapper mapper = new ObjectMapper();
-            String objectInJson = mapper.writeValueAsString(object);
+        logger.debug("START OF sendMessage to key"+keyName);
 
-            rabbitTemplate.convertAndSend(exchangeName, keyName, objectInJson.getBytes("UTF-8"));
-            logger.debug("END OF sendMessage to key: "+keyName);
-        } catch (JsonProcessingException e) {
-            logger.error("Invalid object passed to RabbitMQ", e);
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Bad enconding when sending RabbitMQ message",e);
-        }
+        rabbitTemplate.convertAndSend(exchangeName, keyName, object);
+        logger.debug("END OF sendMessage to key: "+keyName);
     }
 
     public void sendMessage(String keyName, T object) {
@@ -63,12 +55,10 @@ public class RabbitMessageHandler<T>{
     public <I,O> O sendAndReceive(String exchangeName, String keyName, I object, TypeReference<O> typeReference) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            String objectInJson = mapper.writeValueAsString(object);
-
-            Message response = (Message) rabbitTemplate.convertSendAndReceive(exchangeName, keyName, objectInJson.getBytes("UTF-8"));
-            return mapper.readValue(response.getBody(), typeReference);
+            String response = mapper.writeValueAsString(rabbitTemplate.convertSendAndReceive(exchangeName, keyName, object));
+            return mapper.readValue(response, typeReference);
         } catch (IOException e) {
-            logger.error("Error sending RPC message",e);
+            logger.error("Error deserializing RabbitMQ RPC response",e);
         }
         return null;
     }
