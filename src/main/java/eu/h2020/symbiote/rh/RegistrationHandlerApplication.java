@@ -1,7 +1,8 @@
 package eu.h2020.symbiote.rh;
 
+import eu.h2020.symbiote.util.RabbitConstants;
 import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -28,12 +29,18 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class RegistrationHandlerApplication {
 
-	@Value("${rh.exchange.name}")
+	@Value("${" + RabbitConstants.EXCHANGE_RH_NAME_PROPERTY + "}")
 	private String exchangeName;
 
+	@Value("${" + RabbitConstants.EXCHANGE_RH_DURABLE_PROPERTY + "}")
+	private boolean durable;
+
+	@Value("${" + RabbitConstants.EXCHANGE_RH_AUTODELETE_PROPERTY + "}")
+	private boolean autoDelete;
+
 	@Bean
-	DirectExchange rhExchange() {
-		return new DirectExchange(exchangeName, true, false);
+	Exchange rhExchange() {
+		return new DirectExchange(exchangeName, durable, autoDelete);
 	}
 
 	@Bean

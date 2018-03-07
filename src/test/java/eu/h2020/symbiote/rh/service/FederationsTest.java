@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -29,37 +30,12 @@ import java.util.stream.Collectors;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
-@SpringBootTest( webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-        properties = {
-                "eureka.client.enabled=false",
-                "spring.cloud.sleuth.enabled=false",
-                "reghandler.reader.impl=dummyPlatformInfoReader",
-                "reghandler.init.autoregister=false",
-                "platform.id=helloid",
-                "server.port=18034",
-                "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiif",
-                "symbIoTe.interworking.interface.url=http://www.example.com/Test1Platform",
-                "rabbit.host=localhost",
-                "rabbit.username=guest",
-                "rabbit.password=guest",
-                "symbIoTe.core.interface.url=http://localhost:18033",
-                "symbIoTe.component.clientId=reghandler@Test1Platform",
-                "symbIoTe.component.username=Test1",
-                "symbIoTe.component.password=Test1",
-                "symbIoTe.component.keystore.path=keystore.jks",
-                "symbIoTe.component.keystore.password=kspw",
-                "symbIoTe.component.registry.id=registry",
-                "symbIoTe.localaam.url=https://localhost:18033",
-                "symbIoTe.targetaam.id=SymbIoTe_Core_AAM",
-                "symbIoTe.aam.integration=false",
-                //TODO update coreAAM URL value, this was added just to be able to start tests
-                "symbIoTe.coreaam.url=http://localhost:18033",
-                "spring.data.mongodb.database=symbiote-registration-handler-test",
-                "localRegistry.exchange.name="+RabbitConfiguration.REGISTRY_EXCHANGE_TEST_NAME})
+@SpringBootTest( webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
-@EnableAutoConfiguration
+@TestPropertySource(
+        locations = "classpath:test.properties")
 public class FederationsTest {
 
     public static final int NUM_TEST_RESOURCES = 4;
@@ -158,12 +134,12 @@ public class FederationsTest {
             }
         }
 
-        Map<String, List<String>> unshared = regHandlerClient.unshareResources(unshareMap);
+        Map<String, List<CloudResource>> unshared = regHandlerClient.unshareResources(unshareMap);
 
-        for (Map.Entry<String, List<String>> entry : unshared.entrySet()) {
-            for (String resourceId : entry.getValue()) {
-                CloudResource resource = resourceRepository.getByInternalId(resourceId);
-                assert !resource.getFederationInfo().containsKey(entry.getKey());
+        for (Map.Entry<String, List<CloudResource>> entry : unshared.entrySet()) {
+            for (CloudResource resource : entry.getValue()) {
+                CloudResource found = resourceRepository.getByInternalId(resource.getInternalId());
+                assert !found.getFederationInfo().containsKey(entry.getKey());
             }
         }
 

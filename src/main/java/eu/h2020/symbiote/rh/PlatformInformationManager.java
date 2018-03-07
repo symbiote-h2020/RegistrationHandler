@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 
+import eu.h2020.symbiote.cloud.model.ResourceLocalSharingMessage;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.rh.constants.RHConstants;
@@ -11,8 +12,10 @@ import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
 import eu.h2020.symbiote.rh.messaging.rabbitmq.RabbitMessageHandler;
+import eu.h2020.symbiote.rh.util.LazyListMap;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 
+import eu.h2020.symbiote.util.RabbitConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,8 +56,41 @@ public class PlatformInformationManager {
   @Autowired
   MongoTemplate mongoTemplate;
 
-  @Value("${localRegistry.exchange.name}")
+  @Value("${" + RabbitConstants.EXCHANGE_PLATFORM_REGISTRY_NAME_PROPERTY + "}")
   private String registryExchangeName;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_REGISTER_PROPERTY + "}")
+  private String resourceRegistrationCoreKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_UPDATE_PROPERTY + "}")
+  private String resourceUpdateCoreKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_DELETE_PROPERTY + "}")
+  private String resourceDeleteCoreKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_PLATFORM_REGISTRY_SHARE_PROPERTY + "}")
+  private String resourceShareKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_PLATFORM_REGISTRY_UNSHARE_PROPERTY + "}")
+  private String resourceUnshareKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_PLATFORM_REGISTRY_UPDATE_PROPERTY + "}")
+  private String resourceLocalUpdateKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_PLATFORM_REGISTRY_DELETE_PROPERTY + "}")
+  private String resourceLocalDeleteKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_SHARED_PROPERTY + "}")
+  private String resourceSharedNotificationKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_UNSHARED_PROPERTY + "}")
+  private String resourceUnsharedNotificationKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_UPDATED_PROPERTY + "}")
+  private String resourceLocalUpdatedNotificationKey;
+
+  @Value("${" + RabbitConstants.ROUTING_KEY_RH_DELETED_PROPERTY + "}")
+  private String resourceLocalDeletedNotificationKey;
 
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
@@ -106,13 +141,13 @@ public class PlatformInformationManager {
     if (!toAdd.isEmpty()) {
       List<CloudResource> added = iifMessageHandler.createResources(toAdd);
       result.addAll(resourceRepository.save(added));
-      rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_REGISTRATION_KEY_NAME, added);
+      rabbitMessageHandler.sendMessage(resourceRegistrationCoreKey, added);
     }
     
     if (!toUpdate.isEmpty()) {
       List<CloudResource> updated = iifMessageHandler.updateResources(toUpdate);
       result.addAll(resourceRepository.save(updated));
-      rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_UPDATED_KEY_NAME,updated);
+      rabbitMessageHandler.sendMessage(resourceUpdateCoreKey,updated);
     }
     
     return result;
@@ -142,11 +177,11 @@ public class PlatformInformationManager {
     List<CloudResource> newResources = iifMessageHandler.addRdfResources(resources);
     List<CloudResource> updated = resourceRepository.save(newResources);
     if (newResources != null && ! newResources.isEmpty()) {
-      rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_REGISTRATION_KEY_NAME, newResources);
+      rabbitMessageHandler.sendMessage(resourceRegistrationCoreKey, newResources);
     }
 
     if (updated != null && !updated.isEmpty()) {
-      rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_UPDATED_KEY_NAME, newResources);
+      rabbitMessageHandler.sendMessage(resourceUpdateCoreKey, newResources);
     }
     return updated;
   }
@@ -189,7 +224,7 @@ public class PlatformInformationManager {
  
 
     result  = deleteInInternalRepository(resultIds);
-    rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_UNREGISTRATION_KEY_NAME, resultIds);
+    rabbitMessageHandler.sendMessage(resourceDeleteCoreKey, resultIds);
     return result;
   }
   
@@ -198,7 +233,7 @@ public class PlatformInformationManager {
     iifMessageHandler.clearData();
     DBCollection collection = mongoTemplate.getCollection(RHConstants.RESOURCE_COLLECTION);
     collection.remove(new BasicDBObject());
-    rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_UNREGISTRATION_KEY_NAME, existing.stream().map(
+    rabbitMessageHandler.sendMessage(resourceDeleteCoreKey, existing.stream().map(
         resource -> resource.getInternalId()).collect(Collectors.toList()));
     return null;
   }
@@ -240,55 +275,51 @@ public class PlatformInformationManager {
 
   public Map<String, List<CloudResource>> shareResources(Map<String, Map<String, Boolean>> resourceMap) {
     List<CloudResource> updated = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
-            registryExchangeName, RHConstants.RESOURCE_LOCAL_SHARE_KEY_NAME,
+            registryExchangeName, resourceShareKey,
             resourceMap, new TypeReference<List<CloudResource>>(){});
 
     updateL1ResourceInformation(updated);
     updated = resourceRepository.save(updated);
 
-    rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_UPDATED_KEY_NAME, updated);
+    Map<String, List<CloudResource>> result = new LazyListMap<>();
 
-    Map<String, List<CloudResource>> result = new HashMap<>();
     for (CloudResource resource : updated) {
       for (String federation : resource.getFederationInfo().keySet()) {
         if (resourceMap.keySet().contains(federation)) {
           List<CloudResource> resourceList = result.get(federation);
-          if (resourceList == null) {
-            resourceList = new ArrayList<>();
-            result.put(federation, resourceList);
-          }
           resourceList.add(resource);
         }
       }
     }
 
+    rabbitMessageHandler.sendMessage(resourceSharedNotificationKey,
+            new ResourceLocalSharingMessage(result));
+
     return result;
   }
 
-  public Map<String, List<String>> unshareResources(Map<String, List<String>> resourceMap) {
+  public Map<String, List<CloudResource>> unshareResources(Map<String, List<String>> resourceMap) {
     List<CloudResource> updated = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
-            registryExchangeName, RHConstants.RESOURCE_LOCAL_UNSHARE_KEY_NAME,
+            registryExchangeName, resourceUnshareKey,
             resourceMap, new TypeReference<List<CloudResource>>(){});
 
     updateL1ResourceInformation(updated);
     updated = resourceRepository.save(updated);
 
-    Map<String, List<String>> result = new HashMap<>();
-    rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_UPDATED_KEY_NAME, updated);
+    Map<String, List<CloudResource>> result = new LazyListMap<>();
     
     for (Map.Entry<String, List<String>> entry : resourceMap.entrySet()) {
       for (String resourceId : entry.getValue()) {
         CloudResource resource = resourceRepository.getByInternalId(resourceId);
         if (resource != null && !resource.getFederationInfo().entrySet().contains(entry.getKey())) {
-          List<String> fedElems = result.get(entry.getKey());
-          if (fedElems == null) {
-            fedElems = new ArrayList<>();
-            result.put(entry.getKey(),fedElems);
-          }
-          fedElems.add(resourceId);
+          List<CloudResource> fedElems = result.get(entry.getKey());
+          fedElems.add(resource);
         }
       }
     }
+
+    rabbitMessageHandler.sendMessage(resourceUnsharedNotificationKey,
+            new ResourceLocalSharingMessage(result));
 
     return result;
   }
@@ -305,7 +336,7 @@ public class PlatformInformationManager {
     }
 
     List<CloudResource> registered = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
-            registryExchangeName, RHConstants.RESOURCE_LOCAL_UPDATE_KEY_NAME, toRegiter,
+            registryExchangeName, resourceLocalUpdateKey, toRegiter,
             new TypeReference<List<CloudResource>>(){});
 
     for (CloudResource resource : registered) {
@@ -317,14 +348,14 @@ public class PlatformInformationManager {
 
     registered = resourceRepository.save(registered);
 
-    rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_UPDATED_KEY_NAME, registered);
+    rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
 
     return registered;
   }
 
   public List<String> removeLocalResources(List<String> resourceList) {
     List<String> removed = (List<String>) rabbitMessageHandler.sendAndReceive(
-            registryExchangeName, RHConstants.RESOURCE_LOCAL_REMOVE_KEY_NAME, resourceList,
+            registryExchangeName, resourceLocalDeleteKey, resourceList,
             new TypeReference<List<String>>(){});
 
     for (String resourceId : removed){
@@ -333,7 +364,7 @@ public class PlatformInformationManager {
         resourceRepository.delete(existing);
       }
     }
-    rabbitMessageHandler.sendMessage(RHConstants.RESOURCE_LOCAL_REMOVED_KEY_NAME, removed);
+    rabbitMessageHandler.sendMessage(resourceLocalDeletedNotificationKey, removed);
 
     return removed;
   }

@@ -2,6 +2,7 @@ package eu.h2020.symbiote.rh.messaging.rabbitmq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import eu.h2020.symbiote.util.RabbitConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.amqp.core.Message;
@@ -32,7 +33,7 @@ public class RabbitMessageHandler<T>{
     @Autowired
     RabbitTemplate rabbitTemplate;
 
-    @Value("${rh.exchange.name}")
+    @Value("${" + RabbitConstants.EXCHANGE_RH_NAME_PROPERTY + "}")
     private String exchangeName;
 
     /**
