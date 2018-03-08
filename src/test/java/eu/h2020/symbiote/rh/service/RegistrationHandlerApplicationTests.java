@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
@@ -76,7 +77,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
-@EnableAutoConfiguration
+@TestPropertySource(
+		locations = "classpath:test.properties")
 public class RegistrationHandlerApplicationTests {
 	static final String INTERNAL_ID = "testPurposeResourceId1";
 
