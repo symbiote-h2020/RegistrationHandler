@@ -7,18 +7,11 @@ import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryRequest;
 import eu.h2020.symbiote.core.cci.ResourceRegistryResponse;
 import eu.h2020.symbiote.model.cim.Resource;
-import eu.h2020.symbiote.security.ComponentSecurityHandlerFactory;
 import eu.h2020.symbiote.security.accesspolicies.common.AccessPolicyType;
 import eu.h2020.symbiote.security.accesspolicies.common.IAccessPolicySpecifier;
 import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
 import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
-import eu.h2020.symbiote.security.communication.SymbioteAuthorizationClient;
-import eu.h2020.symbiote.security.handler.IComponentSecurityHandler;
-import feign.Client;
-import feign.Feign;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,10 +25,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class IIFMessageHandler {
-  
-  @Value("${symbIoTe.coreaam.url}")
-  private String coreAAMAddress;
-  
+
   @Value("${symbIoTe.component.keystore.password}")
   private String keystorePassword;
   
