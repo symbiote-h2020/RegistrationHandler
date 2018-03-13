@@ -85,6 +85,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-rest')
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
 
     // test only
     testCompile('org.springframework.boot:spring-boot-starter-test')

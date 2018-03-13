@@ -1,5 +1,6 @@
 package eu.h2020.symbiote.rh.service;
 
+import eu.h2020.symbiote.client.ClientConstants;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.rh.PlatformInformationManager;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**! \class RegistrationHandlerRestService 
@@ -46,7 +48,7 @@ public class RegistrationHandlerRestService {
   private PlatformInformationManager infoManager;
 
   
-  @RequestMapping(method = RequestMethod.GET, path = "/resources")
+  @RequestMapping(method = RequestMethod.GET, path = ClientConstants.RH_RESOURCES_PATH)
   public List<CloudResource> getResources() {
     logger.info("START OF getResources");
     List<CloudResource>result = infoManager.getResources();
@@ -62,7 +64,7 @@ public class RegistrationHandlerRestService {
  * \return \a getResource returns the \a CloudResource, 
  * An exception can be thrown when no \a resourceInternalId is indicated
  */
-  @RequestMapping(method = RequestMethod.GET, path = "/resource")
+  @RequestMapping(method = RequestMethod.GET, path = ClientConstants.RH_RESOURCE_PATH)
   public CloudResource getResource(@RequestParam String resourceInternalId) throws ConflictException{
     logger.info("START OF getResource, in data "+ resourceInternalId);
     if ("".equals(resourceInternalId)) throw new ConflictException("resourceInternalId parameter must be informed");
@@ -127,7 +129,7 @@ public class RegistrationHandlerRestService {
  * \return \a addResource returns the \a CloudResource where the Symbiote id is included. 
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
-  @RequestMapping(method = RequestMethod.POST, path = "/resource")
+  @RequestMapping(method = RequestMethod.POST, path = ClientConstants.RH_RESOURCE_PATH)
   public ResponseEntity<?> addResource(@RequestBody CloudResource resource) throws ConflictException{
     return cleanListResult((ResponseEntity<List<CloudResource>>)addResources(Arrays.asList(resource)));
  }
@@ -142,7 +144,7 @@ public class RegistrationHandlerRestService {
  * An exception can be thrown when no \a internalId is indicated within the \a CloudResource 
  */
   
-  @RequestMapping(method = RequestMethod.POST, path = "/resources")
+  @RequestMapping(method = RequestMethod.POST, path = ClientConstants.RH_RESOURCES_PATH)
   public ResponseEntity<?> addResources(@RequestBody List<CloudResource> resources) throws ConflictException{
     logger.info("START OF addResource, in data "+ resources);
     return modifyResources(resources, (resourceList -> infoManager.addResources(resources)));
@@ -154,7 +156,7 @@ public class RegistrationHandlerRestService {
    * @return A list of the resources registered in JSON
    * @throws ConflictException If some resources have already been registered
    */
- @RequestMapping(method = RequestMethod.POST, path = "/rdf-resources")
+ @RequestMapping(method = RequestMethod.POST, path = ClientConstants.RH_RDF_RESOURCES_PATH)
  public ResponseEntity<?> addRdfResources(@RequestBody RdfCloudResourceList resources) throws ConflictException{
    return modifyResources(resources, (input -> infoManager.addRdfResources((RdfCloudResourceList) input)));
  }
@@ -167,7 +169,7 @@ public class RegistrationHandlerRestService {
  * \param resource \a CloudResource to be updated within the system
  * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
  */
-  @RequestMapping(method = RequestMethod.PUT, path = "/resource")
+  @RequestMapping(method = RequestMethod.PUT, path = ClientConstants.RH_RESOURCE_PATH)
   public ResponseEntity<?> updateResource(@RequestBody CloudResource resource) {
     return cleanListResult((ResponseEntity<List<CloudResource>>)updateResources(Arrays.asList(resource)));
   }
@@ -180,7 +182,7 @@ public class RegistrationHandlerRestService {
  * \param resource \a CloudResource to be updated within the system
  * \return \a updateResource returns the \a CloudResource where the Symbiote id is included. 
  */
-  @RequestMapping(method = RequestMethod.PUT, path = "/resources")
+  @RequestMapping(method = RequestMethod.PUT, path = ClientConstants.RH_RESOURCES_PATH)
   public ResponseEntity<?> updateResources(@RequestBody List<CloudResource> resources) {
     logger.info("START OF updateResource, in data "+ resources);
     return modifyResources(resources, (resourceList -> infoManager.updateResources(resources)));
@@ -200,20 +202,40 @@ public class RegistrationHandlerRestService {
  * \param resourceInternalId \a internalId to the resource to be removed 
  * \return \a deleteResource returns the \a CloudResource that has been just removed 
  */
-  @RequestMapping(method = RequestMethod.DELETE, path = "/resource")
+  @RequestMapping(method = RequestMethod.DELETE, path = ClientConstants.RH_RESOURCE_PATH)
   public ResponseEntity<?> deleteResource(@RequestParam String resourceInternalId) {
     return cleanListResult((ResponseEntity<List<CloudResource>>)deleteResources(Arrays.asList(resourceInternalId)));
   }
  
-  @RequestMapping(method = RequestMethod.DELETE, path = "/resources")
+  @RequestMapping(method = RequestMethod.DELETE, path = ClientConstants.RH_RESOURCES_PATH)
   public ResponseEntity<?> deleteResources(@RequestParam List<String> resourceInternalId) {
     logger.info("START OF deleteResource, in data "+ resourceInternalId);
     return modifyResources(resourceInternalId, (resourceList -> infoManager.deleteResources(resourceInternalId)));
   }
   
-  @RequestMapping(method = RequestMethod.DELETE, path = "/clear")
+  @RequestMapping(method = RequestMethod.DELETE, path = ClientConstants.RH_CLEAR_PATH)
   public ResponseEntity<?> clearResources() {
     logger.info("START OF clear resources");
     return modifyResources(Void.TYPE, (voidObject -> infoManager.clearResources()));
+  }
+
+  @RequestMapping(method = {RequestMethod.POST, RequestMethod.PUT}, path = ClientConstants.RH_LOCAL_RESOURCES_PATH)
+  public ResponseEntity<?> updateLocalResources(@RequestBody  List<CloudResource> input) {
+    return modifyResources(input, (resourceList -> infoManager.updateLocalResources(resourceList)));
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE, path = ClientConstants.RH_LOCAL_RESOURCES_PATH)
+  public ResponseEntity<?> removeLocalResources(@RequestParam List<String> resourceIds) {
+    return modifyResources(resourceIds, (resourceList -> infoManager.removeLocalResources(resourceList)));
+  }
+
+  @RequestMapping(method = RequestMethod.PUT, path = ClientConstants.RH_LOCAL_RESOURCES_SHARE_PATH)
+  public ResponseEntity<?> shareResources(@RequestBody Map<String, Map<String, Boolean>> input) {
+    return modifyResources(input, (resourceMap -> infoManager.shareResources(resourceMap)));
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE, path = ClientConstants.RH_LOCAL_RESOURCES_SHARE_PATH)
+  public ResponseEntity<?> unshareResources(@RequestBody Map<String, List<String>> input) {
+    return modifyResources(input, (resourceMap -> infoManager.unshareResources(resourceMap)));
   }
 }

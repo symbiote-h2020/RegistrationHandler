@@ -1,5 +1,6 @@
 package eu.h2020.symbiote.rh.messaging.interworkinginterface;
 
+import eu.h2020.symbiote.client.SymbioteComponentClientFactory;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.core.cci.RDFResourceRegistryRequest;
@@ -70,7 +71,9 @@ public class IIFMessageHandler {
   
   @Value("${symbIoTe.interworking.interface.url}")
   private String interworkingUrl;
-  
+
+
+
   private interface IIFOperation<T> {
     ResourceRegistryResponse operation(String platformId, T request) throws SecurityHandlerException;
   }
@@ -81,26 +84,15 @@ public class IIFMessageHandler {
   
   @PostConstruct
   public void createClient() throws SecurityHandlerException {
-    
-    Feign.Builder builder = Feign.builder()
-                                .decoder(new JacksonDecoder())
-                                .encoder(new JacksonEncoder());
+
+
+    SymbioteComponentClientFactory.SecurityConfiguration secConfig = null;
     if (useSecurity) {
-      IComponentSecurityHandler secHandler = ComponentSecurityHandlerFactory
-                                                 .getComponentSecurityHandler(
-                                                     coreAAMAddress, keystorePath, keystorePassword,
-                                                     clientId, localAAMAddress, false,
-                                                     username, password
-                                                 );
-      
-      Client client = new SymbioteAuthorizationClient(
-                                                         secHandler, "registry", targetAAMId,
-                                                         new Client.Default(null, null));
-      
-      logger.info("Will use " + url + " to access to interworking interface");
-      builder = builder.client(client);
+       secConfig = new SymbioteComponentClientFactory
+              .SecurityConfiguration(keystorePath, keystorePassword, clientId, platformId,
+              "registry", localAAMAddress, username, password);
     }
-    jsonclient = builder.target(InterworkingInterfaceService.class, url);
+    jsonclient = SymbioteComponentClientFactory.createClient(url, InterworkingInterfaceService.class, secConfig);
   }
   
   private <T> Map<String, Resource> executeRequest(T request, IIFOperation operation) throws SecurityHandlerException {
@@ -191,7 +183,7 @@ public class IIFMessageHandler {
     return result.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList());
   }
   
-  public void clearData() throws SecurityHandlerException {
+  public void clearData() {
     jsonclient.clearData(platformId);
   }
   

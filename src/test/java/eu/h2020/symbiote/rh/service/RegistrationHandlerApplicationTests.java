@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
@@ -50,33 +51,34 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT,
 		properties = {
 		"eureka.client.enabled=false",
-										 "spring.cloud.sleuth.enabled=false",
-										 "reghandler.reader.impl=dummyPlatformInfoReader",
-										 "reghandler.init.autoregister=false",
-										 "platform.id=helloid",
-										 "server.port=18033",
-										 "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiif",
-										 "symbIoTe.interworking.interface.url=http://www.example.com/Test1Platform",
-										 "rabbit.host=localhost",
-										 "rabbit.username=guest",
-										 "rabbit.password=guest",
-										 "symbIoTe.core.interface.url=http://localhost:18033",
-										 "symbIoTe.component.clientId=reghandler@Test1Platform",
-										 "symbIoTe.component.username=Test1",
-										 "symbIoTe.component.password=Test1",
-										 "symbIoTe.component.keystore.path=keystore.jks",
-										 "symbIoTe.component.keystore.password=kspw",
-										 "symbIoTe.component.registry.id=registry",
-										 "symbIoTe.localaam.url=https://localhost:18033",
-										 "symbIoTe.targetaam.id=SymbIoTe_Core_AAM",
-										 "symbIoTe.aam.integration=false",
-				"spring.data.mongodb.port=18034",
-				//TODO update coreAAM URL value, this was added just to be able to start tests
-				"symbIoTe.coreaam.url=http://localhost:18033"})
+		 "spring.cloud.sleuth.enabled=false",
+		 "reghandler.reader.impl=dummyPlatformInfoReader",
+		 "reghandler.init.autoregister=false",
+		 "platform.id=helloid",
+		 "server.port=18033",
+		 "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiif",
+		 "symbIoTe.interworking.interface.url=http://www.example.com/Test1Platform",
+		 "rabbit.host=localhost",
+		 "rabbit.username=guest",
+		 "rabbit.password=guest",
+		 "symbIoTe.core.interface.url=http://localhost:18033",
+		 "symbIoTe.component.clientId=reghandler@Test1Platform",
+		 "symbIoTe.component.username=Test1",
+		 "symbIoTe.component.password=Test1",
+		 "symbIoTe.component.keystore.path=keystore.jks",
+		 "symbIoTe.component.keystore.password=kspw",
+		 "symbIoTe.component.registry.id=registry",
+		 "symbIoTe.localaam.url=https://localhost:18033",
+		 "symbIoTe.targetaam.id=SymbIoTe_Core_AAM",
+		 "symbIoTe.aam.integration=false",
+		//TODO update coreAAM URL value, this was added just to be able to start tests
+		"symbIoTe.coreaam.url=http://localhost:18033",
+		"spring.data.mongodb.database=symbiote-registration-handler-test"})
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
-@EnableAutoConfiguration
+@TestPropertySource(
+		locations = "classpath:test.properties")
 public class RegistrationHandlerApplicationTests {
 	static final String INTERNAL_ID = "testPurposeResourceId1";
 
@@ -104,51 +106,15 @@ public class RegistrationHandlerApplicationTests {
 	}
 
 	private CloudResource createTestCloudResource(String internalId) {
-   	CloudResource resource = new CloudResource();
-   	resource.setInternalId(internalId);
-   	resource.setPluginId("plugin_"+internalId);
-   	resource.setCloudMonitoringHost("monitoring_"+internalId);
-		try {
-			IAccessPolicySpecifier testPolicy = new SingleTokenAccessPolicySpecifier(
-					AccessPolicyType.PUBLIC, null
-			);
-			resource.setAccessPolicy(testPolicy);
-		} catch (InvalidArgumentsException e) {
-			e.printStackTrace();
-		}
-		CloudResourceParams params = new CloudResourceParams();
-		params.setType("Actuator");
-		resource.setParams(params);
-		
-		return resource;
+   		return TestUtils.getTestActuatorBean(internalId,"Act1");
 	}
 
 	private CloudResource getTestActuatorBean(){
-	   Actuator actuator = new Actuator();
-	   WKTLocation location = new WKTLocation();
-	   location.setValue("location");
-	   actuator.setName("Act1");
-	   actuator.setInterworkingServiceURL("http://example.com/url");
-	   actuator.setDescription(Arrays.asList("Desc"));
-
-	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID);
-	   cloudResource.setResource(actuator);	   
-	   
-	   return cloudResource; 
+   		return TestUtils.getTestActuatorBean(INTERNAL_ID, "Act1");
 	}
 
 	private CloudResource getTestActuatorBeanInvalid(){
-	   Actuator actuator = new Actuator();
-	   WKTLocation location = new WKTLocation();
-	   location.setValue("location");
-	   actuator.setName("invalid");
-	   actuator.setInterworkingServiceURL("http://example.com/url");
-	   actuator.setDescription(Arrays.asList("Desc"));
-
-	   CloudResource cloudResource = createTestCloudResource(INTERNAL_ID+1);
-	   cloudResource.setResource(actuator);	   
-	   
-	   return cloudResource; 
+   		return TestUtils.getTestActuatorBean(INTERNAL_ID+1, "invalid");
 	}
 
 	@Test
