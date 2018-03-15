@@ -80,7 +80,7 @@ public class FederationsTest {
         testResourceList(registered, resourceRepository.findAll());
 
         for (CloudResource resource : registered) {
-            resource.getFederationInfo().isEmpty();
+            assert resource.getFederationInfo() == null;
         }
 
         List<String> fedIds = new ArrayList<>();
@@ -105,15 +105,15 @@ public class FederationsTest {
         for (Map.Entry<String, List<CloudResource>> entry : sharedResources.entrySet()) {
             int i = new Integer(entry.getKey().substring(FED_PF.length()));
             for (CloudResource resource : entry.getValue()) {
-                assert resource.getFederationInfo().containsKey(entry.getKey());
+                assert resource.getFederationInfo().getSharingInformation().containsKey(entry.getKey());
                 int j = new Integer(resource.getInternalId().substring(RES_PF.length()));
                 assert (j+1)%(i+1) == 0;
-                assert (j%2 == 0) == resource.getFederationInfo().get(entry.getKey()).getBartering();
+                assert (j%2 == 0) == resource.getFederationInfo().getSharingInformation().get(entry.getKey()).getBartering();
 
                 CloudResource savedResource = resourceRepository.getByInternalId(resource.getInternalId());
                 assert savedResource != null;
-                assert savedResource.getFederationInfo().keySet().size() == resource.getFederationInfo().size();
-                assert savedResource.getFederationInfo().keySet().containsAll(resource.getFederationInfo().keySet());
+                assert savedResource.getFederationInfo().getSharingInformation().keySet().size() == resource.getFederationInfo().getSharingInformation().size();
+                assert savedResource.getFederationInfo().getSharingInformation().keySet().containsAll(resource.getFederationInfo().getSharingInformation().keySet());
             }
         }
 
@@ -126,7 +126,7 @@ public class FederationsTest {
 
         List<CloudResource> allResources = resourceRepository.findAll();
         for (CloudResource resource : allResources) {
-            Set<String> fedKeys = resource.getFederationInfo().keySet();
+            Set<String> fedKeys = resource.getFederationInfo().getSharingInformation().keySet();
             if (fedKeys.size() > 0) {
                 String toRemove = fedKeys.iterator().next();
                 List<String> fedShare = unshareMap.get(toRemove);
@@ -139,7 +139,7 @@ public class FederationsTest {
         for (Map.Entry<String, List<CloudResource>> entry : unshared.entrySet()) {
             for (CloudResource resource : entry.getValue()) {
                 CloudResource found = resourceRepository.getByInternalId(resource.getInternalId());
-                assert !found.getFederationInfo().containsKey(entry.getKey());
+                assert !found.getFederationInfo().getSharingInformation().containsKey(entry.getKey());
             }
         }
 

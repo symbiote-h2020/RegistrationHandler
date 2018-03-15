@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.cloud.model.internal.FederationInfoBean;
 import eu.h2020.symbiote.cloud.model.internal.ResourceSharingInformation;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
+import org.apache.commons.collections4.list.SetUniqueList;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RegistryDummyListener {
@@ -81,14 +84,19 @@ public class RegistryDummyListener {
                 String resourceId = resourceInfo.getKey();
                 CloudResource resource = resourceMap.get(resourceId);
                 if (resource != null) {
+                    FederationInfoBean fedInfo = resource.getFederationInfo();
+                    if (fedInfo == null) {
+                        fedInfo = new FederationInfoBean();
+                        fedInfo.setSymbioteId(UUID.randomUUID().toString());
+                        resource.setFederationInfo(fedInfo);
+                    }
                     ResourceSharingInformation sharingInformation = new ResourceSharingInformation();
-                    sharingInformation.setSymbioteId(UUID.randomUUID().toString());
                     sharingInformation.setBartering(resourceInfo.getValue());
                     sharingInformation.setSharingDate(new Date());
-                    resource.getFederationInfo().put(federation, sharingInformation);
-                    if (!result.contains(resource)) {
-                        result.add(resource);
-                    }
+                    fedInfo.getSharingInformation().put(federation, sharingInformation);
+                }
+                if (! result.contains(resource)) {
+                    result.add(resource);
                 }
             }
         }
@@ -109,7 +117,7 @@ public class RegistryDummyListener {
             for (String resourceId : federationInfo.getValue()) {
                 CloudResource resource = resourceMap.get(resourceId);
                 if (resource != null) {
-                    resource.getFederationInfo().remove(federation);
+                    resource.getFederationInfo().getSharingInformation().remove(federation);
                     if (!result.contains(resource)) {
                         result.add(resource);
                     }

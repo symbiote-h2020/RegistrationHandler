@@ -17,7 +17,6 @@ public class TestUtils {
         CloudResource resource = new CloudResource();
         resource.setInternalId(internalId);
         resource.setPluginId("plugin_"+internalId);
-        resource.setCloudMonitoringHost("monitoring_"+internalId);
         try {
             IAccessPolicySpecifier testPolicy = new SingleTokenAccessPolicySpecifier(
                     AccessPolicyType.PUBLIC, null
@@ -26,9 +25,6 @@ public class TestUtils {
         } catch (InvalidArgumentsException e) {
             e.printStackTrace();
         }
-        CloudResourceParams params = new CloudResourceParams();
-        params.setType("Actuator");
-        resource.setParams(params);
 
         return resource;
     }
