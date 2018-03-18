@@ -134,7 +134,7 @@ publishing {
                 classifier "sources"
             }
 
-            artifact javadocJar
+            //artifact javadocJar
 
             artifact(file("$libsDir/$project.name-$project.version-${bootRepackage.classifier}.jar")) {
                 classifier "run"
