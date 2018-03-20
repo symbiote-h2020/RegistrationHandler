@@ -10,6 +10,7 @@ import eu.h2020.symbiote.model.cim.Resource;
 import eu.h2020.symbiote.security.accesspolicies.common.AccessPolicyType;
 import eu.h2020.symbiote.security.accesspolicies.common.IAccessPolicySpecifier;
 import eu.h2020.symbiote.security.accesspolicies.common.singletoken.SingleTokenAccessPolicySpecifier;
+import eu.h2020.symbiote.security.commons.SecurityConstants;
 import eu.h2020.symbiote.security.commons.exceptions.custom.InvalidArgumentsException;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 import org.apache.commons.logging.Log;
@@ -79,7 +80,7 @@ public class IIFMessageHandler {
     SymbioteComponentClientFactory.SecurityConfiguration secConfig = null;
     if (useSecurity) {
        secConfig = new SymbioteComponentClientFactory
-              .SecurityConfiguration(keystorePath, keystorePassword, clientId, platformId,
+              .SecurityConfiguration(keystorePath, keystorePassword, clientId, SecurityConstants.CORE_AAM_INSTANCE_ID,
               "registry", localAAMAddress, username, password);
     }
     jsonclient = SymbioteComponentClientFactory.createClient(url, InterworkingInterfaceService.class, secConfig);

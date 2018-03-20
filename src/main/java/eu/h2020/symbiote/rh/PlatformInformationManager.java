@@ -284,7 +284,7 @@ public class PlatformInformationManager {
     Map<String, List<CloudResource>> result = new LazyListMap<>();
 
     for (CloudResource resource : updated) {
-      for (String federation : resource.getFederationInfo().getSharingInformation().keySet()) {
+      for (String federation : resource.getFederationInfo() .getSharingInformation().keySet()) {
         if (resourceMap.keySet().contains(federation)) {
           List<CloudResource> resourceList = result.get(federation);
           resourceList.add(resource);
