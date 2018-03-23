@@ -60,6 +60,7 @@ public class RegistrationHandlerApplication {
 	}
 
 	public static void main(String[] args) {
+		WaitForPort.waitForServices(WaitForPort.findProperty("SPRING_BOOT_WAIT_FOR_SERVICES"));
 		SpringApplication.run(RegistrationHandlerApplication.class, args);
     }
 }
