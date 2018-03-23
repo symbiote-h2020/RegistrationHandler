@@ -33,7 +33,6 @@ apply plugin: 'maven-publish'
 
 
 // XXX please change with your commits according to http://semver.org/
-project.version = '1.2.0-SNAPSHOT'
 project.group = 'eu.h2020.symbiote'
 
 sourceCompatibility = 1.8
