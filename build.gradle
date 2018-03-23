@@ -14,6 +14,10 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.webcohesion.enunciate" version "2.10.1"
+}
+
 // code
 apply plugin: "io.spring.dependency-management"
 apply plugin: 'java'
@@ -30,6 +34,8 @@ apply plugin: 'idea'
 // publishing
 apply plugin: 'com.cinnober.gradle.semver-git'
 
+// API generation
+apply plugin: "com.webcohesion.enunciate"
 
 // XXX please change with your commits according to http://semver.org/
 //project.version = '1.1.0'
@@ -74,7 +80,7 @@ dependencies {
             4) never commit build.gradle which has project dependencies active as it will break CI builds
     */
 
-    compile('com.github.symbiote-h2020:SymbIoTeLibraries:5.8+') { changing = true }
+    compile('com.github.symbiote-h2020:SymbIoTeLibraries:5.+') { changing = true }
     //compile project(':SymbIoTeLibraries')
 
     // Spring
@@ -87,6 +93,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+
+    compile group: 'com.webcohesion.enunciate', name: 'enunciate-swagger', version: '2.10.1'
 
     // test only
     testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -120,3 +128,14 @@ dependencyCheck {
 // including code quality extensions into the build
 // check.dependsOn(jacocoTestReport, 'dependencyCheck')
 check.dependsOn(jacocoTestReport)
+
+// API generation with enunciate
+tasks.enunciate {
+    configFileName = "enunciate.xml"
+    File enunciateDistDir = file("dist/docs/api")
+    doFirst {
+        enunciateDistDir.deleteDir()
+        enunciateDistDir.mkdirs()
+    }
+    export("docs", enunciateDistDir)
+}
