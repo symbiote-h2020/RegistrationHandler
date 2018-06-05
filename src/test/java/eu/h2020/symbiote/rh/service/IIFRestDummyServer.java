@@ -41,7 +41,12 @@ public class IIFRestDummyServer {
                .filter(entry -> !"invalid".equals(entry.getValue().getName()))
                .collect(Collectors.toMap(
                    e -> e.getKey(),
-                   e -> {e.getValue().setId("symbiote"+i++); return e.getValue();}));
+                   e -> {
+                     if (e.getValue().getId() == null) {
+                       e.getValue().setId("symbiote" + i++);
+                     }
+                     return e.getValue();
+                   }));
   }
   
   @RequestMapping(method = RequestMethod.POST, path = RHConstants.DO_CREATE_RESOURCES,  produces = "application/json", consumes = "application/json")

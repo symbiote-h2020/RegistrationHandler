@@ -89,7 +89,9 @@ public class FederationsTest {
         testResourceList(registered, resourceRepository.findAll());
 
         for (CloudResource resource : registered) {
-            assert resource.getFederationInfo() == null;
+            assert resource.getFederationInfo() != null;
+            assert resource.getFederationInfo().getSymbioteId() != null;
+            assert resource.getFederationInfo().getSharingInformation().isEmpty();
         }
 
         List<String> fedIds = new ArrayList<>();
@@ -184,7 +186,7 @@ public class FederationsTest {
         testResource = resourceRepository.getByInternalId(resId);
 
         assert testResource != null;
-        assert testResource.getFederationInfo() == null;
+        assert testResource.getFederationInfo().getSharingInformation().isEmpty();
 
         Map<String, Map<String, Boolean>> sharingMap = new HashMap<>();
         Map<String, Boolean> resMap = new HashMap<>();

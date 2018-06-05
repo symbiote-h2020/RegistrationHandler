@@ -96,63 +96,99 @@ public class PlatformInformationManager {
 
   private List<CloudResource> deleteInInternalRepository(List<String> resourceIds){
 	  List<CloudResource>  result = new ArrayList<CloudResource>();
+      List<CloudResource> toUpdate = new ArrayList<>();
+      List<CloudResource> toRemove = new ArrayList<>();
 
 	  for (String resourceId:resourceIds) {
 		  CloudResource existingResource = resourceRepository.getByInternalId(resourceId);
 	      if (existingResource != null) {
 	    	  result.add(existingResource);
-	    	  resourceRepository.delete(existingResource.getInternalId());
+
+	    	  if (existingResource.getFederationInfo() != null &&
+                      existingResource.getFederationInfo().getSymbioteId() != null) {
+
+	    	    // It's registered at L2, update only SymbIoTeId
+                existingResource.getResource().setId(null);
+                toUpdate.add(existingResource);
+
+              } else {
+                toRemove.add(existingResource);
+              }
 	      }
 	  }
+
+	  resourceRepository.save(toUpdate);
+	  resourceRepository.delete(toRemove);
+
 	  return result;
   }
-  
-  private List<CloudResource> addOrUpdateResources(List<CloudResource> resources) throws SecurityHandlerException {
+
+  private List<CloudResource> doAddOrUpdateResources(List<CloudResource> resources, boolean updateL2)
+          throws SecurityHandlerException {
     List<CloudResource> toAdd = new ArrayList<>();
     List<CloudResource> toUpdate = new ArrayList<>();
-    
+    List<String> toUpdateL2 = new ArrayList<>();
+
     List<CloudResource> result = new ArrayList<>();
-    
+
     resources.stream().forEach(resource -> {
       String internalId = resource.getInternalId();
       if (internalId == null) {
         logger.warn("No internal id provided for resource. It will be ignored");
       } else {
-        CloudResource existing = resourceRepository.getByInternalId(internalId);
-        if (existing == null) {
-          toAdd.add(resource);
-        } else {
-          if (resource.getResource() != null) {
+        if (resource.getResource() != null) {
+          CloudResource existing = resourceRepository.getByInternalId(internalId);
+          if (existing == null) {
+            toAdd.add(resource);
+          } else {
             if (existing.getResource() != null) {
+
+              // Add L2 information just in case
+              if (existing.getFederationInfo() != null) {
+                resource.setFederationInfo(existing.getFederationInfo());
+                toUpdateL2.add(resource.getInternalId());
+              }
+
               if (existing.getResource().getId() != null) {
                 resource.getResource().setId(existing.getResource().getId());
                 toUpdate.add(resource);
               } else {
-                logger.error("Found registered resource " + existing.getInternalId() + " without symbiote id");
+                // It might be registered at L2 but not L1
+                toAdd.add(resource);
               }
+
             } else {
               logger.error("Found registered resource " + existing.getInternalId() + " without resource information");
             }
-          } else {
-            logger.error("No resource information provided for resource " + resource.getInternalId());
           }
+        } else {
+          logger.error("No resource information provided for resource " + resource.getInternalId() + " it will be ignored");
         }
       }
     });
-    
+
     if (!toAdd.isEmpty()) {
       List<CloudResource> added = iifMessageHandler.createResources(toAdd);
       result.addAll(resourceRepository.save(added));
       rabbitMessageHandler.sendMessage(resourceRegistrationCoreKey, added);
     }
-    
+
     if (!toUpdate.isEmpty()) {
       List<CloudResource> updated = iifMessageHandler.updateResources(toUpdate);
       result.addAll(resourceRepository.save(updated));
       rabbitMessageHandler.sendMessage(resourceUpdateCoreKey,updated);
     }
-    
+
+    if (updateL2) {
+      doUpdateLocalResources(result.stream().filter(resource -> toUpdateL2.contains(resource.getInternalId()))
+              .collect(Collectors.toList()), false);
+    }
+
     return result;
+  }
+  
+  private List<CloudResource> addOrUpdateResources(List<CloudResource> resources) throws SecurityHandlerException {
+    return doAddOrUpdateResources(resources, true);
   }
   
 //! Create a resource.
@@ -233,8 +269,8 @@ public class PlatformInformationManager {
   public Void clearResources() throws SecurityHandlerException {
     List<CloudResource> existing = resourceRepository.findAll();
     iifMessageHandler.clearData();
-    DBCollection collection = mongoTemplate.getCollection(RHConstants.RESOURCE_COLLECTION);
-    collection.remove(new BasicDBObject());
+    removeLocalResources(existing.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList()));
+    resourceRepository.deleteAll();
     rabbitMessageHandler.sendMessage(resourceDeleteCoreKey, existing.stream().map(
         resource -> resource.getInternalId()).collect(Collectors.toList()));
     return null;
@@ -267,12 +303,12 @@ public class PlatformInformationManager {
   }
 
   private void updateL1ResourceInformation(List<CloudResource> updated) {
-    for (CloudResource updatedResource : updated) {
+    updated.forEach(updatedResource -> {
       CloudResource existing = resourceRepository.getByInternalId(updatedResource.getInternalId());
       if (existing != null && existing.getResource() != null) {
         updatedResource.setResource(existing.getResource());
       }
-    }
+    });
   }
 
   public Map<String, List<CloudResource>> shareResources(Map<String, Map<String, Boolean>> resourceMap) {
@@ -337,10 +373,10 @@ public class PlatformInformationManager {
       toRegiter.add(resource);
     }
 
-    return doUpdateLocalResources(toRegiter);
+    return doUpdateLocalResources(toRegiter, true);
   }
 
-  private List<CloudResource> doUpdateLocalResources(List<CloudResource> toRegiter) {
+  private List<CloudResource> doUpdateLocalResources(List<CloudResource> toRegiter, boolean updateL1) {
     List<CloudResource> registered = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
             registryExchangeName, resourceLocalUpdateKey, toRegiter,
             new TypeReference<List<CloudResource>>(){});
@@ -352,9 +388,19 @@ public class PlatformInformationManager {
       }
     }
 
+
     registered = resourceRepository.save(registered);
 
     rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
+
+    if (updateL1) {
+      try {
+        doAddOrUpdateResources(registered.stream().filter(resource -> resource.getResource().getId() != null)
+                .collect(Collectors.toList()), false);
+      } catch (SecurityHandlerException e) {
+        logger.error("Error updating L1 resources", e);
+      }
+    }
 
     return registered;
   }
@@ -363,7 +409,7 @@ public class PlatformInformationManager {
     CloudResource resource = resourceRepository.getByInternalId(trustValue.getResourceId());
     if (resource != null && resource.getFederationInfo() != null) {
       resource.getFederationInfo().setTrustValue(trustValue.getValue());
-      doUpdateLocalResources(Arrays.asList(resource));
+      doUpdateLocalResources(Arrays.asList(resource), false);
     }
     return resource;
   }

@@ -49,6 +49,11 @@ public class RegistryDummyListener {
     )
     private List<CloudResource> updateResources(List<CloudResource> resourceList) throws IOException {
         for (CloudResource resource : resourceList) {
+            if (!resourceMap.containsKey(resource.getInternalId())) {
+                FederationInfoBean fedInfo = new FederationInfoBean();
+                fedInfo.setSymbioteId(UUID.randomUUID().toString());
+                resource.setFederationInfo(fedInfo);
+            }
             resourceMap.put(resource.getInternalId(), resource);
         }
 
