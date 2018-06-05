@@ -1,5 +1,7 @@
 package eu.h2020.symbiote.rh;
 
+import com.sun.corba.se.spi.monitoring.MonitoringConstants;
+import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Exchange;
@@ -12,6 +14,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.amqp.core.Queue;
 
 
 /**! \class RegistrationHandlerApplication
@@ -38,6 +41,11 @@ public class RegistrationHandlerApplication {
 
 	@Value("${" + RabbitConstants.EXCHANGE_RH_AUTODELETE_PROPERTY + "}")
 	private boolean autoDelete;
+
+	@Bean
+	public Queue registrationQueue() {
+		return new Queue(RHConstants.RH_RESOURCE_TRUST_UPDATE_QUEUE_NAME,true, false, true);
+	}
 
 	@Bean
 	Exchange rhExchange() {

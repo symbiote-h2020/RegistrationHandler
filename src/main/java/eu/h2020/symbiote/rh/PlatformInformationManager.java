@@ -7,6 +7,7 @@ import com.mongodb.DBCollection;
 import eu.h2020.symbiote.cloud.model.ResourceLocalSharingMessage;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
+import eu.h2020.symbiote.cloud.trust.model.TrustEntry;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
@@ -24,6 +25,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -335,6 +337,10 @@ public class PlatformInformationManager {
       toRegiter.add(resource);
     }
 
+    return doUpdateLocalResources(toRegiter);
+  }
+
+  private List<CloudResource> doUpdateLocalResources(List<CloudResource> toRegiter) {
     List<CloudResource> registered = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
             registryExchangeName, resourceLocalUpdateKey, toRegiter,
             new TypeReference<List<CloudResource>>(){});
@@ -351,6 +357,15 @@ public class PlatformInformationManager {
     rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
 
     return registered;
+  }
+
+  public CloudResource updateTrustValue(TrustEntry trustValue) {
+    CloudResource resource = resourceRepository.getByInternalId(trustValue.getResourceId());
+    if (resource != null && resource.getFederationInfo() != null) {
+      resource.getFederationInfo().setTrustValue(trustValue.getValue());
+      doUpdateLocalResources(Arrays.asList(resource));
+    }
+    return resource;
   }
 
   public List<String> removeLocalResources(List<String> resourceList) {

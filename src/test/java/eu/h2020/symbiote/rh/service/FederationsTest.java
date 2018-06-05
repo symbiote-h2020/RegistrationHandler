@@ -3,7 +3,9 @@ package eu.h2020.symbiote.rh.service;
 import eu.h2020.symbiote.client.RegistrationHandlerClient;
 import eu.h2020.symbiote.client.SymbioteComponentClientFactory;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
+import eu.h2020.symbiote.cloud.trust.model.TrustEntry;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
+import eu.h2020.symbiote.util.RabbitConstants;
 import org.apache.commons.collections4.Factory;
 import org.apache.commons.collections4.FactoryUtils;
 import org.apache.commons.collections4.map.LazyMap;
@@ -16,6 +18,7 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +29,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -44,6 +48,11 @@ public class FederationsTest {
     public static final String RES_PF = "internal";
     public static final String FED_PF = "federation";
 
+    @Value("${" + RabbitConstants.EXCHANGE_TRUST_NAME_PROPERTY + "}")
+    private String exchangeTrustName;
+
+    @Value("${" + RabbitConstants.ROUTING_KEY_TRUST_RESOURCE_UPDATED + "}")
+    private String resourceTrustUpdatedKey;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -152,5 +161,52 @@ public class FederationsTest {
         assert toRemove.containsAll(removed);
         assert resourceRepository.findAll().isEmpty();
 
+    }
+
+    @Test
+    public void testTrust() throws InterruptedException {
+        String resId = RES_PF+"_trust";
+        double trustValue = 80.0;
+
+        TrustEntry entry = new TrustEntry();
+        entry.setValue(trustValue);
+        entry.setResourceId(resId);
+
+        rabbitTemplate.convertAndSend(exchangeTrustName, resourceTrustUpdatedKey, entry);
+
+        CloudResource testResource = resourceRepository.getByInternalId(resId);
+        assert  testResource == null;
+
+        testResource = TestUtils.getTestActuatorBean(RES_PF+"_trust", "ActuatorTrust");
+
+        regHandlerClient.addLocalResources(Arrays.asList(testResource));
+
+        testResource = resourceRepository.getByInternalId(resId);
+
+        assert testResource != null;
+        assert testResource.getFederationInfo() == null;
+
+        Map<String, Map<String, Boolean>> sharingMap = new HashMap<>();
+        Map<String, Boolean> resMap = new HashMap<>();
+        resMap.put(resId, false);
+        sharingMap.put(FED_PF+"1", resMap);
+        regHandlerClient.shareResources(sharingMap);
+
+        testResource = resourceRepository.getByInternalId(resId);
+
+        assert testResource != null;
+        assert testResource.getFederationInfo() != null;
+        assert testResource.getFederationInfo().getTrustValue() == 0;
+
+        rabbitTemplate.convertAndSend(exchangeTrustName, resourceTrustUpdatedKey, entry);
+
+        //Wait for message to arrive and value to be updated
+        TimeUnit.SECONDS.sleep(2);
+
+        testResource = resourceRepository.getByInternalId(resId);
+
+        assert testResource != null;
+        assert testResource.getFederationInfo() != null;
+        assert testResource.getFederationInfo().getTrustValue() == trustValue;
     }
 }

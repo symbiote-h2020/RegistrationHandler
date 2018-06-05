@@ -13,4 +13,5 @@ public interface RHConstants {
     String RESOURCE_COLLECTION = "cloudResource";
     String DO_SHARE_RESOURCES = "/sharing";
 
+    String RH_RESOURCE_TRUST_UPDATE_QUEUE_NAME = "symbIoTe.trust.rh.resource.update";
 }

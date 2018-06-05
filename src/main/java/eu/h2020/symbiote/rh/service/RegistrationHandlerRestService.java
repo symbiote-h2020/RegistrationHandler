@@ -231,7 +231,7 @@ public class RegistrationHandlerRestService {
 
     /**
      * Share resources with federations.
-     * @param input A JSON object whose keys are the resource internal Ids. As value, there's another object with the federation Id and if the resource should be shared by bartering for that federation.
+     * @param input A JSON object whose keys are the federation Ids. As value, there's another object with the resource internal Id and if the resource should be shared by bartering for that federation.
      * @return A JSON object whose key is the federation Id and the value is a list of the resource's metadata which have been shared to that federation.
      */
   @RequestMapping(method = RequestMethod.PUT, path = ClientConstants.RH_LOCAL_RESOURCES_SHARE_PATH)
