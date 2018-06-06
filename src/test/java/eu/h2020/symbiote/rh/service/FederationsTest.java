@@ -167,6 +167,7 @@ public class FederationsTest {
 
     @Test
     public void testTrust() throws InterruptedException {
+        resourceRepository.deleteAll();
         String resId = RES_PF+"_trust";
         double trustValue = 80.0;
 

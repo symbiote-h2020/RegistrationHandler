@@ -17,7 +17,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -131,6 +134,37 @@ public class CrossLevelTest {
 
         existing = resourceRepository.findAll();
         assert existing.isEmpty();
+    }
+
+    @Test
+    public void testAutomaticL2Register() throws InterruptedException {
+
+        String resId = "test_automatic";
+
+        resourceRepository.deleteAll();
+        CloudResource testResource = TestUtils.getTestActuatorBean(resId, "Act1");
+        regHandlerClient.addResource(testResource);
+
+        testResource = resourceRepository.getByInternalId(resId);
+        assert testResource != null;
+        assert testResource.getResource() != null;
+        assert testResource.getResource().getId() != null;
+        assert testResource.getFederationInfo() == null;
+
+        Map<String, Map<String, Boolean>> sharingMap = new HashMap<>();
+        Map<String, Boolean> resInfo = new HashMap<>();
+        resInfo.put(resId, false);
+        sharingMap.put("fed1", resInfo);
+        regHandlerClient.shareResources(sharingMap);
+
+        TimeUnit.SECONDS.sleep(2);
+
+        testResource = resourceRepository.getByInternalId(resId);
+        assert testResource != null;
+        assert testResource.getFederationInfo() != null;
+        assert testResource.getFederationInfo().getSymbioteId() != null;
+        assert testResource.getFederationInfo().getSharingInformation() != null;
+        assert testResource.getFederationInfo().getSharingInformation().get("fed1") != null;
     }
 
 }

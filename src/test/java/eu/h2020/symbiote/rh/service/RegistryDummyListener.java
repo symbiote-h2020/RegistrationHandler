@@ -6,9 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.FederationInfoBean;
 import eu.h2020.symbiote.cloud.model.internal.ResourceSharingInformation;
+import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
 import org.apache.commons.collections4.list.SetUniqueList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -25,10 +28,12 @@ import java.util.stream.Collectors;
 @Service
 public class RegistryDummyListener {
 
+    private static final Log logger = LogFactory.getLog(RegistryDummyListener.class);
+
     @Autowired
     private Environment env;
 
-    private Map<String, CloudResource> resourceMap = new HashMap<>();
+    private static Map<String, CloudResource> resourceMap = new HashMap<>();
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -50,6 +55,9 @@ public class RegistryDummyListener {
     private List<CloudResource> updateResources(List<CloudResource> resourceList) throws IOException {
         for (CloudResource resource : resourceList) {
             if (!resourceMap.containsKey(resource.getInternalId())) {
+                if (resource.getInternalId().equals("internal_trust")) {
+                    logger.info("Trust resource not found. Creating federation info");
+                }
                 FederationInfoBean fedInfo = new FederationInfoBean();
                 fedInfo.setSymbioteId(UUID.randomUUID().toString());
                 resource.setFederationInfo(fedInfo);

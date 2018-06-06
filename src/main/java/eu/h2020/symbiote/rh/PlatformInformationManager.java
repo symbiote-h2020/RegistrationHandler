@@ -24,10 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**! \class PlatformInformationManager
@@ -312,6 +309,14 @@ public class PlatformInformationManager {
   }
 
   public Map<String, List<CloudResource>> shareResources(Map<String, Map<String, Boolean>> resourceMap) {
+
+    Set<String> resources = resourceMap.values().stream().map(fedMap -> fedMap.keySet()).flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+
+    //Register the ones we know but they are not in the registry yet
+    updateLocalResources(resources.stream().map(resourceId -> resourceRepository.getByInternalId(resourceId))
+            .filter(resource -> resource != null && resource.getFederationInfo() == null).collect(Collectors.toList()));
+
     List<CloudResource> updated = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
             registryExchangeName, resourceShareKey,
             resourceMap, new TypeReference<List<CloudResource>>(){});
