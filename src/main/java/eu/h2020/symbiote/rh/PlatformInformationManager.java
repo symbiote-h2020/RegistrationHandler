@@ -17,6 +17,8 @@ import eu.h2020.symbiote.rh.util.LazyListMap;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 
 import eu.h2020.symbiote.util.RabbitConstants;
+import org.apache.commons.collections4.Factory;
+import org.apache.commons.collections4.map.LazyMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -369,16 +371,35 @@ public class PlatformInformationManager {
 
   public List<CloudResource> updateLocalResources(List<CloudResource> resourceList) {
 
-    List<CloudResource> toRegiter = new ArrayList<>();
-    for (CloudResource resource : resourceList) {
-      CloudResource existing = resourceRepository.getByInternalId(resource.getInternalId());
-      if (existing != null) {
-        resource.setFederationInfo(existing.getFederationInfo());
+    return doUpdateLocalResources(resourceList, true);
+
+  }
+
+  private void updateSharePartial(CloudResource source, CloudResource target, CloudResource resource,
+                                  Map<String,List<CloudResource>> shareMap) {
+
+    if (source.getFederationInfo() != null && source.getFederationInfo().getSharingInformation() != null) {
+      if (target.getFederationInfo() != null && target.getFederationInfo().getSharingInformation() != null) {
+        for (String fedId : source.getFederationInfo().getSharingInformation().keySet()) {
+          if (!target.getFederationInfo().getSharingInformation().keySet().contains(fedId)) {
+            shareMap.get(fedId).add(resource);
+          }
+        }
+      } else {
+        source.getFederationInfo().getSharingInformation().keySet()
+                .forEach(fedId -> shareMap.get(fedId).add(resource));
       }
-      toRegiter.add(resource);
     }
 
-    return doUpdateLocalResources(toRegiter, true);
+  }
+
+  private void updateSharingInformation(CloudResource existing, CloudResource resource,
+                                        Map<String,List<CloudResource>> newShare,
+                                        Map<String,List<CloudResource>> newUnshare) {
+
+    updateSharePartial(existing, resource, resource, newUnshare);
+
+    updateSharePartial(resource, existing, resource, newShare);
   }
 
   private List<CloudResource> doUpdateLocalResources(List<CloudResource> toRegiter, boolean updateL1) {
@@ -386,17 +407,32 @@ public class PlatformInformationManager {
             registryExchangeName, resourceLocalUpdateKey, toRegiter,
             new TypeReference<List<CloudResource>>(){});
 
+
+    Map<String, List<CloudResource>> newShare = LazyMap.lazyMap(new HashMap<>(), (fact -> new ArrayList<>()));
+
+    Map<String, List<CloudResource>> newUnshare = LazyMap.lazyMap(new HashMap<>(), (fact -> new ArrayList<>()));
+
+
     for (CloudResource resource : registered) {
       CloudResource existing = resourceRepository.getByInternalId(resource.getInternalId());
       if (existing != null && existing.getResource() != null && existing.getResource().getId() != null) {
         resource.getResource().setId(existing.getResource().getId());
       }
-    }
 
+      updateSharingInformation(existing, resource, newShare, newUnshare);
+    }
 
     registered = resourceRepository.save(registered);
 
     rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
+
+    if (!newShare.isEmpty()) {
+      rabbitMessageHandler.sendMessage(resourceSharedNotificationKey, newShare);
+    }
+
+    if (!newUnshare.isEmpty()) {
+      rabbitMessageHandler.sendMessage(resourceUnsharedNotificationKey, newUnshare);
+    }
 
     if (updateL1) {
       try {
