@@ -378,8 +378,8 @@ public class PlatformInformationManager {
   private void updateSharePartial(CloudResource source, CloudResource target, CloudResource resource,
                                   Map<String,List<CloudResource>> shareMap) {
 
-    if (source.getFederationInfo() != null && source.getFederationInfo().getSharingInformation() != null) {
-      if (target.getFederationInfo() != null && target.getFederationInfo().getSharingInformation() != null) {
+    if (source != null && source.getFederationInfo() != null && source.getFederationInfo().getSharingInformation() != null) {
+      if (target != null && target.getFederationInfo() != null && target.getFederationInfo().getSharingInformation() != null) {
         for (String fedId : source.getFederationInfo().getSharingInformation().keySet()) {
           if (!target.getFederationInfo().getSharingInformation().keySet().contains(fedId)) {
             shareMap.get(fedId).add(resource);
