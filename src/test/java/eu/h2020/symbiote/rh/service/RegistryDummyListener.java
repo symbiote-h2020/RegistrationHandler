@@ -59,7 +59,7 @@ public class RegistryDummyListener {
                     logger.info("Trust resource not found. Creating federation info");
                 }
                 FederationInfoBean fedInfo = new FederationInfoBean();
-                fedInfo.setSymbioteId(UUID.randomUUID().toString());
+                fedInfo.setAggregationId(UUID.randomUUID().toString());
                 resource.setFederationInfo(fedInfo);
             }
             resourceMap.put(resource.getInternalId(), resource);
@@ -100,7 +100,7 @@ public class RegistryDummyListener {
                     FederationInfoBean fedInfo = resource.getFederationInfo();
                     if (fedInfo == null) {
                         fedInfo = new FederationInfoBean();
-                        fedInfo.setSymbioteId(UUID.randomUUID().toString());
+                        fedInfo.setAggregationId(UUID.randomUUID().toString());
                         resource.setFederationInfo(fedInfo);
                     }
                     ResourceSharingInformation sharingInformation = new ResourceSharingInformation();

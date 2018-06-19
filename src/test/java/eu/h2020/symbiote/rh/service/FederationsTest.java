@@ -90,7 +90,7 @@ public class FederationsTest {
 
         for (CloudResource resource : registered) {
             assert resource.getFederationInfo() != null;
-            assert resource.getFederationInfo().getSymbioteId() != null;
+            assert resource.getFederationInfo().getAggregationId() != null;
             assert resource.getFederationInfo().getSharingInformation().isEmpty();
         }
 
@@ -199,7 +199,7 @@ public class FederationsTest {
 
         assert testResource != null;
         assert testResource.getFederationInfo() != null;
-        assert testResource.getFederationInfo().getTrustValue() == 0;
+        assert testResource.getFederationInfo().getResourceTrust() == null;
 
         rabbitTemplate.convertAndSend(exchangeTrustName, resourceTrustUpdatedKey, entry);
 
@@ -210,6 +210,6 @@ public class FederationsTest {
 
         assert testResource != null;
         assert testResource.getFederationInfo() != null;
-        assert testResource.getFederationInfo().getTrustValue() == trustValue;
+        assert testResource.getFederationInfo().getResourceTrust() == trustValue;
     }
 }

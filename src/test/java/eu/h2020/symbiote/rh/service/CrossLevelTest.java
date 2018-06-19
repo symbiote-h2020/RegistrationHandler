@@ -103,7 +103,7 @@ public class CrossLevelTest {
 
             if (resId > NUM_RESOURCES / 3) {
                 assert resource.getFederationInfo() != null;
-                assert resource.getFederationInfo().getSymbioteId() != null;
+                assert resource.getFederationInfo().getAggregationId() != null;
             }
 
         });
@@ -125,7 +125,7 @@ public class CrossLevelTest {
             assert resId > NUM_RESOURCES /3;
 
             assert resource.getFederationInfo() != null;
-            assert resource.getFederationInfo().getSymbioteId() != null;
+            assert resource.getFederationInfo().getAggregationId() != null;
 
         });
 
@@ -162,7 +162,7 @@ public class CrossLevelTest {
         testResource = resourceRepository.getByInternalId(resId);
         assert testResource != null;
         assert testResource.getFederationInfo() != null;
-        assert testResource.getFederationInfo().getSymbioteId() != null;
+        assert testResource.getFederationInfo().getAggregationId() != null;
         assert testResource.getFederationInfo().getSharingInformation() != null;
         assert testResource.getFederationInfo().getSharingInformation().get("fed1") != null;
     }

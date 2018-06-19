@@ -104,7 +104,7 @@ public class PlatformInformationManager {
 	    	  result.add(existingResource);
 
 	    	  if (existingResource.getFederationInfo() != null &&
-                      existingResource.getFederationInfo().getSymbioteId() != null) {
+                      existingResource.getFederationInfo().getAggregationId() != null) {
 
 	    	    // It's registered at L2, update only SymbIoTeId
                 existingResource.getResource().setId(null);
@@ -449,7 +449,7 @@ public class PlatformInformationManager {
   public CloudResource updateTrustValue(TrustEntry trustValue) {
     CloudResource resource = resourceRepository.getByInternalId(trustValue.getResourceId());
     if (resource != null && resource.getFederationInfo() != null) {
-      resource.getFederationInfo().setTrustValue(trustValue.getValue());
+      resource.getFederationInfo().setResourceTrust(trustValue.getValue());
       doUpdateLocalResources(Arrays.asList(resource), false);
     }
     return resource;
