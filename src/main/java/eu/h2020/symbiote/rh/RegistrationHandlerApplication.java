@@ -1,6 +1,5 @@
 package eu.h2020.symbiote.rh;
 
-import com.sun.corba.se.spi.monitoring.MonitoringConstants;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
 import org.springframework.amqp.core.DirectExchange;

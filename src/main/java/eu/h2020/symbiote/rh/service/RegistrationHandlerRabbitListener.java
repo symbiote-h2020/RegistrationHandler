@@ -32,10 +32,15 @@ public class RegistrationHandlerRabbitListener {
 
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = RHConstants.RH_RESOURCE_TRUST_UPDATE_QUEUE_NAME, durable = "true",
-                    exclusive = "false", autoDelete = "true"),
-            exchange = @Exchange(value = "${" + RabbitConstants.EXCHANGE_TRUST_NAME_PROPERTY + "}",
-                    type = ExchangeTypes.DIRECT, durable = "${" + RabbitConstants.EXCHANGE_TRUST_DURABLE_PROPERTY + "}",
+            value = @Queue(
+                    value = RHConstants.RH_RESOURCE_TRUST_UPDATE_QUEUE_NAME,
+                    durable = "true",
+                    exclusive = "false",
+                    autoDelete = "true"),
+            exchange = @Exchange(
+                    value = "${" + RabbitConstants.EXCHANGE_TRUST_NAME_PROPERTY + "}",
+                    type = "${" + RabbitConstants.EXCHANGE_TRUST_TYPE_PROPERTY + "}",
+                    durable = "${" + RabbitConstants.EXCHANGE_TRUST_DURABLE_PROPERTY + "}",
                     autoDelete = "${" + RabbitConstants.EXCHANGE_TRUST_AUTODELETE_PROPERTY + "}"),
             key = "${" + RabbitConstants.ROUTING_KEY_TRUST_RESOURCE_UPDATED + "}"))
     public void trustUpdated(@Payload Message message) {
