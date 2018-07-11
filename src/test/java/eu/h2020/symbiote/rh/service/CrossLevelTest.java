@@ -16,10 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -140,31 +137,64 @@ public class CrossLevelTest {
     public void testAutomaticL2Register() throws InterruptedException {
 
         String resId = "test_automatic";
+        String test1Id = resId + 1;
+        String test2Id = resId + 2;
 
         resourceRepository.deleteAll();
-        CloudResource testResource = TestUtils.getTestActuatorBean(resId, "Act1");
+        CloudResource testResource = TestUtils.getTestActuatorBean(test1Id, "Act1");
+        CloudResource testResource2 =  TestUtils.getTestActuatorBean(test2Id, "Act1");
         regHandlerClient.addResource(testResource);
+        regHandlerClient.addResource(testResource2);
 
-        testResource = resourceRepository.getByInternalId(resId);
-        assert testResource != null;
-        assert testResource.getResource() != null;
-        assert testResource.getResource().getId() != null;
-        assert testResource.getFederationInfo() == null;
+        List<CloudResource> testResources = resourceRepository.findAll();
+        testResources.forEach(resource -> {
+            assertValidL1(resource);
+            assert resource.getFederationInfo() == null;
+        });
 
         Map<String, Map<String, Boolean>> sharingMap = new HashMap<>();
         Map<String, Boolean> resInfo = new HashMap<>();
-        resInfo.put(resId, false);
+        resInfo.put(test1Id, false);
+        resInfo.put(test2Id, true);
         sharingMap.put("fed1", resInfo);
         regHandlerClient.shareResources(sharingMap);
 
         TimeUnit.SECONDS.sleep(2);
 
-        testResource = resourceRepository.getByInternalId(resId);
-        assert testResource != null;
-        assert testResource.getFederationInfo() != null;
-        assert testResource.getFederationInfo().getAggregationId() != null;
-        assert testResource.getFederationInfo().getSharingInformation() != null;
-        assert testResource.getFederationInfo().getSharingInformation().get("fed1") != null;
+        testResources = resourceRepository.findAll();
+        testResources.forEach(resource -> {
+            assertValidL1(resource);
+            assert resource != null;
+            assert resource.getFederationInfo() != null;
+            assert resource.getFederationInfo().getAggregationId() != null;
+            assert resource.getFederationInfo().getSharingInformation() != null;
+            assert resource.getFederationInfo().getSharingInformation().get("fed1") != null;
+            assert resource.getFederationInfo().getSharingInformation().get("fed1").getSymbioteId() != null;
+        });
+
+        Map<String, List<String>> unshareMap = new HashMap<>();
+        unshareMap.put("fed1", Arrays.asList(test1Id));
+        regHandlerClient.unshareResources(unshareMap);
+
+        testResource = resourceRepository.getByInternalId(test1Id);
+        assertValidL1(testResource);
+        assert testResource.getFederationInfo() == null;
+
+        regHandlerClient.deleteResource(test1Id);
+
+        testResource = resourceRepository.getByInternalId(test1Id);
+        assert testResource == null;
+
+        regHandlerClient.removeLocalResources(Arrays.asList(test2Id));
+        testResource = resourceRepository.getByInternalId(test2Id);
+        assertValidL1(testResource);
+        assert testResource.getFederationInfo() == null;
+    }
+
+    private void assertValidL1(CloudResource resource) {
+        assert resource != null;
+        assert resource.getResource() != null;
+        assert resource.getResource().getId() != null;
     }
 
 }

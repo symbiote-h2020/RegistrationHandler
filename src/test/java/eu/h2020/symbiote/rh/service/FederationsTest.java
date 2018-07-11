@@ -150,7 +150,7 @@ public class FederationsTest {
         for (Map.Entry<String, List<CloudResource>> entry : unshared.entrySet()) {
             for (CloudResource resource : entry.getValue()) {
                 CloudResource found = resourceRepository.getByInternalId(resource.getInternalId());
-                assert !found.getFederationInfo().getSharingInformation().containsKey(entry.getKey());
+                assert found.getFederationInfo() == null || !found.getFederationInfo().getSharingInformation().containsKey(entry.getKey());
             }
         }
 

@@ -356,7 +356,8 @@ public class PlatformInformationManager {
     for (Map.Entry<String, List<String>> entry : resourceMap.entrySet()) {
       for (String resourceId : entry.getValue()) {
         CloudResource resource = resourceRepository.getByInternalId(resourceId);
-        if (resource != null && !resource.getFederationInfo().getSharingInformation().entrySet().contains(entry.getKey())) {
+        if (resource != null && (resource.getFederationInfo() == null ||
+                !resource.getFederationInfo().getSharingInformation().entrySet().contains(entry.getKey()))) {
           List<CloudResource> fedElems = result.get(entry.getKey());
           fedElems.add(resource);
         }
@@ -464,6 +465,9 @@ public class PlatformInformationManager {
       CloudResource existing = resourceRepository.getByInternalId(resourceId);
       if (existing.getResource().getId() == null) {
         resourceRepository.delete(existing);
+      } else {
+        existing.setFederationInfo(null);
+        resourceRepository.save(existing);
       }
     }
     rabbitMessageHandler.sendMessage(resourceLocalDeletedNotificationKey, removed);

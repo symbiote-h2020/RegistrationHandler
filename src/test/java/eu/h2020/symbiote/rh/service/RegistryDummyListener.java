@@ -104,6 +104,7 @@ public class RegistryDummyListener {
                         resource.setFederationInfo(fedInfo);
                     }
                     ResourceSharingInformation sharingInformation = new ResourceSharingInformation();
+                    sharingInformation.setSymbioteId(UUID.randomUUID().toString());
                     sharingInformation.setBartering(resourceInfo.getValue());
                     sharingInformation.setSharingDate(new Date());
                     fedInfo.getSharingInformation().put(federation, sharingInformation);
@@ -131,6 +132,9 @@ public class RegistryDummyListener {
                 CloudResource resource = resourceMap.get(resourceId);
                 if (resource != null) {
                     resource.getFederationInfo().getSharingInformation().remove(federation);
+                    if (resource.getFederationInfo().getSharingInformation().isEmpty()) {
+                        resource.setFederationInfo(null);
+                    }
                     if (!result.contains(resource)) {
                         result.add(resource);
                     }
