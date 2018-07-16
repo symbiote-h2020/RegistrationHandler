@@ -428,11 +428,11 @@ public class PlatformInformationManager {
     rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
 
     if (!newShare.isEmpty()) {
-      rabbitMessageHandler.sendMessage(resourceSharedNotificationKey, newShare);
+      rabbitMessageHandler.sendMessage(resourceSharedNotificationKey, new ResourceLocalSharingMessage(newShare));
     }
 
     if (!newUnshare.isEmpty()) {
-      rabbitMessageHandler.sendMessage(resourceUnsharedNotificationKey, newUnshare);
+      rabbitMessageHandler.sendMessage(resourceUnsharedNotificationKey, new ResourceLocalSharingMessage(newUnshare));
     }
 
     if (updateL1) {
