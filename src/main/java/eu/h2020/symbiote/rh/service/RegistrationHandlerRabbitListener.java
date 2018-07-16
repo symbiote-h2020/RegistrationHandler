@@ -1,14 +1,12 @@
 package eu.h2020.symbiote.rh.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.corba.se.spi.monitoring.MonitoringConstants;
 import eu.h2020.symbiote.cloud.trust.model.TrustEntry;
 import eu.h2020.symbiote.rh.PlatformInformationManager;
 import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
