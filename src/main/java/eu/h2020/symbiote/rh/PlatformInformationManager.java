@@ -1,23 +1,17 @@
 package eu.h2020.symbiote.rh;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-
 import eu.h2020.symbiote.cloud.model.ResourceLocalSharingMessage;
 import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.cloud.model.internal.RdfCloudResourceList;
 import eu.h2020.symbiote.cloud.trust.model.TrustEntry;
-import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import eu.h2020.symbiote.rh.exceptions.ConflictException;
 import eu.h2020.symbiote.rh.messaging.interworkinginterface.IIFMessageHandler;
 import eu.h2020.symbiote.rh.messaging.rabbitmq.RabbitMessageHandler;
 import eu.h2020.symbiote.rh.util.LazyListMap;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
-
 import eu.h2020.symbiote.util.RabbitConstants;
-import org.apache.commons.collections4.Factory;
 import org.apache.commons.collections4.map.LazyMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -178,7 +172,7 @@ public class PlatformInformationManager {
       rabbitMessageHandler.sendMessage(resourceUpdateCoreKey,updated);
     }
 
-    if (updateL2) {
+    if (updateL2 && !toUpdateL2.isEmpty()) {
       doUpdateLocalResources(result.stream().filter(resource -> toUpdateL2.contains(resource.getInternalId()))
               .collect(Collectors.toList()), false);
     }
@@ -404,47 +398,52 @@ public class PlatformInformationManager {
   }
 
   private List<CloudResource> doUpdateLocalResources(List<CloudResource> toRegiter, boolean updateL1) {
-    List<CloudResource> registered = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
-            registryExchangeName, resourceLocalUpdateKey, toRegiter,
-            new TypeReference<List<CloudResource>>(){});
+    if (toRegiter != null && !toRegiter.isEmpty()) {
+      List<CloudResource> registered = (List<CloudResource>) rabbitMessageHandler.sendAndReceive(
+              registryExchangeName, resourceLocalUpdateKey, toRegiter,
+              new TypeReference<List<CloudResource>>() {
+              });
 
 
-    Map<String, List<CloudResource>> newShare = LazyMap.lazyMap(new HashMap<>(), (fact -> new ArrayList<>()));
+      Map<String, List<CloudResource>> newShare = LazyMap.lazyMap(new HashMap<>(), (fact -> new ArrayList<>()));
 
-    Map<String, List<CloudResource>> newUnshare = LazyMap.lazyMap(new HashMap<>(), (fact -> new ArrayList<>()));
+      Map<String, List<CloudResource>> newUnshare = LazyMap.lazyMap(new HashMap<>(), (fact -> new ArrayList<>()));
 
 
-    for (CloudResource resource : registered) {
-      CloudResource existing = resourceRepository.getByInternalId(resource.getInternalId());
-      if (existing != null && existing.getResource() != null && existing.getResource().getId() != null) {
-        resource.getResource().setId(existing.getResource().getId());
+      for (CloudResource resource : registered) {
+        CloudResource existing = resourceRepository.getByInternalId(resource.getInternalId());
+        if (existing != null && existing.getResource() != null && existing.getResource().getId() != null) {
+          resource.getResource().setId(existing.getResource().getId());
+        }
+
+        updateSharingInformation(existing, resource, newShare, newUnshare);
       }
 
-      updateSharingInformation(existing, resource, newShare, newUnshare);
-    }
+      registered = resourceRepository.save(registered);
 
-    registered = resourceRepository.save(registered);
+      rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
 
-    rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, registered);
-
-    if (!newShare.isEmpty()) {
-      rabbitMessageHandler.sendMessage(resourceSharedNotificationKey, new ResourceLocalSharingMessage(newShare));
-    }
-
-    if (!newUnshare.isEmpty()) {
-      rabbitMessageHandler.sendMessage(resourceUnsharedNotificationKey, new ResourceLocalSharingMessage(newUnshare));
-    }
-
-    if (updateL1) {
-      try {
-        doAddOrUpdateResources(registered.stream().filter(resource -> resource.getResource().getId() != null)
-                .collect(Collectors.toList()), false);
-      } catch (SecurityHandlerException e) {
-        logger.error("Error updating L1 resources", e);
+      if (!newShare.isEmpty()) {
+        rabbitMessageHandler.sendMessage(resourceSharedNotificationKey, new ResourceLocalSharingMessage(newShare));
       }
-    }
 
-    return registered;
+      if (!newUnshare.isEmpty()) {
+        rabbitMessageHandler.sendMessage(resourceUnsharedNotificationKey, new ResourceLocalSharingMessage(newUnshare));
+      }
+
+      if (updateL1) {
+        try {
+          doAddOrUpdateResources(registered.stream().filter(resource -> resource.getResource().getId() != null)
+                  .collect(Collectors.toList()), false);
+        } catch (SecurityHandlerException e) {
+          logger.error("Error updating L1 resources", e);
+        }
+      }
+
+      return registered;
+    } else {
+      return new ArrayList<>();
+    }
   }
 
   public CloudResource updateTrustValue(TrustEntry trustValue) {
