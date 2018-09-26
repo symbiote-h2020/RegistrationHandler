@@ -456,7 +456,7 @@ public class PlatformInformationManager {
   }
 
   public List<String> removeLocalResources(List<String> resourceList) {
-    if (resourceList != null) {
+    if (resourceList != null && !resourceList.isEmpty()) {
       List<String> removed = (List<String>) rabbitMessageHandler.sendAndReceive(
               registryExchangeName, resourceLocalDeleteKey, resourceList,
               new TypeReference<List<String>>() {
