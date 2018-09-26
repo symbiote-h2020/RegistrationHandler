@@ -262,7 +262,7 @@ public class PlatformInformationManager {
   public Void clearResources() throws SecurityHandlerException {
     List<CloudResource> existing = resourceRepository.findAll();
     iifMessageHandler.clearData();
-    removeLocalResources(existing.stream().map(resource -> resource.getInternalId()).collect(Collectors.toList()));
+    removeLocalResources(existing.stream().filter(resource -> resource.getFederationInfo() != null && resource.getFederationInfo().getAggregationId() != null).map(resource -> resource.getInternalId()).collect(Collectors.toList()));
     resourceRepository.deleteAll();
     rabbitMessageHandler.sendMessage(resourceDeleteCoreKey, existing.stream().map(
         resource -> resource.getInternalId()).collect(Collectors.toList()));
@@ -456,21 +456,25 @@ public class PlatformInformationManager {
   }
 
   public List<String> removeLocalResources(List<String> resourceList) {
-    List<String> removed = (List<String>) rabbitMessageHandler.sendAndReceive(
-            registryExchangeName, resourceLocalDeleteKey, resourceList,
-            new TypeReference<List<String>>(){});
+    if (resourceList != null) {
+      List<String> removed = (List<String>) rabbitMessageHandler.sendAndReceive(
+              registryExchangeName, resourceLocalDeleteKey, resourceList,
+              new TypeReference<List<String>>() {
+              });
 
-    for (String resourceId : removed){
-      CloudResource existing = resourceRepository.getByInternalId(resourceId);
-      if (existing.getResource().getId() == null) {
-        resourceRepository.delete(existing);
-      } else {
-        existing.setFederationInfo(null);
-        resourceRepository.save(existing);
+      for (String resourceId : removed) {
+        CloudResource existing = resourceRepository.getByInternalId(resourceId);
+        if (existing.getResource().getId() == null) {
+          resourceRepository.delete(existing);
+        } else {
+          existing.setFederationInfo(null);
+          resourceRepository.save(existing);
+        }
       }
-    }
-    rabbitMessageHandler.sendMessage(resourceLocalDeletedNotificationKey, removed);
+      rabbitMessageHandler.sendMessage(resourceLocalDeletedNotificationKey, removed);
 
-    return removed;
+      return removed;
+    }
+    return new ArrayList<>();
   }
 }
