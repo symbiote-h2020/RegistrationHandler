@@ -6,6 +6,7 @@ import eu.h2020.symbiote.cloud.model.internal.CloudResource;
 import eu.h2020.symbiote.rh.db.ResourceRepository;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -48,6 +49,7 @@ public class CrossLevelTest {
     }
 
     @Test
+    @Ignore
     public void testCrossLevel() {
         List<CloudResource> l1Resources = new ArrayList<>();
         List<CloudResource> l2Resources = new ArrayList<>();
@@ -134,6 +136,7 @@ public class CrossLevelTest {
     }
 
     @Test
+    @Ignore
     public void testAutomaticL2Register() throws InterruptedException {
 
         String resId = "test_automatic";

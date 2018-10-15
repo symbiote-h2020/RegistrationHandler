@@ -2,15 +2,26 @@ buildscript {
     ext {
         springBootVersion = '1.5.14.RELEASE'
         springCloudVersion = 'Dalston.SR5'
+        asciiDocOutputDir = file("${buildDir}/asciidoc/generated")
+        swaggerOutputDir = file("${buildDir}/swagger")
+        snippetsOutputDir = file("${buildDir}/asciidoc/snippets")
+        springfoxVersion = '2.8.0'
+        swaggerAnnotationsVersion = '1.5.21'
     }
     repositories {
         mavenCentral()
+        jcenter()
+        maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE"
+        classpath("io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath group: 'com.cinnober.gradle', name: 'semver-git', version: '2.2.1'
-        classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
+        classpath("com.cinnober.gradle:semver-git:2.2.1")
+        classpath("org.owasp:dependency-check-gradle:1.4.5.1")
+        classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
+        classpath("org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.10.1")
+        classpath("io.github.swagger2markup:swagger2markup-spring-restdocs-ext:1.2.0")
+        classpath("io.github.swagger2markup:swagger2markup-gradle-plugin:1.2.0")
     }
 }
 
@@ -35,8 +46,10 @@ apply plugin: 'idea'
 apply plugin: 'com.cinnober.gradle.semver-git'
 apply plugin: 'maven-publish'
 
-// API generation
-apply plugin: "com.webcohesion.enunciate"
+// documentation
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'io.github.swagger2markup'
+apply plugin: 'com.webcohesion.enunciate'
 
 // XXX please change with your commits according to http://semver.org/
 project.group = 'eu.h2020.symbiote'
@@ -47,12 +60,10 @@ targetCompatibility = 1.8
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { 
-        url "https://jitpack.io" 
-    }
-    maven {
-        url 'https://repo.spring.io/libs-snapshot'
-    }
+    jcenter()
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+    maven { url "https://jitpack.io" }
+    maven { url 'https://repo.spring.io/libs-snapshot' }
 }
 
 // Spring related configs
@@ -103,6 +114,9 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.github.tomakehurst:wiremock')
     testCompile('org.springframework:spring-core')
+    testCompile("io.springfox:springfox-swagger2:${springfoxVersion}")
+    testCompile("io.springfox:springfox-bean-validators:${springfoxVersion}")
+    testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 }
 
 // publication
@@ -173,6 +187,39 @@ dependencyCheck {
 // including code quality extensions into the build
 // check.dependsOn(jacocoTestReport, 'dependencyCheck')
 check.dependsOn(jacocoTestReport)
+
+test {
+    systemProperty 'io.springfox.staticdocs.outputDir', swaggerOutputDir
+    systemProperty 'io.springfox.staticdocs.snippetsOutputDir', snippetsOutputDir
+}
+
+convertSwagger2markup {
+    dependsOn test
+    swaggerInput "${swaggerOutputDir}/swagger.json"
+    outputDir asciiDocOutputDir
+    config = [
+            'swagger2markup.pathsGroupedBy' : 'TAGS',
+            'swagger2markup.extensions.springRestDocs.snippetBaseUri': snippetsOutputDir.getAbsolutePath()
+    ]
+}
+
+asciidoctor {
+    dependsOn convertSwagger2markup
+    sources {
+        include 'index.adoc'
+    }
+    backends = ['html5', 'pdf']
+    attributes = [
+            doctype: 'book',
+            toc: 'left',
+            toclevels: '3',
+            numbered: '',
+            sectlinks: '',
+            sectanchors: '',
+            hardbreaks: '',
+            generated: asciiDocOutputDir
+    ]
+}
 
 // API generation with enunciate
 tasks.enunciate {

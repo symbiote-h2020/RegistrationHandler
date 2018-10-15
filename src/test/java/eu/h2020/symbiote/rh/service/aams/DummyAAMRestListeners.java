@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.security.cert.X509Certificate;
  *
  * @author Mikołaj Dobski (PSNC)
  */
+@ApiIgnore(value="Dummy AAM Listener")
 @RestController
 @WebAppConfiguration
 //TODO: Figure out a way to mock AAM easily

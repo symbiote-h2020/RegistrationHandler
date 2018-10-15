@@ -11,6 +11,7 @@ import org.apache.commons.collections4.FactoryUtils;
 import org.apache.commons.collections4.map.LazyMap;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -38,8 +39,7 @@ import java.util.stream.Collectors;
 //@SpringBootTest( webEnvironment = WebEnvironment.DEFINED_PORT, properties = {"eureka.client.enabled=false", "spring.cloud.sleuth.enabled=false", "platform.id=helloid", "server.port=18033", "symbIoTe.core.cloud.interface.url=http://localhost:18033/testiifnosec", "security.coreAAM.url=http://localhost:18033", "security.rabbitMQ.ip=localhost", "security.enabled=false", "security.user=user", "security.password=password"})
 @Configuration
 @ComponentScan
-@TestPropertySource(
-        locations = "classpath:test.properties")
+@TestPropertySource(locations = "classpath:test.properties")
 public class FederationsTest {
 
     public static final int NUM_TEST_RESOURCES = 4;
@@ -76,8 +76,8 @@ public class FederationsTest {
         }
     }
 
-
     @Test
+    @Ignore
     public void testFederations() {
         List<CloudResource> testResources = new ArrayList<>();
         for (int i=0; i < NUM_TEST_RESOURCES; i++ ) {
@@ -165,6 +165,7 @@ public class FederationsTest {
 
     }
 
+    @Ignore
     @Test
     public void testTrust() throws InterruptedException {
         resourceRepository.deleteAll();

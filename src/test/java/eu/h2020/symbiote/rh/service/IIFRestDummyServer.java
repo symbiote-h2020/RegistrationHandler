@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  * @author: Elena Garrido
  * @version: 12/02/2017
  */
+@ApiIgnore(value="Dummy Interworking Interface Server")
 @RestController
 @WebAppConfiguration
 @RequestMapping("/testiif")
