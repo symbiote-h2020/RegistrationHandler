@@ -248,4 +248,14 @@ public class RegistrationHandlerRestService {
   public ResponseEntity<?> unshareResources(@RequestBody Map<String, List<String>> input) {
     return modifyResources(input, (resourceMap -> infoManager.unshareResources(resourceMap)));
   }
+
+    /**
+     * Updates the Interworking API URL in all resources
+     * @return This operation does not return anything.
+     */
+    @RequestMapping(method = RequestMethod.PUT, path = ClientConstants.RH_UPDATE_INTERWORKING_API)
+    public ResponseEntity<?> updateInterworkingURL(@RequestBody String interworkingUrl) {
+        logger.info("START OF core synchronization");
+        return modifyResources(interworkingUrl, (url -> infoManager.updateInterworkingURL(url)));
+    }
 }

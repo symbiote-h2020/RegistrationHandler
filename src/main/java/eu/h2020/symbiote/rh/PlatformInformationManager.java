@@ -20,7 +20,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**! \class PlatformInformationManager
@@ -476,5 +482,41 @@ public class PlatformInformationManager {
       return removed;
     }
     return new ArrayList<>();
+  }
+
+  public List<CloudResource> updateInterworkingURL(String interworkingUrl) {
+
+    String url = interworkingUrl;
+    if (url.startsWith("\"") && url.endsWith("\"")) {
+      url = url.substring(1,url.length()-1);
+    }
+
+    String finalUrl = url;
+    if (finalUrl != null) {
+      List<CloudResource> all = resourceRepository.findAll();
+      List<CloudResource> l1 = new ArrayList<>();
+      List<CloudResource> l2 = new ArrayList<>();
+      all.forEach(resource -> {
+        resource.getResource().setInterworkingServiceURL(finalUrl);
+        if (resource.getResource().getId() != null) {
+          l1.add(resource);
+        }
+
+        if (resource.getFederationInfo() != null && resource.getFederationInfo().getAggregationId() != null) {
+          l2.add(resource);
+        }
+      });
+
+      all = resourceRepository.save(all);
+
+      rabbitMessageHandler.sendMessage(resourceUpdateCoreKey, l1);
+      rabbitMessageHandler.sendMessage(resourceLocalUpdatedNotificationKey, l2);
+
+      return all;
+
+    } else {
+      return new ArrayList<>();
+    }
+
   }
 }

@@ -4,6 +4,7 @@ import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -11,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
-import org.springframework.amqp.core.Queue;
 
 
 /**! \class RegistrationHandlerApplication
@@ -27,7 +26,7 @@ import org.springframework.amqp.core.Queue;
  * @version: 06/10/2016
 
  */
-@EnableDiscoveryClient    //when Eureka available
+//@EnableDiscoveryClient    //when Eureka available
 @EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
@@ -67,7 +66,7 @@ public class RegistrationHandlerApplication {
 	}
 
 	public static void main(String[] args) {
-		WaitForPort.waitForServices(WaitForPort.findProperty("SPRING_BOOT_WAIT_FOR_SERVICES"));
+		//WaitForPort.waitForServices(WaitForPort.findProperty("SPRING_BOOT_WAIT_FOR_SERVICES"));
 		SpringApplication.run(RegistrationHandlerApplication.class, args);
     }
 }

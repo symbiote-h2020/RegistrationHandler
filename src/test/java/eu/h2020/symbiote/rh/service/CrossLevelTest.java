@@ -191,6 +191,38 @@ public class CrossLevelTest {
         assert testResource.getFederationInfo() == null;
     }
 
+    @Test
+    public void testInterworkingUrlUpdate() {
+        resourceRepository.deleteAll();
+        List<CloudResource> all = new ArrayList<>();
+        for (int i=0; i< NUM_RESOURCES; i++) {
+            all.add(TestUtils.getTestActuatorBean(Integer.toString(i), "Act"+i));
+        }
+
+        regHandlerClient.addResources(all);
+
+        resourceRepository.findAll().forEach(resource -> {
+            assert resource.getResource().getInterworkingServiceURL().equals(TestUtils.DEFAULT_INTERWORKING_URL);
+        });
+
+        String newUrl = "http://example/newInterworkingUrl";
+        List<CloudResource> updated = regHandlerClient.updateInterworkingURL(newUrl);
+
+        assert updated.size() == all.size();
+
+        updated.forEach(resource -> {
+            assert resource.getResource().getInterworkingServiceURL().equals(newUrl);
+        });
+
+        updated = resourceRepository.findAll();
+
+        updated.forEach(resource -> {
+            assert resource.getResource().getInterworkingServiceURL().equals(newUrl);
+        });
+
+    }
+
+
     private void assertValidL1(CloudResource resource) {
         assert resource != null;
         assert resource.getResource() != null;
