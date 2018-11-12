@@ -1,10 +1,8 @@
 package eu.h2020.symbiote.rh;
 
-import eu.h2020.symbiote.rh.constants.RHConstants;
 import eu.h2020.symbiote.util.RabbitConstants;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Exchange;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -40,10 +38,10 @@ public class RegistrationHandlerApplication {
 	@Value("${" + RabbitConstants.EXCHANGE_RH_AUTODELETE_PROPERTY + "}")
 	private boolean autoDelete;
 
-	@Bean
+	/*@Bean
 	public Queue registrationQueue() {
 		return new Queue(RHConstants.RH_RESOURCE_TRUST_UPDATE_QUEUE_NAME,true, false, true);
-	}
+	}*/
 
 	@Bean
 	Exchange rhExchange() {
