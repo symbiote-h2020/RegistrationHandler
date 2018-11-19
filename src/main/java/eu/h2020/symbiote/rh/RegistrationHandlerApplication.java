@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 
@@ -24,7 +25,7 @@ import org.springframework.context.annotation.Bean;
  * @version: 06/10/2016
 
  */
-//@EnableDiscoveryClient    //when Eureka available
+@EnableDiscoveryClient    //when Eureka available
 @EnableAutoConfiguration
 @SpringBootApplication
 public class RegistrationHandlerApplication {
