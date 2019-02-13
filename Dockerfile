@@ -3,7 +3,7 @@ FROM openjdk:8-jre-alpine
 WORKDIR /home
 
 ENV componentName "RegistrationHandler"
-ENV componentVersion 3.0.7
+ENV componentVersion 3.0.8
 
 RUN apk --no-cache add \
         git \
